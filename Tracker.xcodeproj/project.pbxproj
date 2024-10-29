@@ -16,6 +16,7 @@
 		2292F2582CD02D5800BA6736 /* TrackerRecord.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2292F2572CD02D5700BA6736 /* TrackerRecord.swift */; };
 		2292F25A2CD0F0FE00BA6736 /* AddTrackerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2292F2592CD0F0FD00BA6736 /* AddTrackerViewController.swift */; };
 		2292F25D2CD0F1A500BA6736 /* TypeSelectViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2292F25C2CD0F1A500BA6736 /* TypeSelectViewController.swift */; };
+		2292F2602CD1170200BA6736 /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2292F25F2CD1170200BA6736 /* Extensions.swift */; };
 		22941DBD2CCE7BD200AE1C26 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22941DBC2CCE7BD200AE1C26 /* AppDelegate.swift */; };
 		22941DBF2CCE7BD200AE1C26 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22941DBE2CCE7BD200AE1C26 /* SceneDelegate.swift */; };
 		22941DC42CCE7BD200AE1C26 /* Base in Resources */ = {isa = PBXBuildFile; fileRef = 22941DC32CCE7BD200AE1C26 /* Base */; };
@@ -26,6 +27,7 @@
 		22941DDB2CCE9B2B00AE1C26 /* TrackersViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22941DDA2CCE9B2B00AE1C26 /* TrackersViewController.swift */; };
 		22941DDD2CCEC0E300AE1C26 /* TabBarViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22941DDC2CCEC0E300AE1C26 /* TabBarViewController.swift */; };
 		22941DDF2CD0018300AE1C26 /* SwipeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22941DDE2CD0018300AE1C26 /* SwipeViewController.swift */; };
+		22E5F6A92CD14EA600D979ED /* ButtonsCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22E5F6A82CD14EA600D979ED /* ButtonsCell.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -38,6 +40,7 @@
 		2292F2572CD02D5700BA6736 /* TrackerRecord.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrackerRecord.swift; sourceTree = "<group>"; };
 		2292F2592CD0F0FD00BA6736 /* AddTrackerViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddTrackerViewController.swift; sourceTree = "<group>"; };
 		2292F25C2CD0F1A500BA6736 /* TypeSelectViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TypeSelectViewController.swift; sourceTree = "<group>"; };
+		2292F25F2CD1170200BA6736 /* Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Extensions.swift; sourceTree = "<group>"; };
 		22941DB92CCE7BD200AE1C26 /* Tracker.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Tracker.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		22941DBC2CCE7BD200AE1C26 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		22941DBE2CCE7BD200AE1C26 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -50,6 +53,7 @@
 		22941DDA2CCE9B2B00AE1C26 /* TrackersViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrackersViewController.swift; sourceTree = "<group>"; };
 		22941DDC2CCEC0E300AE1C26 /* TabBarViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabBarViewController.swift; sourceTree = "<group>"; };
 		22941DDE2CD0018300AE1C26 /* SwipeViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwipeViewController.swift; sourceTree = "<group>"; };
+		22E5F6A82CD14EA600D979ED /* ButtonsCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ButtonsCell.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -77,9 +81,18 @@
 			isa = PBXGroup;
 			children = (
 				2292F2592CD0F0FD00BA6736 /* AddTrackerViewController.swift */,
+				22E5F6A82CD14EA600D979ED /* ButtonsCell.swift */,
 				2292F25C2CD0F1A500BA6736 /* TypeSelectViewController.swift */,
 			);
 			path = AddTracker;
+			sourceTree = "<group>";
+		};
+		2292F25E2CD116DF00BA6736 /* Resourses */ = {
+			isa = PBXGroup;
+			children = (
+				2292F25F2CD1170200BA6736 /* Extensions.swift */,
+			);
+			path = Resourses;
 			sourceTree = "<group>";
 		};
 		22941DB02CCE7BD200AE1C26 = {
@@ -101,6 +114,7 @@
 		22941DBB2CCE7BD200AE1C26 /* Tracker */ = {
 			isa = PBXGroup;
 			children = (
+				2292F25E2CD116DF00BA6736 /* Resourses */,
 				2292F25B2CD0F16200BA6736 /* AddTracker */,
 				2292F2522CD02C2D00BA6736 /* Models */,
 				22941DD92CCE9B0D00AE1C26 /* MainScreen */,
@@ -220,9 +234,11 @@
 				22941DDB2CCE9B2B00AE1C26 /* TrackersViewController.swift in Sources */,
 				2292F2512CD0266400BA6736 /* SupplementaryView.swift in Sources */,
 				2292F25D2CD0F1A500BA6736 /* TypeSelectViewController.swift in Sources */,
+				22E5F6A92CD14EA600D979ED /* ButtonsCell.swift in Sources */,
 				22941DD22CCE8E0500AE1C26 /* FirstTimeViewControllers.swift in Sources */,
 				22941DDD2CCEC0E300AE1C26 /* TabBarViewController.swift in Sources */,
 				22941DDF2CD0018300AE1C26 /* SwipeViewController.swift in Sources */,
+				2292F2602CD1170200BA6736 /* Extensions.swift in Sources */,
 				2292F24B2CD00F2B00BA6736 /* StatViewController.swift in Sources */,
 				22941DBF2CCE7BD200AE1C26 /* SceneDelegate.swift in Sources */,
 			);

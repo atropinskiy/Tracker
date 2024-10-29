@@ -7,7 +7,14 @@
 
 import UIKit
 
+protocol TypeSelectDelegate: AnyObject {
+    func didSelectType(_ type: String)
+}
+
 class TypeSelectViewController: UIViewController {
+    
+    weak var delegate: TypeSelectDelegate?
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = UIColor(named: "YP-white")
@@ -67,10 +74,12 @@ class TypeSelectViewController: UIViewController {
     
     @objc private func buttonTapped(_ sender: UIButton) {
         let modalVC = AddTrackerViewController()
-        modalVC.modalPresentationStyle = .pageSheet // Настраиваем стиль показа (например, pageSheet)
+        modalVC.modalPresentationStyle = .pageSheet // Полупрозрачный модальный стиль
         
-        // Передаём параметр в зависимости от кнопки
-        modalVC.taskType = sender.tag == 1 ? "Нерегулярное событие" : "Привычка"
+        // Установка делегата и вызов метода в зависимости от кнопки
+        delegate = modalVC
+        let type = sender.tag == 1 ? "Нерегулярное событие" : "Привычка"
+        delegate?.didSelectType(type)
         
         present(modalVC, animated: true, completion: nil)
     }
