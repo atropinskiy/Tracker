@@ -9,6 +9,9 @@ import UIKit
 
 class AddTrackerViewController: UIViewController {
     var taskType: String?
+    private var contentSize : CGSize  {
+            CGSize(width: view.frame.width, height: view.frame.height + 205)
+        }
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -18,6 +21,7 @@ class AddTrackerViewController: UIViewController {
             createCanvas()
         }
     }
+    
     
     private func createCanvas() {
         let headLabel = UILabel()
@@ -35,10 +39,11 @@ class AddTrackerViewController: UIViewController {
         
         let scrollView = UIScrollView()
         scrollView.translatesAutoresizingMaskIntoConstraints = false
+        scrollView.contentSize = contentSize
         view.addSubview(scrollView)
         
         NSLayoutConstraint.activate([
-            scrollView.topAnchor.constraint(equalTo: headLabel.bottomAnchor, constant: 24),
+            scrollView.topAnchor.constraint(equalTo: headLabel.bottomAnchor),
             scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             scrollView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor)
@@ -46,6 +51,7 @@ class AddTrackerViewController: UIViewController {
         
         let contentView = UIView()
         contentView.translatesAutoresizingMaskIntoConstraints = false
+        contentView.frame.size = contentSize
         scrollView.addSubview(contentView)
         
         NSLayoutConstraint.activate([
@@ -54,11 +60,9 @@ class AddTrackerViewController: UIViewController {
             contentView.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor),
             contentView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor),
             contentView.widthAnchor.constraint(equalTo: scrollView.widthAnchor),
-            contentView.heightAnchor.constraint(equalToConstant: 500) // Вместо фиксированной высоты
         ])
         
         let textField = UITextField()
-        textField.delegate = self
         textField.placeholder = "Введите название трекера"
         textField.layer.cornerRadius = 16
         textField.backgroundColor = UIColor(named: "YP-lightgray")
@@ -97,31 +101,26 @@ class AddTrackerViewController: UIViewController {
             
         ])
         
+        let collectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
+        collectionView.delegate = self
+        collectionView.dataSource = self
+        collectionView.translatesAutoresizingMaskIntoConstraints = false
+        collectionView.register(CollectionCell.self, forCellWithReuseIdentifier: "EmojiAndColorCell")
+        collectionView.register(UICollectionReusableView.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: "Header")
+        contentView.addSubview(collectionView)
+        NSLayoutConstraint.activate([
+            collectionView.topAnchor.constraint(equalTo: buttonsTable.bottomAnchor, constant: 24),
+            collectionView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
+            collectionView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
+            collectionView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor),
+            collectionView.heightAnchor.constraint(equalToConstant: 200)
+        ])
     }
 }
 
 extension AddTrackerViewController: TypeSelectDelegate {
     func didSelectType(_ type: String) {
         self.taskType = type
-    }
-}
-
-extension AddTrackerViewController: UITextFieldDelegate {
-    
-    func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
-        guard let text = textField.text else { return true }
-        let newLength = text.count + string.count - range.length
-        return newLength <= 38
-    }
-    
-    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
-        textField.becomeFirstResponder()
-        return true
-    }
-    
-    func textFieldShouldBeginEditing(_ textField: UITextField) -> Bool {
-        textField.resignFirstResponder()
-        return true
     }
 }
 
@@ -154,3 +153,73 @@ extension AddTrackerViewController: UITableViewDelegate, UITableViewDataSource {
         // Здесь добавьте логику, которая должна выполняться при нажатии на кнопку
     }
 }
+
+extension AddTrackerViewController: UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
+    
+    func numberOfSections(in collectionView: UICollectionView) -> Int {
+        return 2 // Одна для эмодзи и одна для цветов
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        if section == 0 {
+            return collectionEmojies.count // Количество эмодзи
+        } else {
+            return collectionColors.count // Количество цветов
+        }
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "EmojiAndColorCell", for: indexPath) as? CollectionCell else {
+            return UICollectionViewCell()
+        }
+        
+        if indexPath.section == 0 {
+            // Настраиваем ячейку для эмодзи
+            cell.setText(text: collectionEmojies[indexPath.row])
+        } else {
+            // Настраиваем ячейку для цвета
+            cell.setColor(color: collectionColors[indexPath.row])
+        }
+        
+        return cell
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
+        return CGSize(width: 50, height: 50) // Размер ячейки
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize {
+        return CGSize(width: collectionView.frame.width, height: 40) // Высота заголовка
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
+        if kind == UICollectionView.elementKindSectionHeader {
+            let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: "Header", for: indexPath)
+            
+            // Удалите все предыдущие подписи из заголовка, если они есть
+            header.subviews.forEach { $0.removeFromSuperview() }
+            
+            let label = UILabel()
+            label.translatesAutoresizingMaskIntoConstraints = false
+            label.font = UIFont.boldSystemFont(ofSize: 16) // Настройте стиль шрифта по желанию
+            
+            if indexPath.section == 0 {
+                label.text = "Эмодзи"
+            } else {
+                label.text = "Цвета"
+            }
+            
+            header.addSubview(label)
+            
+            NSLayoutConstraint.activate([
+                label.topAnchor.constraint(equalTo: header.topAnchor, constant: 8),
+                label.leadingAnchor.constraint(equalTo: header.leadingAnchor, constant: 16),
+                label.bottomAnchor.constraint(equalTo: header.bottomAnchor, constant: -8)
+            ])
+            
+            return header
+        }
+        return UICollectionReusableView()
+    }
+}
+

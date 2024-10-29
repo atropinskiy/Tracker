@@ -19,16 +19,12 @@ final class TrackersViewController: UIViewController {
     private lazy var contentView = UIView()
     private lazy var stubImg = UIImageView(image: UIImage(named: "StubImg"))
     private lazy var stubLabel = UILabel()
-    private lazy var collectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
-    let letters = [ "🍇", "🍈", "🍉", "🍊", "🍋", "🍌", "🍍", "🥭", "🍎", "🍏", "🍐", "🍒", "🍓", "🫐", "🥝", "🍅", "🫒", "🥥", "🥑", "🍆", "🥔", "🥕", "🌽", "🌶️", "🫑", "🥒", "🥬", "🥦", "🧄", "🧅", "🍄"]
-    
     
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = UIColor(named: "YP-white")
         addControlView()
-        //        addStub()
-        addCollectionView()
+        addStub()
     }
     
     private func addControlView() {
@@ -133,34 +129,7 @@ final class TrackersViewController: UIViewController {
             stubLabel.widthAnchor.constraint(equalToConstant: 343)
         ])
     }
-    
-    func addCollectionView() {
-        collectionView.allowsMultipleSelection = false
-        collectionView.register(CollectionViewCell.self, forCellWithReuseIdentifier: "cell")
-        collectionView.register(SupplementaryView.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: "header")
-        collectionView.register(SupplementaryView.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionFooter, withReuseIdentifier: "footer")
-        collectionView.delegate = self
-        collectionView.dataSource = self
-        contentView.addSubview(collectionView)
-        collectionView.translatesAutoresizingMaskIntoConstraints = false
-        NSLayoutConstraint.activate([
-            collectionView.topAnchor.constraint(equalTo: contentView.topAnchor),
-            collectionView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor),
-            collectionView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
-            collectionView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor)
-        ])
-    }
-    
-    private func makeBold(indexPath: IndexPath) {
-            let cell = collectionView.cellForItem(at: indexPath) as? CollectionViewCell
-            cell?.titleLabel.font = UIFont.boldSystemFont(ofSize: 17)
-        }
-        
-    private func makeItalic(indexPath: IndexPath) {
-        let cell = collectionView.cellForItem(at: indexPath) as? CollectionViewCell
-        cell?.titleLabel.font = UIFont.italicSystemFont(ofSize: 17)
-    }
-    
+       
     @objc func buttonTapped() {
         datePicker.isHidden.toggle()
         if !datePicker.isHidden {
@@ -178,92 +147,5 @@ final class TrackersViewController: UIViewController {
         dateFormatter.dateFormat = "dd.MM.yy"
         let selectedDate = dateFormatter.string(from: datePicker.date) //
         dateButton.setTitle(selectedDate, for: .normal)
-    }
-}
-
-extension TrackersViewController: UICollectionViewDataSource {
-    
-    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return letters.count
-    }
-    
-    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "cell", for: indexPath) as? CollectionViewCell
-        cell?.titleLabel.text = letters[indexPath.row]
-        return cell!
-    }
-    
-    func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
-        var id: String                                      // 1
-        switch kind {                                       // 2
-        case UICollectionView.elementKindSectionHeader:     // 3
-            id = "header"
-        case UICollectionView.elementKindSectionFooter:     // 4
-            id = "footer"
-        default:
-            id = ""                                         // 5
-        }
-        
-        let view = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: id, for: indexPath) as! SupplementaryView // 6
-        view.titleLabel.text = "Здесь находится Supplementary view"
-        return view
-    }
-}
-
-extension TrackersViewController: UICollectionViewDelegateFlowLayout {
-    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize {
-        let indexPath = IndexPath(row: 0, section: section)
-        let headerView = self.collectionView(collectionView, viewForSupplementaryElementOfKind: UICollectionView.elementKindSectionHeader, at: indexPath)                   //
-        return headerView.systemLayoutSizeFitting(CGSize(width: collectionView.frame.width,
-                                                         height: UIView.layoutFittingExpandedSize.height),
-                                                         withHorizontalFittingPriority: .required,
-                                                         verticalFittingPriority: .fittingSizeLevel)
-    }
-    
-    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForFooterInSection section: Int) -> CGSize {
-        let indexPath = IndexPath(row: 0, section: section)
-        let footerView = self.collectionView(collectionView, viewForSupplementaryElementOfKind: UICollectionView.elementKindSectionFooter, at: indexPath)
-        
-        return footerView.systemLayoutSizeFitting(CGSize(width: collectionView.frame.width,
-                                                         height: UIView.layoutFittingExpandedSize.height),
-                                                    withHorizontalFittingPriority: .required,
-                                                    verticalFittingPriority: .fittingSizeLevel)
-    }
-    
-    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize { // 1
-        return CGSize(width: collectionView.bounds.width / 2, height: 50)   // 2
-    }
-    
-    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumInteritemSpacingForSectionAt section: Int) -> CGFloat {
-        return 0
-    }
-    
-    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) { // 2
-        let cell = collectionView.cellForItem(at: indexPath) as? CollectionViewCell // 3
-        cell?.titleLabel.font = UIFont.boldSystemFont(ofSize: 17)                         // 4
-    }
-    
-    func collectionView(_ collectionView: UICollectionView, didDeselectItemAt indexPath: IndexPath) {
-        let cell = collectionView.cellForItem(at: indexPath) as? CollectionViewCell
-        cell?.titleLabel.font = UIFont.systemFont(ofSize: 17, weight: .regular)
-    }
-    
-    func collectionView(_ collectionView: UICollectionView, contextMenuConfigurationForItemsAt indexPaths: [IndexPath], point: CGPoint) -> UIContextMenuConfiguration? {   // 1
-        guard indexPaths.count > 0 else {                                 // 2
-            return nil
-        }
-        
-        let indexPath = indexPaths[0]                                     // 3
-        
-        return UIContextMenuConfiguration(actionProvider: { actions in    // 4
-            return UIMenu(children: [                                     // 5
-                UIAction(title: "Bold") { [weak self] _ in                // 6
-                    self?.makeBold(indexPath: indexPath)
-                },
-                UIAction(title: "Italic") { [weak self] _ in              // 7
-                    self?.makeItalic(indexPath: indexPath)
-                },
-            ])
-        })
     }
 }
