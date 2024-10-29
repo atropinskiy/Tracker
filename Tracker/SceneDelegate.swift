@@ -13,7 +13,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     
     
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
-//        UserDefaults.standard.removeObject(forKey: "hasLaunchedBefore") // Для тестирования первого и не первго раза
+        UserDefaults.standard.removeObject(forKey: "hasLaunchedBefore") // Для тестирования первого и не первго раза
         
         guard let windowScene = (scene as? UIWindowScene) else { return }
         let window = UIWindow(windowScene: windowScene)
@@ -21,11 +21,11 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         
         if hasLaunchedBefore {
             // Не первый запуск, показываем красный экран
-            window.rootViewController = MainTabBarController()
+            window.rootViewController = TabBarController()
         } else {
             // Первый запуск, показываем синий экран
             UserDefaults.standard.set(true, forKey: "hasLaunchedBefore")  // Устанавливаем флаг для будущих запусков
-            window.rootViewController = BlueViewController()
+            window.rootViewController = SwipeViewController()
         }
         
         self.window = window

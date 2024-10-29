@@ -11,7 +11,8 @@ class BlueViewController: BaseViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         setBg(imageName: "StartBgBlue")
-        setLabel()
+        setLabel(text: "Отслеживайте только то, что хотите")
+        addButton()
     }
     
     
@@ -24,7 +25,8 @@ class RedViewController: BaseViewController {
         super.viewDidLoad()
         view.backgroundColor = .systemBlue
         setBg(imageName: "StartBgRed")
-        setLabel()
+        setLabel(text: "Даже если это не литры воды и йога")
+        addButton()
     }
     
     

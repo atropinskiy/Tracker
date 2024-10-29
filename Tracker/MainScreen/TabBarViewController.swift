@@ -7,19 +7,17 @@
 
 import UIKit
 
-class MainTabBarController: UITabBarController {
+class TabBarController: UITabBarController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        let mainVC = MainViewController() // Ваш основной контроллер
-        mainVC.tabBarItem = UITabBarItem(title: "Трекеры", image: UIImage(named: "TB_main"), tag: 0) // Иконка и название
+        let mainVC = TrackersViewController()
+        mainVC.tabBarItem = UITabBarItem(title: "Трекеры", image: UIImage(named: "TB_main"), tag: 0)
         
-        // Другой контроллер
-        let otherVC = UIViewController()
-        otherVC.view.backgroundColor = .white
-        otherVC.tabBarItem = UITabBarItem(title: "Статистика", image: UIImage(named: "TB_stat"), tag: 1)
+        let statVC = StatViewController()
+        statVC.tabBarItem = UITabBarItem(title: "Статистика", image: UIImage(named: "TB_stat"), tag: 1)
 
-        self.viewControllers = [mainVC, otherVC] // Добавляем контроллеры в TabBar
+        self.viewControllers = [mainVC, statVC]
     }
 }
