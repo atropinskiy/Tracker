@@ -9,6 +9,7 @@ import UIKit
 
 class AddTrackerViewController: UIViewController {
     var taskType: String?
+    private var schedule: [WeekDay] = []
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -150,6 +151,11 @@ class AddTrackerViewController: UIViewController {
             buttonStackView.heightAnchor.constraint(equalToConstant: 60)
         ])
     }
+    private func tapScheduleCell(){
+        lazy var scheduleViewController = ScheduleViewController()
+        scheduleViewController.delegate = self
+        present(scheduleViewController, animated: true)
+    }
 }
 
 extension AddTrackerViewController: TypeSelectDelegate {
@@ -181,10 +187,14 @@ extension AddTrackerViewController: UITableViewDelegate, UITableViewDataSource {
         return 75
     }
     
-    @objc private func buttonTapped(_ sender: UIButton) {
-        let buttonIndex = sender.tag
-        print("Кнопка \(buttonIndex + 1) нажата")
-        // Здесь добавьте логику, которая должна выполняться при нажатии на кнопку
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        tableView.deselectRow(at: indexPath, animated: true)
+        
+        if indexPath.row == 1 { // Вторая кнопка
+            let scheduleViewController = ScheduleViewController()
+            scheduleViewController.delegate = self
+            present(scheduleViewController, animated: true, completion: nil)
+        }
     }
 }
 
@@ -255,6 +265,12 @@ extension AddTrackerViewController: UICollectionViewDataSource, UICollectionView
             return header
         }
         return UICollectionReusableView()
+    }
+}
+
+extension AddTrackerViewController: ScheduleViewControllerDelegate {
+    func createSchedule(schedule: [WeekDay]) {
+        self.schedule = schedule
     }
 }
 
