@@ -9,10 +9,7 @@ import UIKit
 
 class AddTrackerViewController: UIViewController {
     var taskType: String?
-    private var contentSize : CGSize  {
-            CGSize(width: view.frame.width, height: view.frame.height + 205)
-        }
-    
+
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .white
@@ -39,19 +36,18 @@ class AddTrackerViewController: UIViewController {
         
         let scrollView = UIScrollView()
         scrollView.translatesAutoresizingMaskIntoConstraints = false
-        scrollView.contentSize = contentSize
+        scrollView.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: 80, right: 0)
         view.addSubview(scrollView)
         
         NSLayoutConstraint.activate([
-            scrollView.topAnchor.constraint(equalTo: headLabel.bottomAnchor),
+            scrollView.topAnchor.constraint(equalTo: headLabel.bottomAnchor, constant: 20),
             scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            scrollView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor)
+            scrollView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
         ])
         
         let contentView = UIView()
         contentView.translatesAutoresizingMaskIntoConstraints = false
-        contentView.frame.size = contentSize
         scrollView.addSubview(contentView)
         
         NSLayoutConstraint.activate([
@@ -59,7 +55,7 @@ class AddTrackerViewController: UIViewController {
             contentView.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor),
             contentView.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor),
             contentView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor),
-            contentView.widthAnchor.constraint(equalTo: scrollView.widthAnchor),
+            contentView.widthAnchor.constraint(equalTo: scrollView.widthAnchor)
         ])
         
         let textField = UITextField()
@@ -110,10 +106,48 @@ class AddTrackerViewController: UIViewController {
         contentView.addSubview(collectionView)
         NSLayoutConstraint.activate([
             collectionView.topAnchor.constraint(equalTo: buttonsTable.bottomAnchor, constant: 24),
-            collectionView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
-            collectionView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
+            collectionView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 18),
+            collectionView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -18),
             collectionView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor),
-            collectionView.heightAnchor.constraint(equalToConstant: 200)
+            collectionView.heightAnchor.constraint(equalToConstant: 430)
+        ])
+        
+        let cancelButton = UIButton(type: .custom)
+        cancelButton.setTitle("Отменить", for: .normal)
+        cancelButton.layer.cornerRadius = 18
+        cancelButton.layer.masksToBounds = true
+        cancelButton.layer.borderWidth = 1
+        cancelButton.backgroundColor = UIColor(named: "YP-white")
+        cancelButton.setTitleColor(UIColor(named: "YP-red"), for: .normal)
+        cancelButton.translatesAutoresizingMaskIntoConstraints = false
+        cancelButton.layer.borderColor = UIColor(named: "YP-red")?.cgColor
+        cancelButton.titleLabel?.font = UIFont.systemFont(ofSize: 16, weight: .medium)
+        
+        let createButton = UIButton(type: .custom)
+        createButton.setTitle("Создать", for: .normal)
+        createButton.layer.borderWidth = 1
+        createButton.layer.cornerRadius = 18
+        createButton.layer.masksToBounds = true
+        createButton.backgroundColor = UIColor(named: "YP-gray")
+        createButton.setTitleColor(UIColor(named: "YP-white"), for: .normal)
+        createButton.translatesAutoresizingMaskIntoConstraints = false
+        createButton.layer.borderColor = UIColor(named: "YP-gray")?.cgColor
+        createButton.titleLabel?.font = UIFont.systemFont(ofSize: 16, weight: .medium)
+        
+        let buttonStackView = UIStackView(arrangedSubviews: [cancelButton, createButton])
+        buttonStackView.axis = .horizontal
+        buttonStackView.alignment = .fill
+        buttonStackView.distribution = .fillEqually
+        buttonStackView.spacing = 8
+        buttonStackView.translatesAutoresizingMaskIntoConstraints = false
+        
+        contentView.addSubview(buttonStackView)
+        
+        NSLayoutConstraint.activate([
+            buttonStackView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
+            buttonStackView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
+            buttonStackView.topAnchor.constraint(equalTo: collectionView.bottomAnchor, constant: 16),
+            buttonStackView.heightAnchor.constraint(equalToConstant: 60)
         ])
     }
 }
@@ -201,7 +235,8 @@ extension AddTrackerViewController: UICollectionViewDataSource, UICollectionView
             
             let label = UILabel()
             label.translatesAutoresizingMaskIntoConstraints = false
-            label.font = UIFont.boldSystemFont(ofSize: 16) // Настройте стиль шрифта по желанию
+            label.font = UIFont.systemFont(ofSize: 19, weight: .bold)
+            label.textColor = UIColor(named: "YP-black")
             
             if indexPath.section == 0 {
                 label.text = "Эмодзи"
@@ -214,7 +249,7 @@ extension AddTrackerViewController: UICollectionViewDataSource, UICollectionView
             NSLayoutConstraint.activate([
                 label.topAnchor.constraint(equalTo: header.topAnchor, constant: 8),
                 label.leadingAnchor.constraint(equalTo: header.leadingAnchor, constant: 16),
-                label.bottomAnchor.constraint(equalTo: header.bottomAnchor, constant: -8)
+                label.bottomAnchor.constraint(equalTo: header.bottomAnchor, constant: -16)
             ])
             
             return header
