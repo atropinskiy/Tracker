@@ -2,28 +2,32 @@
 //  SupplementaryView.swift
 //  Tracker
 //
-//  Created by alex_tr on 28.10.2024.
+//  Created by alex_tr on 31.10.2024.
 //
 
 import UIKit
 
 class SupplementaryView: UICollectionReusableView {
     let titleLabel = UILabel()
-    
+
     override init(frame: CGRect) {
         super.init(frame: frame)
-        
-        addSubview(titleLabel)
+        setupView()
+    }
+
+    required init?(coder: NSCoder) {
+        super.init(coder: coder)
+        setupView()
+    }
+
+    private func setupView() {
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
-        
+        titleLabel.font = .systemFont(ofSize: 19, weight: .bold)
+        addSubview(titleLabel)
         NSLayoutConstraint.activate([
-            titleLabel.centerXAnchor.constraint(equalTo: centerXAnchor),
-            titleLabel.topAnchor.constraint(equalTo: topAnchor),
-            titleLabel.bottomAnchor.constraint(equalTo: bottomAnchor),
+            titleLabel.centerYAnchor.constraint(equalTo: centerYAnchor),
+            titleLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 16),
         ])
     }
-    
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
 }
+

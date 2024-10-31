@@ -31,5 +31,12 @@ let collectionColors: [UIColor] = [
 
 let collectionEmojies: [String] = ["🙂", "😻", "🌺", "🐶", "❤️", "😱", "😇", "😡", "🥶", "🤔", "🙌", "🍔", "🥦", "🏓", "🥇", "🎸", "🏝", "😪"]
 
+let testTrackers: [Tracker] = [
+    Tracker(id: UUID(), name: "Тестовый трекер", color: collectionColors[1], emoji: collectionEmojies[1], schedule: [.thursday]),
+    Tracker(id: UUID(), name: "Тестовый трекер", color: collectionColors[2], emoji: collectionEmojies[2], schedule: [.wednesday]),
+    Tracker(id: UUID(), name: "Тестовый трекер", color: collectionColors[3], emoji: collectionEmojies[3], schedule: [.friday]),
+    Tracker(id: UUID(), name: "Тестовый трекер", color: collectionColors[4], emoji: collectionEmojies[4], schedule: [.thursday]),
+    Tracker(id: UUID(), name: "Тестовый трекер", color: collectionColors[5], emoji: collectionEmojies[5], schedule: [.thursday]),
+]
 
 

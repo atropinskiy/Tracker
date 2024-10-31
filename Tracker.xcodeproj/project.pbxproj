@@ -30,6 +30,8 @@
 		22E5F6AD2CD1754D00D979ED /* Static.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22E5F6AC2CD1754D00D979ED /* Static.swift */; };
 		22E5F6AF2CD2AFC900D979ED /* ScheduleViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22E5F6AE2CD2AFC900D979ED /* ScheduleViewController.swift */; };
 		22E5F6B12CD2B98600D979ED /* ScheduleCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22E5F6B02CD2B98600D979ED /* ScheduleCell.swift */; };
+		22E5F6B32CD39D9300D979ED /* SupplementaryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22E5F6B22CD39D9300D979ED /* SupplementaryView.swift */; };
+		22E5F6B52CD3CB8100D979ED /* CategoriesViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22E5F6B42CD3CB8100D979ED /* CategoriesViewController.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -58,6 +60,8 @@
 		22E5F6AC2CD1754D00D979ED /* Static.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Static.swift; sourceTree = "<group>"; };
 		22E5F6AE2CD2AFC900D979ED /* ScheduleViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScheduleViewController.swift; sourceTree = "<group>"; };
 		22E5F6B02CD2B98600D979ED /* ScheduleCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScheduleCell.swift; sourceTree = "<group>"; };
+		22E5F6B22CD39D9300D979ED /* SupplementaryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SupplementaryView.swift; sourceTree = "<group>"; };
+		22E5F6B42CD3CB8100D979ED /* CategoriesViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoriesViewController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -86,6 +90,7 @@
 			children = (
 				2292F2592CD0F0FD00BA6736 /* AddTrackerViewController.swift */,
 				22E5F6AE2CD2AFC900D979ED /* ScheduleViewController.swift */,
+				22E5F6B42CD3CB8100D979ED /* CategoriesViewController.swift */,
 				22E5F6B02CD2B98600D979ED /* ScheduleCell.swift */,
 				22E5F6AA2CD164FE00D979ED /* CollectionCell.swift */,
 				22E5F6A82CD14EA600D979ED /* ButtonsCell.swift */,
@@ -151,6 +156,7 @@
 			isa = PBXGroup;
 			children = (
 				22941DDA2CCE9B2B00AE1C26 /* TrackersViewController.swift */,
+				22E5F6B22CD39D9300D979ED /* SupplementaryView.swift */,
 				2292F24A2CD00F2B00BA6736 /* StatViewController.swift */,
 				22941DDC2CCEC0E300AE1C26 /* TabBarViewController.swift */,
 				2292F24E2CD023FC00BA6736 /* TrackerCollectionCell.swift */,
@@ -238,8 +244,10 @@
 				22941DBD2CCE7BD200AE1C26 /* AppDelegate.swift in Sources */,
 				2292F2562CD02D1800BA6736 /* TrackerCategory.swift in Sources */,
 				22941DDB2CCE9B2B00AE1C26 /* TrackersViewController.swift in Sources */,
+				22E5F6B32CD39D9300D979ED /* SupplementaryView.swift in Sources */,
 				22E5F6B12CD2B98600D979ED /* ScheduleCell.swift in Sources */,
 				2292F25D2CD0F1A500BA6736 /* TypeSelectViewController.swift in Sources */,
+				22E5F6B52CD3CB8100D979ED /* CategoriesViewController.swift in Sources */,
 				22E5F6A92CD14EA600D979ED /* ButtonsCell.swift in Sources */,
 				22941DD22CCE8E0500AE1C26 /* FirstTimeViewControllers.swift in Sources */,
 				22941DDD2CCEC0E300AE1C26 /* TabBarViewController.swift in Sources */,

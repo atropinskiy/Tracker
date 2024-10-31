@@ -73,14 +73,14 @@ class TypeSelectViewController: UIViewController {
     }
     
     @objc private func buttonTapped(_ sender: UIButton) {
-        let modalVC = AddTrackerViewController()
-        modalVC.modalPresentationStyle = .pageSheet // Полупрозрачный модальный стиль
-        
-        // Установка делегата и вызов метода в зависимости от кнопки
-        delegate = modalVC
         let type = sender.tag == 1 ? "Нерегулярное событие" : "Привычка"
+        print(type)
         delegate?.didSelectType(type)
         
-        present(modalVC, animated: true, completion: nil)
+        // Закрываем TypeSelectViewController и открываем AddTrackerViewController в блоке completion
+        dismiss(animated: false) { [weak self] in
+            self?.delegate?.didSelectType(type) // Вызываем делегат в завершении
+        }
     }
 }
+

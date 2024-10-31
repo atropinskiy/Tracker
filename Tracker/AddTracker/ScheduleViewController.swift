@@ -4,12 +4,11 @@
 //
 //  Created by alex_tr on 30.10.2024.
 //
+import UIKit
 
 protocol ScheduleViewControllerDelegate: AnyObject {
-    func createSchedule (schedule: [WeekDay])
+    func saveSchedule (schedule: [WeekDay])
 }
-
-import UIKit
 
 final class ScheduleViewController: UIViewController {
     weak var delegate: ScheduleViewControllerDelegate?
@@ -61,6 +60,7 @@ final class ScheduleViewController: UIViewController {
         confirmButton.translatesAutoresizingMaskIntoConstraints = false
         confirmButton.layer.cornerRadius = 16
         confirmButton.layer.masksToBounds = true
+        confirmButton.addTarget(self, action: #selector(confirmButtonClicked), for: .touchUpInside)
         view.addSubview(confirmButton)
         NSLayoutConstraint.activate([
             confirmButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -16),
@@ -75,14 +75,16 @@ final class ScheduleViewController: UIViewController {
     
     @objc private func daySwitchToggled(_ sender: UISwitch) {
         let weekDay = WeekDay.allCases[sender.tag]
-        
         if sender.isOn {
             selectedDays.append(weekDay)
         } else {
             selectedDays.removeAll { $0 == weekDay }
         }
-
-        delegate?.createSchedule(schedule: selectedDays)
+    }
+    
+    @objc func confirmButtonClicked() {
+        delegate?.saveSchedule(schedule: selectedDays)
+        dismiss(animated: true)
     }
     
 }
