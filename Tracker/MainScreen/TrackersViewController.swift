@@ -16,7 +16,7 @@ final class TrackersViewController: UIViewController {
     private var filteredTrackers: [Tracker] = []
     private var isStubVisible: Bool = false
     private var currentDate: Date = Date()
-
+    
     
     private lazy var controlView = UIView()
     private lazy var datePicker = UIDatePicker()
@@ -33,7 +33,7 @@ final class TrackersViewController: UIViewController {
         layout.minimumLineSpacing = 9
         layout.minimumInteritemSpacing = 9
         layout.sectionInset = .init(top: 0, left: 0, bottom: 0, right: 0)
-
+        
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
         collectionView.delegate = self
         collectionView.dataSource = self
@@ -185,20 +185,20 @@ final class TrackersViewController: UIViewController {
                 filteredTrackers.append(tracker)
             }
         }
-
+        
         let completedTrackersForToday = completedTrackers.filter { calendar.isDate($0.date, inSameDayAs: selectedDate) }
         for trackerRecord in completedTrackersForToday {
             if let tracker = categories.flatMap({ $0.trackers }).first(where: { $0.id == trackerRecord.id }) {
                 filteredTrackers.append(tracker)
             }
         }
-
+        
         filteredTrackers = Array(filteredTrackers.reduce(into: [UUID: Tracker]()) { $0[$1.id] = $1 }.values)
-
+        
         collectionView.reloadData()
         updateStubVisibility()
     }
-
+    
     
     private func updateStubVisibility() {
         if filteredTrackers.isEmpty {
@@ -213,7 +213,7 @@ final class TrackersViewController: UIViewController {
             collectionView.isHidden = false
         }
     }
-
+    
     @objc func datePickerValueChanged(_ sender: UIDatePicker) {
         currentDate = sender.date
         filterTrackers()
@@ -241,7 +241,14 @@ extension TrackersViewController: UICollectionViewDataSource, UICollectionViewDe
             return UICollectionViewCell()
         }
         let tracker = filteredTrackers[indexPath.item]
-        cell.configure(with: tracker)
+        let isCompletedToday = completedTrackers.contains {
+            $0.id == tracker.id && Calendar.current.isDate($0.date, inSameDayAs: currentDate)
+        }
+        cell.isCompleted = isCompletedToday
+        
+        let completedCount = completedTrackers.filter { $0.id == tracker.id }.count
+        cell.updateCompletedCount(completedCount)
+        cell.configure(with: tracker, completedCount: completedCount, isCompletedToday: isCompletedToday)
         cell.delegate = self
         return cell
     }
@@ -264,11 +271,11 @@ extension TrackersViewController: UICollectionViewDataSource, UICollectionViewDe
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumInteritemSpacingForSectionAt section: Int) -> CGFloat {
-        return 9 // Расстояние между ячейками
+        return 9
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumLineSpacingForSectionAt section: Int) -> CGFloat {
-        return 9 // Расстояние между строками
+        return 9
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, insetForSectionAt section: Int) -> UIEdgeInsets {
@@ -282,22 +289,31 @@ extension TrackersViewController: UICollectionViewDataSource, UICollectionViewDe
         return headerView.systemLayoutSizeFitting(CGSize(width: collectionView.frame.width, height: 30), withHorizontalFittingPriority: .required, verticalFittingPriority: .fittingSizeLevel)
     }
     
+    func completedCount(for trackerID: UUID) -> Int {
+        return completedTrackers.filter { $0.id == trackerID }.count
+    }
 }
 
 extension TrackersViewController: TrackerCellDelegate {
     func completeTracker(_ trackerCell: TrackerCollectionCell, id: UUID, isOn: Bool) {
+        let calendar = Calendar.current
         if isOn {
             completedTrackerIDs.insert(id)
             let trackerRecord = TrackerRecord(id: id, date: datePicker.date)
             completedTrackers.append(trackerRecord)
+            collectionView.reloadData()
+            if !completedTrackers.contains(where: { $0.id == id && calendar.isDate($0.date, inSameDayAs: currentDate) }) {
+                completedTrackers.append(trackerRecord)
+            }
             print(completedTrackers)
             
         } else {
             completedTrackerIDs.remove(id)
-            if let index = completedTrackers.firstIndex(where: { $0.id == id }) {
+            if let index = completedTrackers.firstIndex(where: { $0.id == id && calendar.isDate($0.date, inSameDayAs: currentDate) }) {
                 completedTrackers.remove(at: index)
+                print(completedTrackerIDs)
             }
-            print(completedTrackerIDs)
+            collectionView.reloadData()
         }
     }
 }

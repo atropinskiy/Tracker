@@ -67,15 +67,12 @@ class AddTrackerViewController: UIViewController {
         ])
         
         
-        textField.translatesAutoresizingMaskIntoConstraints = false
+        
         textField.layer.cornerRadius = 16
-        textField.layer.masksToBounds = true
         textField.placeholder = "Введите название трекера"
-        textField.clearButtonMode = .whileEditing
-        textField.returnKeyType = .done
         textField.font = UIFont.systemFont(ofSize: 17)
         textField.setPadding(left: 16, right: 16)
-        
+        textField.translatesAutoresizingMaskIntoConstraints = false
         contentView.addSubview(textField)
         
         NSLayoutConstraint.activate([

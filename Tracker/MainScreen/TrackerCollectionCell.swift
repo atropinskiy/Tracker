@@ -20,7 +20,7 @@ final class TrackerCollectionCell: UICollectionViewCell {
     private let counterLabel = UILabel()
     private let trackerView = UIView()
     private let button = UIButton()
-    private var isCompleted: Bool = false
+    var isCompleted: Bool = false
     private var trackerId: UUID?
     private var indexPath: IndexPath?
     
@@ -118,12 +118,20 @@ final class TrackerCollectionCell: UICollectionViewCell {
         }
     }
 
-    func configure(with tracker: Tracker) {
+    func configure(with tracker: Tracker, completedCount: Int, isCompletedToday: Bool) {
         emojiLabel.text = tracker.emoji
         nameLabel.text = tracker.name
         trackerView.backgroundColor = tracker.color
         button.backgroundColor = tracker.color
         trackerId = tracker.id
+        counterLabel.text = "Выполнено: \(completedCount)"
+        let buttonImage = isCompletedToday ? UIImage(named: "Done-button") : UIImage(systemName: "plus")
+        button.setImage(buttonImage, for: .normal)
+        button.alpha = isCompletedToday ? 0.3 : 1.0
+    }
+    
+    func updateCompletedCount(_ count: Int) {
+        counterLabel.text = "Выполнено: \(count)"
     }
 }
 
