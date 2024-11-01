@@ -202,11 +202,10 @@ final class TrackersViewController: UIViewController {
     
     private func updateStubVisibility() {
         if filteredTrackers.isEmpty {
-            addStub() // Показываем заглушку, если трекеров нет
+            addStub()
             isStubVisible = true
             collectionView.isHidden = true
         } else {
-            // Скрываем заглушку
             stubImg.removeFromSuperview()
             stubLabel.removeFromSuperview()
             isStubVisible = false
@@ -247,7 +246,6 @@ extension TrackersViewController: UICollectionViewDataSource, UICollectionViewDe
         cell.isCompleted = isCompletedToday
         
         let completedCount = completedTrackers.filter { $0.id == tracker.id }.count
-        cell.updateCompletedCount(completedCount)
         cell.configure(with: tracker, completedCount: completedCount, isCompletedToday: isCompletedToday)
         cell.delegate = self
         return cell
@@ -297,7 +295,10 @@ extension TrackersViewController: UICollectionViewDataSource, UICollectionViewDe
 extension TrackersViewController: TrackerCellDelegate {
     func completeTracker(_ trackerCell: TrackerCollectionCell, id: UUID, isOn: Bool) {
         let calendar = Calendar.current
-        if isOn {
+        let currentDateWithoutTime = calendar.startOfDay(for: Date())
+        let selectedDateWithoutTime = calendar.startOfDay(for: datePicker.date)
+        
+        if isOn && selectedDateWithoutTime <= currentDateWithoutTime{
             completedTrackerIDs.insert(id)
             let trackerRecord = TrackerRecord(id: id, date: datePicker.date)
             completedTrackers.append(trackerRecord)
@@ -319,6 +320,12 @@ extension TrackersViewController: TrackerCellDelegate {
 }
 
 extension TrackersViewController: AddTrackerViewControllerDelegate {
+    func didSelectEmoji(_ emoji: String) {
+    }
+    
+    func didSelectColor(_ color: UIColor) {
+    }
+    
     func didCreateTracker (tracker: Tracker) {
         print(tracker)
         currentTrackers.append(tracker)

@@ -37,8 +37,6 @@ class StatViewController: UIViewController {
             contentView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
             contentView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: 0)
         ])
-        
-        
     }
     
     private func addStub() {

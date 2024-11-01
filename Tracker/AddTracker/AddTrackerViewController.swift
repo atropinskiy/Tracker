@@ -7,8 +7,12 @@
 
 import UIKit
 protocol AddTrackerViewControllerDelegate: AnyObject {
-    func didCreateTracker (tracker: Tracker)
+    func didCreateTracker(tracker: Tracker)
+    func didSelectEmoji(_ emoji: String)
+    func didSelectColor(_ color: UIColor)
 }
+
+
 
 class AddTrackerViewController: UIViewController {
     var taskType: String?
@@ -17,6 +21,11 @@ class AddTrackerViewController: UIViewController {
     private var textField = UITextField()
     private var schedule: [WeekDay] = []
     private var categories: [String] = []
+    private var selectedEmojiIndex: IndexPath?
+    private var selectedColorIndex: IndexPath?
+    private var selectedEmoji: String?
+    private var selectedColor: UIColor?
+    
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -102,7 +111,7 @@ class AddTrackerViewController: UIViewController {
         collectionView.delegate = self
         collectionView.dataSource = self
         collectionView.translatesAutoresizingMaskIntoConstraints = false
-        collectionView.register(CollectionCell.self, forCellWithReuseIdentifier: "EmojiAndColorCell")
+        collectionView.register(CollectionCell.self, forCellWithReuseIdentifier: "CollectionCell")
         collectionView.register(UICollectionReusableView.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: "Header")
         contentView.addSubview(collectionView)
         NSLayoutConstraint.activate([
@@ -156,12 +165,35 @@ class AddTrackerViewController: UIViewController {
 
     }
     
+    private func showAlert(with message: String) {
+        let alert = UIAlertController(title: "Ошибка", message: message, preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "OK", style: .default))
+        present(alert, animated: true)
+    }
+    
     @objc private func cancelButtonClicked(){
-        presentingViewController?.presentingViewController?.dismiss(animated: true, completion: nil)
+        dismiss(animated: true, completion: nil)
     }
     
     @objc private func createButtonClicked(){
-        let newTracker = Tracker(id: UUID(), name: "Добавленный трекер", color: .red, emoji: "🍔", schedule: [.friday])
+        guard let trackerName = textField.text, !trackerName.isEmpty else {
+            showAlert(with: "Пожалуйста, введите название трекера.")
+            return
+        }
+        guard !categories.isEmpty else {
+            showAlert(with: "Пожалуйста, выберите хотя бы одну категорию.")
+            return
+        }
+        guard !schedule.isEmpty else {
+            showAlert(with: "Пожалуйста, выберите расписание.")
+            return
+        }
+        guard let color = selectedColor, let emoji = selectedEmoji else {
+            showAlert(with: "Пожалуйста, выберите эмодзи и цвет.")
+            return
+        }
+
+        let newTracker = Tracker(id: UUID(), name: trackerName, color: color, emoji: emoji, schedule: schedule)
         delegate?.didCreateTracker(tracker: newTracker)
         dismiss(animated: true, completion: nil)
     }
@@ -176,7 +208,7 @@ extension AddTrackerViewController: TypeSelectDelegate {
 extension AddTrackerViewController: UITableViewDelegate, UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return 2 // У нас 2 кнопки
+        return 2
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -199,7 +231,7 @@ extension AddTrackerViewController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
         
-        if indexPath.row == 1 { // Вторая кнопка
+        if indexPath.row == 1 {
             let scheduleViewController = ScheduleViewController()
             scheduleViewController.delegate = self
             present(scheduleViewController, animated: true, completion: nil)
@@ -221,26 +253,33 @@ extension AddTrackerViewController: UICollectionViewDataSource, UICollectionView
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         if section == 0 {
-            return collectionEmojies.count // Количество эмодзи
+            return collectionEmojies.count
         } else {
-            return collectionColors.count // Количество цветов
+            return collectionColors.count
         }
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "EmojiAndColorCell", for: indexPath) as? CollectionCell else {
+        guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "CollectionCell", for: indexPath) as? CollectionCell else {
             return UICollectionViewCell()
         }
-        
+
+        cell.setText(text: "")
+        cell.setColor(color: .clear)
+
         if indexPath.section == 0 {
-            cell.setText(text: collectionEmojies[indexPath.row])
+            let emoji = collectionEmojies[indexPath.item]
+            cell.setText(text: emoji)
+            cell.contentView.backgroundColor = (selectedEmojiIndex == indexPath) ? UIColor.lightGray : UIColor.clear
         } else {
-            cell.setColor(color: collectionColors[indexPath.row])
+            let color = collectionColors[indexPath.item]
+            cell.setColor(color: color)
+            cell.contentView.backgroundColor = (selectedColorIndex == indexPath) ? UIColor.lightGray : UIColor.clear
         }
-        
+
         return cell
     }
-    
+
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         return CGSize(width: 50, height: 50) // Размер ячейки
     }
@@ -279,6 +318,20 @@ extension AddTrackerViewController: UICollectionViewDataSource, UICollectionView
         }
         return UICollectionReusableView()
     }
+    
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        if indexPath.section == 0 {
+            selectedEmojiIndex = indexPath
+            selectedEmoji = collectionEmojies[indexPath.item]
+            collectionView.reloadSections(IndexSet(integer: 0))
+        } else { // Цвет
+            selectedColorIndex = indexPath
+            selectedColor = collectionColors[indexPath.item]
+            collectionView.reloadSections(IndexSet(integer: 1))
+        }
+    }
+
+    
 }
 
 extension AddTrackerViewController: ScheduleViewControllerDelegate {

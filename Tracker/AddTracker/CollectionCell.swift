@@ -36,6 +36,7 @@ class CollectionCell: UICollectionViewCell {
     func setText(text: String) {
         headerLabel.text = text
         headerLabel.font = UIFont.systemFont(ofSize: 32)
+        headerLabel.backgroundColor = .clear
     }
     
     required init?(coder: NSCoder) {

@@ -124,14 +124,25 @@ final class TrackerCollectionCell: UICollectionViewCell {
         trackerView.backgroundColor = tracker.color
         button.backgroundColor = tracker.color
         trackerId = tracker.id
-        counterLabel.text = "Выполнено: \(completedCount)"
+        counterLabel.text = daysText(for: completedCount)
         let buttonImage = isCompletedToday ? UIImage(named: "Done-button") : UIImage(systemName: "plus")
         button.setImage(buttonImage, for: .normal)
         button.alpha = isCompletedToday ? 0.3 : 1.0
     }
-    
-    func updateCompletedCount(_ count: Int) {
-        counterLabel.text = "Выполнено: \(count)"
+       
+    private func daysText(for count: Int) -> String {
+        let lastDigit = count % 10
+        let lastTwoDigits = count % 100
+        
+        if lastTwoDigits >= 11 && lastTwoDigits <= 19 {
+            return "\(count) дней"
+        } else if lastDigit == 1 {
+            return "\(count) день"
+        } else if lastDigit >= 2 && lastDigit <= 4 {
+            return "\(count) дня"
+        } else {
+            return "\(count) дней"
+        }
     }
 }
 
