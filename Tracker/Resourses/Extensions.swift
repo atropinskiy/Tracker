@@ -8,7 +8,12 @@
 import UIKit
 
 extension UITextField {
-    func setPadding(left: CGFloat = 0, right: CGFloat = 0) {
+    func safeSetPadding(left: CGFloat = 0, right: CGFloat = 0) {
+        guard !left.isNaN, !right.isNaN else {
+            print("Invalid padding values: left=\(left), right=\(right)")
+            return
+        }
+        
         if left > 0 {
             let leftView = UIView(frame: CGRect(x: 0, y: 0, width: left, height: self.frame.height))
             self.leftView = leftView

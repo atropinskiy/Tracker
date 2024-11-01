@@ -18,7 +18,7 @@ class AddTrackerViewController: UIViewController {
     var taskType: String?
     
     weak var delegate: AddTrackerViewControllerDelegate?
-    private var textField = UITextField()
+    private var headerTextField = UITextField()
     private var schedule: [WeekDay] = []
     private var categories: [String] = []
     private var selectedEmojiIndex: IndexPath?
@@ -30,7 +30,6 @@ class AddTrackerViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .white
-        textField.clearButtonMode = .whileEditing
         if taskType == "Привычка" {
             createCanvas()
         }
@@ -75,20 +74,21 @@ class AddTrackerViewController: UIViewController {
             contentView.widthAnchor.constraint(equalTo: scrollView.widthAnchor),
         ])
         
-        
-        
-        textField.layer.cornerRadius = 16
-        textField.placeholder = "Введите название трекера"
-        textField.font = UIFont.systemFont(ofSize: 17)
-        textField.setPadding(left: 16, right: 16)
-        textField.translatesAutoresizingMaskIntoConstraints = false
-        contentView.addSubview(textField)
-        
+        headerTextField.layer.cornerRadius = 16
+        headerTextField.font = UIFont.systemFont(ofSize: 17)
+        headerTextField.backgroundColor = UIColor(named: "YP-lightgray")
+        headerTextField.attributedPlaceholder = NSAttributedString(
+            string: "Введите название трекера",
+            attributes: [NSAttributedString.Key.foregroundColor: UIColor(named: "YP-gray") ?? UIColor.gray]
+        )
+        headerTextField.safeSetPadding(left: 16, right: 16)
+        headerTextField.translatesAutoresizingMaskIntoConstraints = false
+        contentView.addSubview(headerTextField)
         NSLayoutConstraint.activate([
-            textField.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 24),
-            textField.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
-            textField.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
-            textField.heightAnchor.constraint(equalToConstant: 75)
+            headerTextField.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 24),
+            headerTextField.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
+            headerTextField.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
+            headerTextField.heightAnchor.constraint(equalToConstant: 75)
         ])
         
         let buttonsTable = UITableView()
@@ -100,7 +100,7 @@ class AddTrackerViewController: UIViewController {
         buttonsTable.dataSource = self
         contentView.addSubview(buttonsTable)
         NSLayoutConstraint.activate([
-            buttonsTable.topAnchor.constraint(equalTo: textField.bottomAnchor, constant: 24),
+            buttonsTable.topAnchor.constraint(equalTo: headerTextField.bottomAnchor, constant: 24),
             buttonsTable.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
             buttonsTable.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
             buttonsTable.heightAnchor.constraint(equalToConstant: 150)
@@ -176,7 +176,7 @@ class AddTrackerViewController: UIViewController {
     }
     
     @objc private func createButtonClicked(){
-        guard let trackerName = textField.text, !trackerName.isEmpty else {
+        guard let trackerName = headerTextField.text, !trackerName.isEmpty else {
             showAlert(with: "Пожалуйста, введите название трекера.")
             return
         }
