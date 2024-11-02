@@ -7,7 +7,7 @@
 
 import UIKit
 
-class StatViewController: UIViewController {
+final class StatViewController: UIViewController {
     private lazy var header = UILabel()
     private lazy var contentView = UIView()
     

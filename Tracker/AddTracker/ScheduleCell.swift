@@ -7,18 +7,18 @@
 
 import UIKit
 
-class ScheduleCell: UITableViewCell {
+final class ScheduleCell: UITableViewCell {
+    override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
+        super.init(style: style, reuseIdentifier: reuseIdentifier)
+        setupCell()
+    }
+    
     let daySwitch: UISwitch = {
         let daySwitch = UISwitch()
         daySwitch.translatesAutoresizingMaskIntoConstraints = false
         daySwitch.onTintColor = UIColor(named: "YP-blue")
         return daySwitch
     }()
-
-    override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
-        super.init(style: style, reuseIdentifier: reuseIdentifier)
-        setupCell()
-    }
 
     private func setupCell() {
         contentView.addSubview(daySwitch)

@@ -7,11 +7,19 @@
 
 import UIKit
 
-class SwipeViewController: UIPageViewController, UIPageViewControllerDataSource, UIPageViewControllerDelegate {
+protocol SwipeViewControllerDelegate: AnyObject {
+    func didPressButton()
+}
+
+final class SwipeViewController: UIPageViewController, UIPageViewControllerDataSource, UIPageViewControllerDelegate {
     
-    // Массив контроллеров, которые будут свайпаться
-    private lazy var pages: [UIViewController] = {
-        return [BlueViewController(), RedViewController()]
+    weak var swipeDelegate: SwipeViewControllerDelegate?
+    
+    private lazy var pages: [BaseViewController] = {
+        return [
+            BaseViewController(imageName: "StartBgBlue", labelText: "Отслеживайте только то, что хотите"),
+            BaseViewController(imageName: "StartBgRed", labelText: "Даже если это не литры воды и йога")
+        ]
     }()
     
     override func viewDidLoad() {
@@ -19,6 +27,8 @@ class SwipeViewController: UIPageViewController, UIPageViewControllerDataSource,
         
         dataSource = self
         delegate = self
+        
+        pages.forEach { $0.delegate = self }
         
         // Устанавливаем начальный контроллер
         if let firstVC = pages.first {
@@ -29,16 +39,24 @@ class SwipeViewController: UIPageViewController, UIPageViewControllerDataSource,
     // MARK: - UIPageViewControllerDataSource
     
     func pageViewController(_ pageViewController: UIPageViewController, viewControllerBefore viewController: UIViewController) -> UIViewController? {
-        guard let currentIndex = pages.firstIndex(of: viewController), currentIndex > 0 else {
+        guard let currentIndex = pages.firstIndex(of: viewController as! BaseViewController), currentIndex > 0 else {
             return nil
         }
         return pages[currentIndex - 1]
     }
     
     func pageViewController(_ pageViewController: UIPageViewController, viewControllerAfter viewController: UIViewController) -> UIViewController? {
-        guard let currentIndex = pages.firstIndex(of: viewController), currentIndex < pages.count - 1 else {
+        guard let currentIndex = pages.firstIndex(of: viewController as! BaseViewController), currentIndex < pages.count - 1 else {
             return nil
         }
         return pages[currentIndex + 1]
+    }
+}
+
+extension SwipeViewController: BaseViewControllerDelegate {
+    func didPressButton() {
+        let nextViewController = TabBarController()
+        nextViewController.modalPresentationStyle = .fullScreen
+        present(nextViewController, animated: true, completion: nil)
     }
 }

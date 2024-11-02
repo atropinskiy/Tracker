@@ -15,12 +15,12 @@ final class TrackerCollectionCell: UICollectionViewCell {
     
     weak var delegate: TrackerCellDelegate?
     
-    private let emojiLabel = UILabel()
-    private let nameLabel = UILabel()
-    private let counterLabel = UILabel()
-    private let trackerView = UIView()
-    private let button = UIButton()
-    var isCompleted: Bool = false
+    private lazy var emojiLabel = UILabel()
+    private lazy var nameLabel = UILabel()
+    private lazy var counterLabel = UILabel()
+    private lazy var trackerView = UIView()
+    private lazy var button = UIButton()
+    lazy var isCompleted: Bool = false
     private var trackerId: UUID?
     private var indexPath: IndexPath?
     

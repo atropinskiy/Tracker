@@ -82,7 +82,7 @@ final class ScheduleViewController: UIViewController {
         }
     }
     
-    @objc func confirmButtonClicked() {
+    @objc private func confirmButtonClicked() {
         delegate?.saveSchedule(schedule: selectedDays)
         dismiss(animated: true)
     }

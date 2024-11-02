@@ -14,13 +14,13 @@ protocol AddTrackerViewControllerDelegate: AnyObject {
 
 
 
-class AddTrackerViewController: UIViewController {
+final class AddTrackerViewController: UIViewController {
     var taskType: String?
     
     weak var delegate: AddTrackerViewControllerDelegate?
-    private var headerTextField = UITextField()
-    private var schedule: [WeekDay] = []
-    private var categories: [String] = []
+    private lazy var headerTextField = UITextField()
+    private lazy var schedule: [WeekDay] = []
+    private lazy var categories: [String] = []
     private var selectedEmojiIndex: IndexPath?
     private var selectedColorIndex: IndexPath?
     private var selectedEmoji: String?

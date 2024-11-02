@@ -7,7 +7,7 @@
 
 import UIKit
 
-class ButtonsCell: UITableViewCell {
+final class ButtonsCell: UITableViewCell {
     let buttonLabel: UILabel = {
         let buttonLabel = UILabel()
         buttonLabel.translatesAutoresizingMaskIntoConstraints = false
@@ -21,7 +21,7 @@ class ButtonsCell: UITableViewCell {
 
     }
     
-    func createCanvas() {
+    private func createCanvas() {
         contentView.addSubview(buttonLabel)
         NSLayoutConstraint.activate([
             buttonLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
@@ -30,12 +30,13 @@ class ButtonsCell: UITableViewCell {
         ])
     }
     
+    private func setCornerRadius(for corners: CACornerMask, radius: CGFloat) {
+        contentView.layer.cornerRadius = radius
+        contentView.layer.maskedCorners = corners
+    }
+    
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
     
-    func setCornerRadius(for corners: CACornerMask, radius: CGFloat) {
-        contentView.layer.cornerRadius = radius
-        contentView.layer.maskedCorners = corners
-    }
 }

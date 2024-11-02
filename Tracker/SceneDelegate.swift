@@ -13,21 +13,22 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     
     
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
-        UserDefaults.standard.removeObject(forKey: "hasLaunchedBefore") // Для тестирования первого и не первго раза
+        
+        let launchFlags = FirstTimeLaunchFlags()
+        launchFlags.startAppWithFlags()
         
         guard let windowScene = (scene as? UIWindowScene) else { return }
         let window = UIWindow(windowScene: windowScene)
         let hasLaunchedBefore = UserDefaults.standard.bool(forKey: "hasLaunchedBefore")
         
-        if hasLaunchedBefore {
-            // Не первый запуск, показываем красный экран
-            window.rootViewController = TabBarController()
+        if !hasLaunchedBefore {
+            UserDefaults.standard.set(true, forKey: "hasLaunchedBefore")
+            let firstLaunchController = SwipeViewController()
+            firstLaunchController.swipeDelegate = self
+            window.rootViewController = firstLaunchController
         } else {
-            // Первый запуск, показываем синий экран
-            UserDefaults.standard.set(true, forKey: "hasLaunchedBefore")  // Устанавливаем флаг для будущих запусков
-            window.rootViewController = SwipeViewController()
+            window.rootViewController = TabBarController()
         }
-        
         self.window = window
         window.makeKeyAndVisible()
     }
@@ -63,3 +64,9 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     
 }
 
+extension SceneDelegate: SwipeViewControllerDelegate {
+    func didPressButton() {
+        let tabBarController = TabBarController()
+        window?.rootViewController = tabBarController
+    }
+}

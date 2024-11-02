@@ -20,11 +20,9 @@ protocol CategoriesViewControllerDelegate: AnyObject {
 
 final class CategoriesViewController: UIViewController {
     
-    private let tableView = UITableView()
-    private var selectedCategories = [String]()
+    private lazy var tableView = UITableView()
+    private lazy var selectedCategories = [String]()
     weak var delegate: CategoriesViewControllerDelegate?
-    
-    let testCategories = ["Категория 1", "Категория 2", "Категория 3", "Категория 4", "Категория 5", "Категория 6", "Категория 7", "Категория 8", "Категория 9", "Категория 10"]
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -84,7 +82,7 @@ final class CategoriesViewController: UIViewController {
         ])
     }
     
-    @objc func confirmButtonClicked() {
+    @objc private func confirmButtonClicked() {
         delegate?.saveCategory(categories: selectedCategories)
         dismiss(animated: true)
     }

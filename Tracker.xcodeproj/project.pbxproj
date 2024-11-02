@@ -20,7 +20,6 @@
 		22941DC42CCE7BD200AE1C26 /* Base in Resources */ = {isa = PBXBuildFile; fileRef = 22941DC32CCE7BD200AE1C26 /* Base */; };
 		22941DC62CCE7BD400AE1C26 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 22941DC52CCE7BD400AE1C26 /* Assets.xcassets */; };
 		22941DC92CCE7BD400AE1C26 /* Base in Resources */ = {isa = PBXBuildFile; fileRef = 22941DC82CCE7BD400AE1C26 /* Base */; };
-		22941DD22CCE8E0500AE1C26 /* FirstTimeViewControllers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22941DD12CCE8E0500AE1C26 /* FirstTimeViewControllers.swift */; };
 		22941DD62CCE96C800AE1C26 /* BaseViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22941DD52CCE96C800AE1C26 /* BaseViewController.swift */; };
 		22941DDB2CCE9B2B00AE1C26 /* TrackersViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22941DDA2CCE9B2B00AE1C26 /* TrackersViewController.swift */; };
 		22941DDD2CCEC0E300AE1C26 /* TabBarViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22941DDC2CCEC0E300AE1C26 /* TabBarViewController.swift */; };
@@ -32,6 +31,7 @@
 		22E5F6B12CD2B98600D979ED /* ScheduleCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22E5F6B02CD2B98600D979ED /* ScheduleCell.swift */; };
 		22E5F6B32CD39D9300D979ED /* SupplementaryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22E5F6B22CD39D9300D979ED /* SupplementaryView.swift */; };
 		22E5F6B52CD3CB8100D979ED /* CategoriesViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22E5F6B42CD3CB8100D979ED /* CategoriesViewController.swift */; };
+		22E5F6BB2CD62F4D00D979ED /* FirstTimeLaunchFlags.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22E5F6BA2CD62F4D00D979ED /* FirstTimeLaunchFlags.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -50,7 +50,6 @@
 		22941DC52CCE7BD400AE1C26 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		22941DC82CCE7BD400AE1C26 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		22941DCA2CCE7BD400AE1C26 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		22941DD12CCE8E0500AE1C26 /* FirstTimeViewControllers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirstTimeViewControllers.swift; sourceTree = "<group>"; };
 		22941DD52CCE96C800AE1C26 /* BaseViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BaseViewController.swift; sourceTree = "<group>"; };
 		22941DDA2CCE9B2B00AE1C26 /* TrackersViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrackersViewController.swift; sourceTree = "<group>"; };
 		22941DDC2CCEC0E300AE1C26 /* TabBarViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabBarViewController.swift; sourceTree = "<group>"; };
@@ -62,6 +61,7 @@
 		22E5F6B02CD2B98600D979ED /* ScheduleCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScheduleCell.swift; sourceTree = "<group>"; };
 		22E5F6B22CD39D9300D979ED /* SupplementaryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SupplementaryView.swift; sourceTree = "<group>"; };
 		22E5F6B42CD3CB8100D979ED /* CategoriesViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoriesViewController.swift; sourceTree = "<group>"; };
+		22E5F6BA2CD62F4D00D979ED /* FirstTimeLaunchFlags.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirstTimeLaunchFlags.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -133,6 +133,7 @@
 				22941DD92CCE9B0D00AE1C26 /* MainScreen */,
 				22941DD02CCE7FD300AE1C26 /* StartScreens */,
 				22941DBC2CCE7BD200AE1C26 /* AppDelegate.swift */,
+				22E5F6BA2CD62F4D00D979ED /* FirstTimeLaunchFlags.swift */,
 				22941DBE2CCE7BD200AE1C26 /* SceneDelegate.swift */,
 				22941DC22CCE7BD200AE1C26 /* Main.storyboard */,
 				22941DC52CCE7BD400AE1C26 /* Assets.xcassets */,
@@ -145,7 +146,6 @@
 		22941DD02CCE7FD300AE1C26 /* StartScreens */ = {
 			isa = PBXGroup;
 			children = (
-				22941DD12CCE8E0500AE1C26 /* FirstTimeViewControllers.swift */,
 				22941DD52CCE96C800AE1C26 /* BaseViewController.swift */,
 				22941DDE2CD0018300AE1C26 /* SwipeViewController.swift */,
 			);
@@ -239,6 +239,7 @@
 				2292F2542CD02C5D00BA6736 /* Tracker.swift in Sources */,
 				2292F24F2CD023FC00BA6736 /* TrackerCollectionCell.swift in Sources */,
 				22E5F6AB2CD164FE00D979ED /* CollectionCell.swift in Sources */,
+				22E5F6BB2CD62F4D00D979ED /* FirstTimeLaunchFlags.swift in Sources */,
 				2292F2582CD02D5800BA6736 /* TrackerRecord.swift in Sources */,
 				22941DD62CCE96C800AE1C26 /* BaseViewController.swift in Sources */,
 				22941DBD2CCE7BD200AE1C26 /* AppDelegate.swift in Sources */,
@@ -249,7 +250,6 @@
 				2292F25D2CD0F1A500BA6736 /* TypeSelectViewController.swift in Sources */,
 				22E5F6B52CD3CB8100D979ED /* CategoriesViewController.swift in Sources */,
 				22E5F6A92CD14EA600D979ED /* ButtonsCell.swift in Sources */,
-				22941DD22CCE8E0500AE1C26 /* FirstTimeViewControllers.swift in Sources */,
 				22941DDD2CCEC0E300AE1C26 /* TabBarViewController.swift in Sources */,
 				22941DDF2CD0018300AE1C26 /* SwipeViewController.swift in Sources */,
 				22E5F6AF2CD2AFC900D979ED /* ScheduleViewController.swift in Sources */,

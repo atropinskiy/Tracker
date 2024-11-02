@@ -11,7 +11,7 @@ protocol TypeSelectDelegate: AnyObject {
     func didSelectType(_ type: String)
 }
 
-class TypeSelectViewController: UIViewController {
+final class TypeSelectViewController: UIViewController {
     
     weak var delegate: TypeSelectDelegate?
     

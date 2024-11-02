@@ -22,7 +22,7 @@ final class TrackersViewController: UIViewController {
     private lazy var datePicker = UIDatePicker()
     private lazy var addButton = UIButton(type: .custom)
     private lazy var searchTextField = UISearchTextField()
-    private lazy var headerLabel = UILabel()
+    lazy var headerLabel = UILabel()
     private lazy var contentView = UIView()
     private lazy var stubImg = UIImageView(image: UIImage(named: "StubImg"))
     private lazy var stubLabel = UILabel()
@@ -134,7 +134,7 @@ final class TrackersViewController: UIViewController {
         ])
     }
     
-    func addStub() {
+    private func addStub() {
         guard !isStubVisible else { return }
         
         stubImg.translatesAutoresizingMaskIntoConstraints = false
@@ -161,7 +161,7 @@ final class TrackersViewController: UIViewController {
         ])
     }
     
-    func showTrackers() {
+    private func showTrackers() {
         contentView.addSubview(collectionView)
         
         NSLayoutConstraint.activate([
@@ -213,12 +213,12 @@ final class TrackersViewController: UIViewController {
         }
     }
     
-    @objc func datePickerValueChanged(_ sender: UIDatePicker) {
+    @objc private func datePickerValueChanged(_ sender: UIDatePicker) {
         currentDate = sender.date
         filterTrackers()
     }
     
-    @objc func addButtonTapped() {
+    @objc private func addButtonTapped() {
         let typeSelectVC = TypeSelectViewController()
         typeSelectVC.delegate = self
         present(typeSelectVC, animated: true, completion: nil)

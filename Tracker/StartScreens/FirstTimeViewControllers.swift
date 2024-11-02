@@ -7,7 +7,7 @@
 
 import UIKit
 
-class BlueViewController: BaseViewController {
+final class BlueViewController: BaseViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         setBg(imageName: "StartBgBlue")
@@ -20,7 +20,7 @@ class BlueViewController: BaseViewController {
 
 import UIKit
 
-class RedViewController: BaseViewController {
+final class RedViewController: BaseViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .systemBlue

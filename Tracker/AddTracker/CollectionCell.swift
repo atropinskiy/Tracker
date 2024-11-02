@@ -7,8 +7,8 @@
 
 import UIKit
 
-class CollectionCell: UICollectionViewCell {
-    let headerLabel = UILabel()
+final class CollectionCell: UICollectionViewCell {
+    private let headerLabel = UILabel()
     
     override init(frame: CGRect) {
         super.init(frame: frame)
