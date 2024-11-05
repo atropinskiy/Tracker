@@ -66,8 +66,9 @@ final class TrackersViewController: UIViewController {
         ])
         
         searchTextField.translatesAutoresizingMaskIntoConstraints = false
+        searchTextField.addTarget(self, action: #selector(searchFieldEditingDidEnd), for: .editingDidEndOnExit)
         searchTextField.layer.cornerRadius = 10.0
-        searchTextField.backgroundColor = UIColor(named: "YP-bg")
+        searchTextField.backgroundColor = UIColor(named: "YP-searchfieldbg")
         searchTextField.attributedPlaceholder = NSAttributedString(
             string: "Поиск",
             attributes: [NSAttributedString.Key.foregroundColor: UIColor(named: "YP-gray") ?? UIColor.gray]
@@ -75,6 +76,9 @@ final class TrackersViewController: UIViewController {
         if let leftIconView = searchTextField.leftView as? UIImageView {
             leftIconView.tintColor = UIColor(named: "YP-gray") // Установка цвета иконки лупы
         }
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
+        view.addGestureRecognizer(tapGesture)
+        tapGesture.cancelsTouchesInView = false
         controlView.addSubview(searchTextField)
         NSLayoutConstraint.activate([
             searchTextField.bottomAnchor.constraint(equalTo: controlView.bottomAnchor, constant: -10),
@@ -93,7 +97,6 @@ final class TrackersViewController: UIViewController {
             headerLabel.leadingAnchor.constraint(equalTo: controlView.leadingAnchor, constant: 16),
             headerLabel.heightAnchor.constraint(equalToConstant: 41)
         ])
-        
         
         addButton.translatesAutoresizingMaskIntoConstraints = false
         addButton.setImage(UIImage(named: "plusImg"), for: .normal)
@@ -125,9 +128,9 @@ final class TrackersViewController: UIViewController {
         datePicker.translatesAutoresizingMaskIntoConstraints = false
         datePicker.locale = Locale(identifier: "ru_RU")
         datePicker.addTarget(self, action: #selector(datePickerValueChanged(_:)), for: .valueChanged)
-        view.addSubview(datePicker)
+        controlView.addSubview(datePicker)
         NSLayoutConstraint.activate([
-            datePicker.centerYAnchor.constraint(equalTo: headerLabel.centerYAnchor),
+            datePicker.centerYAnchor.constraint(equalTo: addButton.centerYAnchor),
             datePicker.trailingAnchor.constraint(equalTo: controlView.trailingAnchor, constant: -16),
             datePicker.heightAnchor.constraint(equalToConstant: 34),
             datePicker.widthAnchor.constraint(equalToConstant: 127)
@@ -180,8 +183,9 @@ final class TrackersViewController: UIViewController {
         var weekday = calendar.component(.weekday, from: selectedDate)
         weekday = (weekday + 5) % 7
         filteredTrackers.removeAll()
+        
         for category in categories {
-            for tracker in category.trackers where tracker.schedule.contains(WeekDay.allCases[weekday]) {
+            for tracker in category.trackers where (tracker.schedule?.contains(WeekDay.allCases[weekday]) ?? false) || tracker.date == currentDate {
                 filteredTrackers.append(tracker)
             }
         }
@@ -224,6 +228,13 @@ final class TrackersViewController: UIViewController {
         present(typeSelectVC, animated: true, completion: nil)
     }
     
+    @objc private func dismissKeyboard() {
+        view.endEditing(true)
+    }
+    
+    @objc private func searchFieldEditingDidEnd() {
+        searchTextField.resignFirstResponder()
+    }
 }
 
 extension TrackersViewController: UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
@@ -343,6 +354,7 @@ extension TrackersViewController: TypeSelectDelegate {
         let addTrackerVC = AddTrackerViewController()
         addTrackerVC.delegate = self
         addTrackerVC.taskType = type
+        addTrackerVC.currentDate = currentDate
         addTrackerVC.modalPresentationStyle = .pageSheet
         present(addTrackerVC, animated: true, completion: nil)
     }

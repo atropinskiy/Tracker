@@ -43,6 +43,9 @@ final class ScheduleViewController: UIViewController {
         tableView.tableFooterView = UIView()
         tableView.delegate = self
         tableView.dataSource = self
+        tableView.allowsSelection = false
+        tableView.backgroundColor = UIColor(named: "YP-bg")
+        
         view.addSubview(tableView)
         NSLayoutConstraint.activate([
             tableView.topAnchor.constraint(equalTo: header.bottomAnchor, constant: 24),

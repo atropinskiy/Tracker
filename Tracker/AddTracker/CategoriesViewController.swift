@@ -5,23 +5,16 @@
 //  Created by alex_tr on 31.10.2024.
 //
 
-//
-//  CategoriesViewController.swift
-//  Tracker
-//
-//  Created by alex_tr on 31.10.2024.
-//
-
 import UIKit
 
 protocol CategoriesViewControllerDelegate: AnyObject {
-    func saveCategory (categories: [String])
+    func saveCategory (category: String)
 }
 
 final class CategoriesViewController: UIViewController {
     
     private lazy var tableView = UITableView()
-    private lazy var selectedCategories = [String]()
+    private var selectedCategory: String?
     weak var delegate: CategoriesViewControllerDelegate?
     
     override func viewDidLoad() {
@@ -66,6 +59,7 @@ final class CategoriesViewController: UIViewController {
         tableView.translatesAutoresizingMaskIntoConstraints = false
         tableView.layer.cornerRadius = 16
         tableView.layer.masksToBounds = true
+        tableView.backgroundColor = UIColor(named: "YP-bg")
         tableView.tableFooterView = UIView()
         tableView.dataSource = self
         tableView.delegate = self
@@ -83,7 +77,9 @@ final class CategoriesViewController: UIViewController {
     }
     
     @objc private func confirmButtonClicked() {
-        delegate?.saveCategory(categories: selectedCategories)
+        if let category = selectedCategory {
+            delegate?.saveCategory(category: category)
+        }
         dismiss(animated: true)
     }
 }
@@ -99,6 +95,8 @@ extension CategoriesViewController: UITableViewDataSource, UITableViewDelegate {
         cell.textLabel?.text = category
         cell.textLabel?.textColor = UIColor(named: "YP-black")
         cell.backgroundColor = UIColor(named: "YP-bg")
+        cell.selectionStyle = .none
+        cell.accessoryType = (category == selectedCategory) ? .checkmark : .none
         if indexPath.row == testCategories.count - 1 {
             cell.separatorInset = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: CGFloat.greatestFiniteMagnitude)
         } else {
@@ -114,11 +112,12 @@ extension CategoriesViewController: UITableViewDataSource, UITableViewDelegate {
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let category = testCategories[indexPath.row]
-        if let index = selectedCategories.firstIndex(of: category) {
-            selectedCategories.remove(at: index) // Удалить, если уже выбрано
+        if selectedCategory == category {
+            selectedCategory = nil
         } else {
-            selectedCategories.append(category) // Добавить, если не выбрано
+            selectedCategory = category
         }
+        tableView.reloadData()
     }
 
 }

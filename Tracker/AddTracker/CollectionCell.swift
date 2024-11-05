@@ -18,6 +18,12 @@ final class CollectionCell: UICollectionViewCell {
     private func makeCanvas() {
         headerLabel.translatesAutoresizingMaskIntoConstraints = false
         headerLabel.textAlignment = .center
+        headerLabel.font = UIFont.systemFont(ofSize: 32)
+        headerLabel.layer.cornerRadius = 8
+        headerLabel.layer.masksToBounds = true
+        
+        contentView.addSubview(headerLabel)
+        
         contentView.addSubview(headerLabel)
         NSLayoutConstraint.activate([
             headerLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 6),
@@ -29,15 +35,12 @@ final class CollectionCell: UICollectionViewCell {
     
     func setColor(color: UIColor) {
         headerLabel.backgroundColor = color
-        headerLabel.layer.cornerRadius = 8
-        headerLabel.layer.masksToBounds = true
     }
     
     func setText(text: String) {
         headerLabel.text = text
-        headerLabel.font = UIFont.systemFont(ofSize: 32)
-        headerLabel.backgroundColor = .clear
     }
+    
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
