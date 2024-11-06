@@ -59,7 +59,7 @@ final class CategoriesViewController: UIViewController {
         tableView.translatesAutoresizingMaskIntoConstraints = false
         tableView.layer.cornerRadius = 16
         tableView.layer.masksToBounds = true
-        tableView.backgroundColor = UIColor(named: "YP-bg")
+        tableView.backgroundColor = UIColor(named: "YP-categories")
         tableView.tableFooterView = UIView()
         tableView.dataSource = self
         tableView.delegate = self

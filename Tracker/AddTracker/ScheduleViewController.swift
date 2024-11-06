@@ -41,10 +41,10 @@ final class ScheduleViewController: UIViewController {
         tableView.layer.masksToBounds = true
         tableView.register(ScheduleCell.self, forCellReuseIdentifier: "ScheduleCell")
         tableView.tableFooterView = UIView()
+        tableView.backgroundColor = UIColor(named: "YP-categories")
         tableView.delegate = self
         tableView.dataSource = self
         tableView.allowsSelection = false
-        tableView.backgroundColor = UIColor(named: "YP-bg")
         
         view.addSubview(tableView)
         NSLayoutConstraint.activate([

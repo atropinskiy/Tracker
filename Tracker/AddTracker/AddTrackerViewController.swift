@@ -100,7 +100,7 @@ final class AddTrackerViewController: UIViewController {
         
         headerTextField.layer.cornerRadius = 16
         headerTextField.font = UIFont.systemFont(ofSize: 17)
-        headerTextField.backgroundColor = UIColor(named: "YP-bg")
+        headerTextField.backgroundColor = UIColor(named: "YP-categories")
         headerTextField.attributedPlaceholder = NSAttributedString(
             string: "Введите название трекера",
             attributes: [NSAttributedString.Key.foregroundColor: UIColor(named: "YP-gray") ?? UIColor.gray]
@@ -119,7 +119,7 @@ final class AddTrackerViewController: UIViewController {
         buttonsTable.layer.cornerRadius = 16
         buttonsTable.layer.masksToBounds = true
         buttonsTable.register(ButtonsCell.self, forCellReuseIdentifier: "ButtonsCell")
-        buttonsTable.backgroundColor = UIColor(named: "YP-bg")
+        buttonsTable.backgroundColor = UIColor(named: "YP-categories")
         buttonsTable.delegate = self
         buttonsTable.dataSource = self
         contentView.addSubview(buttonsTable)
