@@ -1,5 +1,5 @@
 //
-//  ViewController.swift
+//  RedViewController.swift
 //  Tracker
 //
 //  Created by alex_tr on 27.10.2024.
@@ -7,13 +7,9 @@
 
 import UIKit
 
-class ViewController: UIViewController {
-
+class RedViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
-        // Do any additional setup after loading the view.
+        view.backgroundColor = .systemGreen
     }
-
-
 }
-
