@@ -23,9 +23,11 @@ final class TrackerCollectionCell: UICollectionViewCell {
     lazy var isCompleted: Bool = false
     private var trackerId: UUID?
     private var indexPath: IndexPath?
+    var currentDate: Date
     
     
     override init(frame: CGRect) {
+        self.currentDate = Date()
         super.init(frame: frame)
         setupViews()
     }
@@ -109,25 +111,44 @@ final class TrackerCollectionCell: UICollectionViewCell {
     }
     
     @objc private func buttonTapped() {
+        guard let id = trackerId else { return }
+
+        // Переключаем состояние
         isCompleted.toggle()
+
+        // Обновляем внешний вид кнопки
         button.alpha = isCompleted ? 0.3 : 1.0
         let buttonImage = isCompleted ? UIImage(named: "Done-button") : UIImage(systemName: "plus")
         button.setImage(buttonImage, for: .normal)
-        if let id = trackerId {
-            delegate?.completeTracker(self, id: id, isOn: isCompleted)
+
+        // Добавление или удаление записи
+        if isCompleted {
+            TrackerRecordStore.shared.addRecord(id: id, date: currentDate)
+        } else {
+            TrackerRecordStore.shared.deleteRecord(by: id, on: currentDate)
         }
+
+        // Подсчитываем количество выполненных трекеров для данного id
+        let completedCount = TrackerRecordStore.shared.countCompletedTrackers(for: id)
+        counterLabel.text = daysText(for: completedCount)
     }
 
-    func configure(with tracker: Tracker, completedCount: Int, isCompletedToday: Bool) {
+    func configure(with tracker: Tracker, isCompletedToday: Bool) {
         emojiLabel.text = tracker.emoji
         nameLabel.text = tracker.name
         trackerView.backgroundColor = tracker.color
         button.backgroundColor = tracker.color
         trackerId = tracker.id
-        counterLabel.text = daysText(for: completedCount)
-        let buttonImage = isCompletedToday ? UIImage(named: "Done-button") : UIImage(systemName: "plus")
+
+        // Устанавливаем начальное состояние кнопки
+        isCompleted = isCompletedToday
+        let buttonImage = isCompleted ? UIImage(named: "Done-button") : UIImage(systemName: "plus")
         button.setImage(buttonImage, for: .normal)
-        button.alpha = isCompletedToday ? 0.3 : 1.0
+        button.alpha = isCompleted ? 0.3 : 1.0
+
+        // Используем переданную дату для подсчета количества выполненных трекеров
+        let completedCount = TrackerRecordStore.shared.countCompletedTrackers(for: tracker.id)
+        counterLabel.text = daysText(for: completedCount)
     }
        
     private func daysText(for count: Int) -> String {

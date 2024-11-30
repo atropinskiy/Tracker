@@ -8,29 +8,90 @@
 import CoreData
 
 final class TrackerRecordStore {
-    private let context: NSManagedObjectContext
-    
-    init(context: NSManagedObjectContext) {
-        self.context = context
+    // MARK: - Singleton
+    static let shared = TrackerRecordStore()
+    private init() {} // Закрываем инициализацию для внешнего использования
+
+    // Контекст для работы с Core Data
+    private var context: NSManagedObjectContext {
+        return DatabaseManager.shared.context
     }
-    
-    func addRecord(for tracker: Tracker, date: Date) {
-        let record = TrackerRecordCoreData(context: context)
-        record.date = date
-        record.tracker = tracker.coreDataReference
-        saveContext()
+
+    // MARK: - Добавление записи
+    func addRecord(id: UUID, date: Date) {
+        let recordEntity = TrackerRecordCoreData(context: context)
+        recordEntity.id = id
+        recordEntity.date = date
+
+        do {
+            try context.save()
+            print("Запись успешно добавлена в Core Data")
+        } catch {
+            print("Ошибка при сохранении записи: \(error.localizedDescription)")
+        }
     }
-    
-    func fetchRecords(for tracker: Tracker) -> [TrackerRecord] {
+
+    // MARK: - Удаление записи по ID
+    func deleteRecord(by id: UUID, on date: Date) {
         let fetchRequest: NSFetchRequest<TrackerRecordCoreData> = TrackerRecordCoreData.fetchRequest()
-        fetchRequest.predicate = NSPredicate(format: "tracker == %@", tracker.coreDataReference)
-        let records = (try? context.fetch(fetchRequest)) ?? []
-        return records.map { TrackerRecord(coreData: $0) }
+        let calendar = Calendar.current
+        let startOfDay = calendar.startOfDay(for: date)
+        let endOfDay = calendar.date(byAdding: .day, value: 1, to: startOfDay) ?? startOfDay
+
+        // Устанавливаем предикат для удаления записи с конкретным ID и датой
+        fetchRequest.predicate = NSPredicate(format: "id == %@ AND date >= %@ AND date < %@",
+                                             id as CVarArg,
+                                             startOfDay as NSDate,
+                                             endOfDay as NSDate)
+
+        do {
+            let records = try context.fetch(fetchRequest)
+            for record in records {
+                context.delete(record)
+            }
+            try context.save()
+            print("Запись с ID \(id) и датой \(date) успешно удалена из Core Data")
+        } catch {
+            print("Ошибка при удалении записи с ID \(id) и датой \(date): \(error.localizedDescription)")
+        }
     }
     
-    private func saveContext() {
-        if context.hasChanges {
-            try? context.save()
+    func countCompletedTrackers(for trackerId: UUID) -> Int {
+        let fetchRequest: NSFetchRequest<TrackerRecordCoreData> = TrackerRecordCoreData.fetchRequest()
+        fetchRequest.predicate = NSPredicate(format: "id == %@", trackerId as CVarArg)
+        
+        do {
+            let records = try context.fetch(fetchRequest)
+            return records.count
+        } catch {
+            print("Ошибка при подсчете выполненных трекеров для \(trackerId): \(error.localizedDescription)")
+            return 0
+        }
+    }
+    
+    func isTrackerCompletedToday(trackerId: UUID, currentDate: Date) -> Bool {
+        let fetchRequest: NSFetchRequest<TrackerRecordCoreData> = TrackerRecordCoreData.fetchRequest()
+
+        // Получаем текущую дату с обнулённым временем для сравнения только даты
+        let calendar = Calendar.current
+        let startOfDay = calendar.startOfDay(for: currentDate)
+        let endOfDay = calendar.date(byAdding: .day, value: 1, to: startOfDay)!
+
+        // Настроим фильтр запроса: ищем запись с trackerId и датой выполнения на текущий день
+        fetchRequest.predicate = NSPredicate(format: "id == %@ AND date >= %@ AND date < %@",
+                                             trackerId as CVarArg,
+                                             startOfDay as CVarArg,
+                                             endOfDay as CVarArg)
+
+        do {
+            // Выполняем запрос
+            let results = try context.fetch(fetchRequest)
+            // Если результаты не пусты, значит, трекер был завершён на текущую дату
+            return !results.isEmpty
+        } catch {
+            print("Ошибка при запросе в Core Data: \(error)")
+            return false
         }
     }
 }
+

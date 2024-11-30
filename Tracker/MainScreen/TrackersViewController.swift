@@ -10,14 +10,13 @@ import UIKit
 final class TrackersViewController: UIViewController {
     private var categories = [TrackerCategory]()
     private var currentTrackers = [Tracker]()
+    let trackerStore = TrackerStore.shared
     
     private var completedTrackers: [TrackerRecord] = []
     private var completedTrackerIDs = Set<UUID>()
     private var filteredTrackers: [Tracker] = []
     private var isStubVisible: Bool = false
     private var currentDate: Date = Date()
-    
-    
     private lazy var controlView = UIView()
     private lazy var datePicker = UIDatePicker()
     private lazy var addButton = UIButton(type: .custom)
@@ -47,10 +46,13 @@ final class TrackersViewController: UIViewController {
         super.viewDidLoad()
         view.backgroundColor = UIColor(named: "YP-white")
         addControlView()
-        //        addStub()
-        let testCategory = TrackerCategory(title: "Тестовая категория", trackers: testTrackers)
+        let coreDataTrackers = TrackerStore.shared.fetchAllTrackers()
+        let trackerModels = coreDataTrackers.map { Tracker.fromCoreData($0) }
+        let testCategory = TrackerCategory(title: "Тестовая категория", trackers: trackerModels)
         categories.append(testCategory)
-        currentTrackers = testTrackers
+        
+        
+        
         filterTrackers()
         showTrackers()
     }
@@ -135,6 +137,7 @@ final class TrackersViewController: UIViewController {
             datePicker.heightAnchor.constraint(equalToConstant: 34),
             datePicker.widthAnchor.constraint(equalToConstant: 127)
         ])
+        
     }
     
     private func addStub() {
@@ -183,12 +186,18 @@ final class TrackersViewController: UIViewController {
         var weekday = calendar.component(.weekday, from: selectedDate)
         weekday = (weekday + 5) % 7
         filteredTrackers.removeAll()
+        let coreDataTrackers = TrackerStore.shared.fetchAllTrackers()
+        let trackers = coreDataTrackers.map { Tracker.fromCoreData($0) }
+        for tracker in trackers {
+            print("Tracker ID: \(tracker.id), Name: \(tracker.name), Color: \(tracker.color), Emoji: \(tracker.emoji), Schedule: \(String(describing: tracker.schedule)), Date: \(String(describing: tracker.date))")
+        }
         
         for category in categories {
-            for tracker in category.trackers where (tracker.schedule?.contains(WeekDay.allCases[weekday]) ?? false) || tracker.date == currentDate {
+            for tracker in trackers where (tracker.schedule?.contains(WeekDay.allCases[weekday]) ?? false) || tracker.date == selectedDate {
                 filteredTrackers.append(tracker)
             }
         }
+
         
         let completedTrackersForToday = completedTrackers.filter { calendar.isDate($0.date, inSameDayAs: selectedDate) }
         for trackerRecord in completedTrackersForToday {
@@ -226,6 +235,12 @@ final class TrackersViewController: UIViewController {
         let typeSelectVC = TypeSelectViewController()
         typeSelectVC.delegate = self
         present(typeSelectVC, animated: true, completion: nil)
+        let coreDataTrackers = TrackerStore.shared.fetchAllTrackers()
+
+        for tracker in coreDataTrackers {
+            print("Tracker ID: \(tracker.id), Name: \(tracker.name), Color: \(tracker.color), Emoji: \(tracker.emoji), Schedule: \(String(describing: tracker.schedule)), Date: \(String(describing: tracker.date))")
+        }
+        
     }
     
     @objc private func dismissKeyboard() {
@@ -235,6 +250,7 @@ final class TrackersViewController: UIViewController {
     @objc private func searchFieldEditingDidEnd() {
         searchTextField.resignFirstResponder()
     }
+    
 }
 
 extension TrackersViewController: UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
@@ -251,13 +267,10 @@ extension TrackersViewController: UICollectionViewDataSource, UICollectionViewDe
             return UICollectionViewCell()
         }
         let tracker = filteredTrackers[indexPath.item]
-        let isCompletedToday = completedTrackers.contains {
-            $0.id == tracker.id && Calendar.current.isDate($0.date, inSameDayAs: currentDate)
-        }
+        let isCompletedToday = TrackerRecordStore.shared.isTrackerCompletedToday(trackerId: tracker.id, currentDate: currentDate)
         cell.isCompleted = isCompletedToday
-        
-        let completedCount = completedTrackers.filter { $0.id == tracker.id }.count
-        cell.configure(with: tracker, completedCount: completedCount, isCompletedToday: isCompletedToday)
+        cell.currentDate = currentDate
+        cell.configure(with: tracker, isCompletedToday: isCompletedToday)
         cell.delegate = self
         return cell
     }
@@ -309,23 +322,20 @@ extension TrackersViewController: TrackerCellDelegate {
         let currentDateWithoutTime = calendar.startOfDay(for: Date())
         let selectedDateWithoutTime = calendar.startOfDay(for: datePicker.date)
         
-        if isOn && selectedDateWithoutTime <= currentDateWithoutTime{
-            completedTrackerIDs.insert(id)
-            let trackerRecord = TrackerRecord(id: id, date: datePicker.date)
-            completedTrackers.append(trackerRecord)
-            collectionView.reloadData()
-            if !completedTrackers.contains(where: { $0.id == id && calendar.isDate($0.date, inSameDayAs: currentDate) }) {
-                completedTrackers.append(trackerRecord)
-            }
-            print(completedTrackers)
+        if isOn && selectedDateWithoutTime <= currentDateWithoutTime {
+            // Добавляем запись в Core Data
+            TrackerRecordStore.shared.addRecord(id: id, date: selectedDateWithoutTime)
             
-        } else {
-            completedTrackerIDs.remove(id)
-            if let index = completedTrackers.firstIndex(where: { $0.id == id && calendar.isDate($0.date, inSameDayAs: currentDate) }) {
-                completedTrackers.remove(at: index)
-                print(completedTrackerIDs)
-            }
+            completedTrackerIDs.insert(id)
             collectionView.reloadData()
+            print("Трекер \(id) завершён")
+        } else {
+            // Удаляем запись из Core Data
+            TrackerRecordStore.shared.deleteRecord(by: id, on: selectedDateWithoutTime)
+            
+            completedTrackerIDs.remove(id)
+            collectionView.reloadData()
+            print("Трекер \(id) отменён")
         }
     }
 }

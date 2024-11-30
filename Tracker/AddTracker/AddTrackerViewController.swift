@@ -213,25 +213,25 @@ final class AddTrackerViewController: UIViewController {
         dismiss(animated: true, completion: nil)
     }
     
-    @objc private func createButtonClicked(){
+    @objc private func createButtonClicked() {
         guard let trackerName = headerTextField.text, !trackerName.isEmpty else {
             return
         }
         guard let color = selectedColor, let emoji = selectedEmoji else {
             return
         }
+
+        let id = UUID()
+        let new_schedule = taskType == "Привычка" ? schedule : nil
+        let date: Date? = taskType == "Привычка" ? nil : currentDate
+        TrackerStore.shared.addTracker(id: id, name: trackerName, color: color, emoji: emoji, schedule: new_schedule, date: date)
         
-        if taskType == "Привычка" {
-            let newTracker = Tracker(id: UUID(), name: trackerName, color: color, emoji: emoji, schedule: schedule, date: nil)
-            delegate?.didCreateTracker(tracker: newTracker)
-        }
-        else {
-            let newTracker = Tracker(id: UUID(), name: trackerName, color: color, emoji: emoji, schedule: [], date: currentDate)
-            delegate?.didCreateTracker(tracker: newTracker)
-        }
-        
+        // Закрываем экран после добавления
         dismiss(animated: true, completion: nil)
     }
+
+
+
     
     @objc private func dismissKeyboard() {
         view.endEditing(true)
