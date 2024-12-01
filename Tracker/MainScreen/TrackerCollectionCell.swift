@@ -112,7 +112,12 @@ final class TrackerCollectionCell: UICollectionViewCell {
     
     @objc private func buttonTapped() {
         guard let id = trackerId else { return }
-
+        
+        let today = Date()
+        if currentDate > today {
+            print("Кнопка недоступна для дат в будущем.")
+            return
+        }
         // Переключаем состояние
         isCompleted.toggle()
 

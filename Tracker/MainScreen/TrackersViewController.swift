@@ -226,10 +226,6 @@ final class TrackersViewController: UIViewController {
         let typeSelectVC = TypeSelectViewController()
         typeSelectVC.delegate = self
         present(typeSelectVC, animated: true, completion: nil)
-        filterTrackers()
-        for tracker in filteredTrackers {
-            print("Tracker ID: \(tracker.id), Name: \(tracker.name), Color: \(tracker.color), Emoji: \(tracker.emoji), Schedule: \(String(describing: tracker.schedule)), Date: \(String(describing: tracker.date))")
-        }
         
     }
     

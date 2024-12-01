@@ -10,7 +10,7 @@ import UIKit
 
 
 final class FirstTimeLaunchFlags {    
-    private lazy var firstTimeLaunch = true
+    private lazy var firstTimeLaunch = false
     
     func startAppWithFlags() {
         if firstTimeLaunch { setFirstTimeLaunch() }

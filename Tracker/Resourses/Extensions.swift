@@ -69,8 +69,4 @@ extension UIColor {
     }
 }
 
-extension NSManagedObjectContext {
-    static var current: NSManagedObjectContext {
-        return (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
-    }
-}
+

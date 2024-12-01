@@ -226,9 +226,6 @@ final class AddTrackerViewController: UIViewController {
         dismiss(animated: true, completion: nil)
     }
     
-    
-    
-    
     @objc private func dismissKeyboard() {
         view.endEditing(true)
     }
