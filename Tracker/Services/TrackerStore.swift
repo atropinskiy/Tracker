@@ -8,39 +8,46 @@
 import CoreData
 import UIKit
 
-final class TrackerStore {
+final class TrackerStore: NSObject, NSFetchedResultsControllerDelegate {
     
     static let shared = TrackerStore()
-    private init() {}
+    private override init() {}
     private var context: NSManagedObjectContext {
         return DatabaseManager.shared.context
     }
+    
+    private var fetchedResultsController: NSFetchedResultsController<TrackerCoreData>?
 
-    // Добавление трекера в Core Data с опциональными значениями schedule (массив дней недели) и date
+    // Настройка NSFetchedResultsController
+    func setupFetchedResultsController() {
+        let fetchRequest: NSFetchRequest<TrackerCoreData> = TrackerCoreData.fetchRequest()
+        fetchRequest.sortDescriptors = [NSSortDescriptor(key: "name", ascending: true)] // Добавьте сортировку
+
+        fetchedResultsController = NSFetchedResultsController(
+            fetchRequest: fetchRequest,
+            managedObjectContext: context,
+            sectionNameKeyPath: nil,
+            cacheName: nil
+        )
+        fetchedResultsController?.delegate = self
+
+        do {
+            try fetchedResultsController?.performFetch()
+            print("NSFetchedResultsController успешно настроен")
+        } catch {
+            print("Ошибка при настройке NSFetchedResultsController: \(error.localizedDescription)")
+        }
+    }
+
+    // Добавление трекера в Core Data
     func addTracker(id: UUID, name: String, color: UIColor, emoji: String, schedule: [WeekDay]? = nil, date: Date? = nil) {
         let trackerEntity = TrackerCoreData(context: context)
         trackerEntity.id = id
         trackerEntity.name = name
         trackerEntity.color = color.toHex()
         trackerEntity.emoji = emoji
-        
-        let transformer = WeekDayArrayTransformer()
-        if let transformedSchedule = transformer.transformedValue(schedule) as? Data {
-            trackerEntity.schedule = transformedSchedule as NSData
-        } else {
-            print("Ошибка преобразования расписания в Data.")
-            trackerEntity.schedule = nil  // Если преобразование не удалось, устанавливаем nil
-        }
+        trackerEntity.schedule = schedule != nil ? WeekDayArrayTransformer.scheduleToString(from: schedule!) : nil
         trackerEntity.date = date
-        
-        // Логируем перед сохранением
-        print("Содержимое объекта перед сохранением:")
-        print("ID: \(trackerEntity.id ?? UUID())")
-        print("Name: \(trackerEntity.name ?? "")")
-        print("Color: \(trackerEntity.color ?? "")")
-        print("Emoji: \(trackerEntity.emoji ?? "")")
-        print("Schedule: \(String(describing: trackerEntity.schedule))")
-        print("Date: \(String(describing: trackerEntity.date))")
 
         do {
             try context.save()
@@ -50,55 +57,12 @@ final class TrackerStore {
         }
     }
 
-    
-    // Пример получения всех трекеров
+    // Получение всех трекеров через NSFetchedResultsController
     func fetchAllTrackers() -> [TrackerCoreData] {
-        let fetchRequest: NSFetchRequest<TrackerCoreData> = TrackerCoreData.fetchRequest()
-        
-        do {
-            let trackers = try context.fetch(fetchRequest)
-            return trackers
-        } catch {
-            print("Ошибка при извлечении трекеров: \(error.localizedDescription)")
-            return []
-        }
-    }
-
-    // Пример получения трекеров по расписанию (массив дней недели)
-    func fetchTrackers(withSchedule schedule: [WeekDay]?) -> [TrackerCoreData] {
-        let fetchRequest: NSFetchRequest<TrackerCoreData> = TrackerCoreData.fetchRequest()
-        
-        // Если schedule передано, добавляем предикат
-        if let schedule = schedule {
-            fetchRequest.predicate = NSPredicate(format: "schedule == %@", schedule.map { $0.rawValue } as NSArray)
-        }
-        
-        do {
-            let trackers = try context.fetch(fetchRequest)
-            return trackers
-        } catch {
-            print("Ошибка при извлечении трекеров по расписанию: \(error.localizedDescription)")
-            return []
-        }
-    }
-
-    // Пример получения трекеров по дате
-    func fetchTrackers(withDate date: Date?) -> [TrackerCoreData] {
-        let fetchRequest: NSFetchRequest<TrackerCoreData> = TrackerCoreData.fetchRequest()
-        
-        // Если date передано, добавляем предикат для даты
-        if let date = date {
-            fetchRequest.predicate = NSPredicate(format: "date == %@", date as NSDate)
-        }
-        
-        do {
-            let trackers = try context.fetch(fetchRequest)
-            return trackers
-        } catch {
-            print("Ошибка при извлечении трекеров по дате: \(error.localizedDescription)")
-            return []
-        }
+        setupFetchedResultsController()
+        return fetchedResultsController?.fetchedObjects ?? []
     }
 }
+
 
 

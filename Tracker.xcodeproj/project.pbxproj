@@ -27,7 +27,7 @@
 		229F14282CF9959D005ACCEE /* TrackerStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 229F14272CF9959D005ACCEE /* TrackerStore.swift */; };
 		229F142A2CF995B1005ACCEE /* TrackerRecordStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 229F14292CF995B1005ACCEE /* TrackerRecordStore.swift */; };
 		229F142C2CF995C5005ACCEE /* TrackerCategoryStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 229F142B2CF995C5005ACCEE /* TrackerCategoryStore.swift */; };
-		229F14312CF998C7005ACCEE /* CoreDataModel.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 229F142F2CF998C7005ACCEE /* CoreDataModel.xcdatamodeld */; };
+		229F14312CF998C7005ACCEE /* CoreDataModel_v2.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 229F142F2CF998C7005ACCEE /* CoreDataModel_v2.xcdatamodeld */; };
 		229F14332CF9C917005ACCEE /* DataBaseManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 229F14322CF9C917005ACCEE /* DataBaseManager.swift */; };
 		229F14352CFAE31D005ACCEE /* WeekDayArrayTransformer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 229F14342CFAE31D005ACCEE /* WeekDayArrayTransformer.swift */; };
 		22E5F6A92CD14EA600D979ED /* ButtonsCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22E5F6A82CD14EA600D979ED /* ButtonsCell.swift */; };
@@ -146,6 +146,7 @@
 				22941DD92CCE9B0D00AE1C26 /* MainScreen */,
 				22941DD02CCE7FD300AE1C26 /* StartScreens */,
 				22941DBC2CCE7BD200AE1C26 /* AppDelegate.swift */,
+				229F142F2CF998C7005ACCEE /* CoreDataModel_v2.xcdatamodeld */,
 				22E5F6BA2CD62F4D00D979ED /* FirstTimeLaunchFlags.swift */,
 				22941DBE2CCE7BD200AE1C26 /* SceneDelegate.swift */,
 				22941DC22CCE7BD200AE1C26 /* Main.storyboard */,
@@ -180,22 +181,13 @@
 		229F14262CF99515005ACCEE /* Services */ = {
 			isa = PBXGroup;
 			children = (
-				229F14422CFAF333005ACCEE /* GeneratedClasses */,
 				229F14272CF9959D005ACCEE /* TrackerStore.swift */,
 				229F14342CFAE31D005ACCEE /* WeekDayArrayTransformer.swift */,
 				229F14322CF9C917005ACCEE /* DataBaseManager.swift */,
-				229F142F2CF998C7005ACCEE /* CoreDataModel.xcdatamodeld */,
 				229F14292CF995B1005ACCEE /* TrackerRecordStore.swift */,
 				229F142B2CF995C5005ACCEE /* TrackerCategoryStore.swift */,
 			);
 			path = Services;
-			sourceTree = "<group>";
-		};
-		229F14422CFAF333005ACCEE /* GeneratedClasses */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = GeneratedClasses;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -284,7 +276,7 @@
 				22941DDB2CCE9B2B00AE1C26 /* TrackersViewController.swift in Sources */,
 				22E5F6B32CD39D9300D979ED /* SupplementaryView.swift in Sources */,
 				22E5F6B12CD2B98600D979ED /* ScheduleCell.swift in Sources */,
-				229F14312CF998C7005ACCEE /* CoreDataModel.xcdatamodeld in Sources */,
+				229F14312CF998C7005ACCEE /* CoreDataModel_v2.xcdatamodeld in Sources */,
 				2292F25D2CD0F1A500BA6736 /* TypeSelectViewController.swift in Sources */,
 				22E5F6B52CD3CB8100D979ED /* CategoriesViewController.swift in Sources */,
 				22E5F6A92CD14EA600D979ED /* ButtonsCell.swift in Sources */,
@@ -531,14 +523,13 @@
 /* End XCConfigurationList section */
 
 /* Begin XCVersionGroup section */
-		229F142F2CF998C7005ACCEE /* CoreDataModel.xcdatamodeld */ = {
+		229F142F2CF998C7005ACCEE /* CoreDataModel_v2.xcdatamodeld */ = {
 			isa = XCVersionGroup;
 			children = (
 				229F14302CF998C7005ACCEE /* CoreDataModel.xcdatamodel */,
 			);
 			currentVersion = 229F14302CF998C7005ACCEE /* CoreDataModel.xcdatamodel */;
-			name = CoreDataModel.xcdatamodeld;
-			path = /Users/aleksandrtropinskij/dev/Tracker/Tracker/Services/CoreDataModel.xcdatamodeld;
+			path = CoreDataModel_v2.xcdatamodeld;
 			sourceTree = "<group>";
 			versionGroupType = wrapper.xcdatamodel;
 		};

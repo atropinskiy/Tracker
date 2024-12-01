@@ -7,24 +7,17 @@
 
 import Foundation
 
-public class WeekDayArrayTransformer: ValueTransformer {
-
-    override public func transformedValue(_ value: Any?) -> Any? {
-        guard let days = value as? [WeekDay] else { return nil }
-        return try? JSONEncoder().encode(days)
-    }
-
-    override public func reverseTransformedValue(_ value: Any?) -> Any? {
-        guard let data = value as? NSData else { return nil }
-        return try? JSONDecoder().decode([WeekDay].self, from: data as Data)
+public class WeekDayArrayTransformer {
+    static func scheduleToString(from days: [WeekDay]) -> String {
+        return days.map { $0.rawValue }.joined(separator: ",")
     }
     
-    static func register() {
-            ValueTransformer.setValueTransformer(
-                WeekDayArrayTransformer(),
-                forName: NSValueTransformerName(rawValue: String(describing: WeekDayArrayTransformer.self))
-            )
-        }
+    // Преобразование строки в массив WeekDay
+    static func stringToSchedule(from scheduleString: String) -> [WeekDay] {
+        let days = scheduleString.split(separator: ",").map { String($0) }
+        return days.compactMap { WeekDay(rawValue: $0) }
+    }
+    
 }
 
 

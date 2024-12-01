@@ -45,37 +45,21 @@ class Tracker {
         self.date = date
     }
 
-    // Функция для создания Tracker из TrackerCoreData
-    static func fromCoreData(_ coreData: TrackerCoreData) -> Tracker {
-        // Преобразуем строку HEX в UIColor
-        let color: UIColor
-        if let hexColor = coreData.color {
-            color = UIColor(hex: hexColor) ?? UIColor.black  // Если конвертация не удалась, используем дефолтный цвет
-        } else {
-            color = UIColor.black  // Если color == nil, используем дефолтный цвет
-        }
-
-        // Преобразуем schedule из Data в [WeekDay]
-        let schedule: [WeekDay]?
-        if let scheduleData = coreData.schedule as? Data {
-            let transformer = WeekDayArrayTransformer()  // Используем ваш трансформер
-            if let decodedSchedule = transformer.reverseTransformedValue(scheduleData) as? [WeekDay] {
-                schedule = decodedSchedule
-            } else {
-                print("Ошибка декодирования schedule")
-                schedule = nil
-            }
-        } else {
-            schedule = nil
-        }
-
-        return Tracker(
-            id: coreData.id ?? UUID(),
-            name: coreData.name ?? "",
+    convenience init(from coreDataTracker: TrackerCoreData) {
+        let colorString = coreDataTracker.color ?? "#000000" // по умолчанию черный
+        let color = UIColor(hex: colorString) ?? UIColor.black // если UIColor(hex:) возвращает nil, используем UIColor.black
+        
+        // Преобразуем строку расписания в массив WeekDay
+        let schedule = WeekDayArrayTransformer.stringToSchedule(from: coreDataTracker.schedule ?? "")
+        
+        self.init(
+            id: coreDataTracker.id ?? UUID(),
+            name: coreDataTracker.name ?? "",
             color: color,
-            emoji: coreData.emoji ?? "",
-            schedule: schedule,  // Используем декодированное расписание
-            date: coreData.date
+            emoji: coreDataTracker.emoji ?? "",
+            schedule: schedule,
+            date: coreDataTracker.date
         )
     }
+
 }

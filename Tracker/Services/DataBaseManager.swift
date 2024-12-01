@@ -16,7 +16,11 @@ class DatabaseManager {
     
     // Контейнер для работы с Core Data
     lazy var persistentContainer: NSPersistentContainer = {
-        let container = NSPersistentContainer(name: "CoreDataModel")  // Укажите название вашего .xcdatamodeld файла
+        let container = NSPersistentContainer(name: "CoreDataModel_v2")
+        let description = container.persistentStoreDescriptions.first
+        description?.shouldMigrateStoreAutomatically = true
+        description?.shouldInferMappingModelAutomatically = true
+        
         container.loadPersistentStores { storeDescription, error in
             if let error = error as NSError? {
                 fatalError("Не удалось загрузить хранилище: \(error), \(error.userInfo)")

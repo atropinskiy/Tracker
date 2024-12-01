@@ -46,13 +46,9 @@ final class TrackersViewController: UIViewController {
         super.viewDidLoad()
         view.backgroundColor = UIColor(named: "YP-white")
         addControlView()
-        let coreDataTrackers = TrackerStore.shared.fetchAllTrackers()
-        let trackerModels = coreDataTrackers.map { Tracker.fromCoreData($0) }
-        let testCategory = TrackerCategory(title: "Тестовая категория", trackers: trackerModels)
-        categories.append(testCategory)
-        
-        
-        
+        let testCat = TrackerCategory(title: "Тестовая категория", trackers: [])
+        categories.append(testCat)
+        trackerStore.setupFetchedResultsController()
         filterTrackers()
         showTrackers()
     }
@@ -184,35 +180,30 @@ final class TrackersViewController: UIViewController {
         let selectedDate = datePicker.date
         let calendar = Calendar.current
         var weekday = calendar.component(.weekday, from: selectedDate)
-        weekday = (weekday + 5) % 7
+        weekday = (weekday + 5) % 7 // Понедельник — это 0, воскресенье — 6
+        guard weekday >= 0 && weekday < WeekDay.allCases.count else {
+            return // Если индекс выходит за пределы, выходим из функции
+        }
+        let selectedWeekday = WeekDay.allCases[weekday]
         filteredTrackers.removeAll()
         let coreDataTrackers = TrackerStore.shared.fetchAllTrackers()
-        let trackers = coreDataTrackers.map { Tracker.fromCoreData($0) }
-        for tracker in trackers {
-            print("Tracker ID: \(tracker.id), Name: \(tracker.name), Color: \(tracker.color), Emoji: \(tracker.emoji), Schedule: \(String(describing: tracker.schedule)), Date: \(String(describing: tracker.date))")
+        let trackers = coreDataTrackers.map { Tracker(from: $0) }
+        filteredTrackers = trackers.filter { tracker in
+            let isDateMatch = calendar.isDate(tracker.date ?? Date(), inSameDayAs: selectedDate)
+            let isWeekdayMatch = tracker.schedule?.contains(selectedWeekday) ?? false
+            return isDateMatch || isWeekdayMatch
         }
         
-        for category in categories {
-            for tracker in trackers where (tracker.schedule?.contains(WeekDay.allCases[weekday]) ?? false) || tracker.date == selectedDate {
-                filteredTrackers.append(tracker)
-            }
-        }
-
-        
-        let completedTrackersForToday = completedTrackers.filter { calendar.isDate($0.date, inSameDayAs: selectedDate) }
-        for trackerRecord in completedTrackersForToday {
-            if let tracker = categories.flatMap({ $0.trackers }).first(where: { $0.id == trackerRecord.id }) {
-                filteredTrackers.append(tracker)
-            }
-        }
-        
+        // Убираем дубликаты из filteredTrackers по ID
         filteredTrackers = Array(filteredTrackers.reduce(into: [UUID: Tracker]()) { $0[$1.id] = $1 }.values)
         
+        // Перезагружаем данные в collectionView
         collectionView.reloadData()
+        
+        // Обновляем видимость заглушки
         updateStubVisibility()
     }
-    
-    
+
     private func updateStubVisibility() {
         if filteredTrackers.isEmpty {
             addStub()
@@ -235,9 +226,8 @@ final class TrackersViewController: UIViewController {
         let typeSelectVC = TypeSelectViewController()
         typeSelectVC.delegate = self
         present(typeSelectVC, animated: true, completion: nil)
-        let coreDataTrackers = TrackerStore.shared.fetchAllTrackers()
-
-        for tracker in coreDataTrackers {
+        filterTrackers()
+        for tracker in filteredTrackers {
             print("Tracker ID: \(tracker.id), Name: \(tracker.name), Color: \(tracker.color), Emoji: \(tracker.emoji), Schedule: \(String(describing: tracker.schedule)), Date: \(String(describing: tracker.date))")
         }
         
@@ -255,7 +245,9 @@ final class TrackersViewController: UIViewController {
 
 extension TrackersViewController: UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
     func numberOfSections(in collectionView: UICollectionView) -> Int {
+        print("Filtered trackers count: \(categories.count)")
         return categories.count
+        
     }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
@@ -263,11 +255,19 @@ extension TrackersViewController: UICollectionViewDataSource, UICollectionViewDe
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        if filteredTrackers.isEmpty {
+            print("filteredTrackers пустой") // Проверка на пустой массив
+        } else {
+            print("filteredTrackers.count: \(filteredTrackers.count)") // Проверка на количество элементов
+        }
+        
         guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "TrackerCell", for: indexPath) as? TrackerCollectionCell else {
             return UICollectionViewCell()
         }
         let tracker = filteredTrackers[indexPath.item]
         let isCompletedToday = TrackerRecordStore.shared.isTrackerCompletedToday(trackerId: tracker.id, currentDate: currentDate)
+        
+        
         cell.isCompleted = isCompletedToday
         cell.currentDate = currentDate
         cell.configure(with: tracker, isCompletedToday: isCompletedToday)
@@ -347,15 +347,9 @@ extension TrackersViewController: AddTrackerViewControllerDelegate {
     func didSelectColor(_ color: UIColor) {
     }
     
-    func didCreateTracker (tracker: Tracker) {
-        print(tracker)
-        currentTrackers.append(tracker)
-        let newCategory = TrackerCategory(title: "Новая категория", trackers: currentTrackers)
-        self.categories = [newCategory]
+    func didCreateTracker () {
         filterTrackers()
         collectionView.reloadData()
-        
-        
     }
 }
 

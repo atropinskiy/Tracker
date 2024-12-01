@@ -134,6 +134,7 @@ final class TrackerCollectionCell: UICollectionViewCell {
     }
 
     func configure(with tracker: Tracker, isCompletedToday: Bool) {
+        print(tracker)
         emojiLabel.text = tracker.emoji
         nameLabel.text = tracker.name
         trackerView.backgroundColor = tracker.color
