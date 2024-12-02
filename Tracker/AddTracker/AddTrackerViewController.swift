@@ -7,12 +7,10 @@
 
 import UIKit
 protocol AddTrackerViewControllerDelegate: AnyObject {
-    func didCreateTracker(tracker: Tracker)
+    func didCreateTracker()
     func didSelectEmoji(_ emoji: String)
     func didSelectColor(_ color: UIColor)
 }
-
-
 
 final class AddTrackerViewController: UIViewController {
     var taskType: String?
@@ -183,8 +181,6 @@ final class AddTrackerViewController: UIViewController {
             buttonStackView.heightAnchor.constraint(equalToConstant: 60),
             buttonStackView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor)
         ])
-        
-        
     }
     
     private func showAlert(with message: String) {
@@ -213,7 +209,7 @@ final class AddTrackerViewController: UIViewController {
         dismiss(animated: true, completion: nil)
     }
     
-    @objc private func createButtonClicked(){
+    @objc private func createButtonClicked() {
         guard let trackerName = headerTextField.text, !trackerName.isEmpty else {
             return
         }
@@ -221,15 +217,12 @@ final class AddTrackerViewController: UIViewController {
             return
         }
         
-        if taskType == "Привычка" {
-            let newTracker = Tracker(id: UUID(), name: trackerName, color: color, emoji: emoji, schedule: schedule, date: nil)
-            delegate?.didCreateTracker(tracker: newTracker)
-        }
-        else {
-            let newTracker = Tracker(id: UUID(), name: trackerName, color: color, emoji: emoji, schedule: [], date: currentDate)
-            delegate?.didCreateTracker(tracker: newTracker)
-        }
-        
+        let id = UUID()
+        let new_schedule = taskType == "Привычка" ? schedule : nil
+        let date: Date? = taskType == "Привычка" ? nil : currentDate
+        TrackerStore.shared.addTracker(id: id, name: trackerName, color: color, emoji: emoji, schedule: new_schedule, date: date)
+        delegate?.didCreateTracker()
+        // Закрываем экран после добавления
         dismiss(animated: true, completion: nil)
     }
     
@@ -425,9 +418,7 @@ extension AddTrackerViewController: UICollectionViewDataSource, UICollectionView
             
         }
     }
-    
-    
-    
+
 }
 
 extension AddTrackerViewController: ScheduleViewControllerDelegate {

@@ -7,7 +7,7 @@
 
 import UIKit
 
-enum WeekDay: String, CaseIterable {
+enum WeekDay: String, CaseIterable, Encodable, Decodable {
     case monday = "Понедельник"
     case tuesday = "Вторник"
     case wednesday = "Среда"
@@ -28,11 +28,38 @@ enum WeekDay: String, CaseIterable {
         }
     }
 }
-struct Tracker {
-    let id : UUID
-    let name: String
-    let color: UIColor
-    let emoji: String
-    let schedule:[WeekDay]?
-    let date: Date?
+class Tracker {
+    var id: UUID
+    var name: String
+    var color: UIColor
+    var emoji: String
+    var schedule: [WeekDay]?
+    var date: Date?
+
+    init(id: UUID, name: String, color: UIColor, emoji: String, schedule: [WeekDay]?, date: Date?) {
+        self.id = id
+        self.name = name
+        self.color = color
+        self.emoji = emoji
+        self.schedule = schedule
+        self.date = date
+    }
+
+    convenience init(from coreDataTracker: TrackerCoreData) {
+        let colorString = coreDataTracker.color ?? "#000000" // по умолчанию черный
+        let color = UIColor(hex: colorString) ?? UIColor.black // если UIColor(hex:) возвращает nil, используем UIColor.black
+        
+        // Преобразуем строку расписания в массив WeekDay
+        let schedule = WeekDayArrayTransformer.stringToSchedule(from: coreDataTracker.schedule ?? "")
+        
+        self.init(
+            id: coreDataTracker.id ?? UUID(),
+            name: coreDataTracker.name ?? "",
+            color: color,
+            emoji: coreDataTracker.emoji ?? "",
+            schedule: schedule,
+            date: coreDataTracker.date
+        )
+    }
+
 }
