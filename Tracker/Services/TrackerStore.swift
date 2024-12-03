@@ -62,6 +62,49 @@ final class TrackerStore: NSObject, NSFetchedResultsControllerDelegate {
         setupFetchedResultsController()
         return fetchedResultsController?.fetchedObjects ?? []
     }
+    
+    func fetchTrackers(forCategory category: TrackerCategoryCoreData) -> [TrackerCoreData] {
+        let fetchRequest: NSFetchRequest<TrackerCoreData> = TrackerCoreData.fetchRequest()
+
+        // Фильтрация по связанной категории
+        fetchRequest.predicate = NSPredicate(format: "category == %@", category)
+
+        do {
+            let trackers = try context.fetch(fetchRequest)
+            return trackers
+        } catch {
+            print("Ошибка при загрузке трекеров по категории: \(error.localizedDescription)")
+            return []
+        }
+    }
+    
+    // Функция для назначения категории трекеру
+    func assignCategoryToTracker(trackerId: UUID, category: TrackerCategoryCoreData) {
+        // Получаем трекер по его ID
+        let fetchRequest: NSFetchRequest<TrackerCoreData> = TrackerCoreData.fetchRequest()
+        fetchRequest.predicate = NSPredicate(format: "id == %@", trackerId as CVarArg)
+        
+        do {
+            let trackers = try context.fetch(fetchRequest)
+            
+            // Проверяем, что трекер найден
+            guard let tracker = trackers.first else {
+                print("Трекер с ID \(trackerId) не найден.")
+                return
+            }
+            
+            // Назначаем категорию трекеру
+            tracker.category = category
+            
+            // Сохраняем изменения в Core Data
+            try context.save()
+            print("Категория успешно назначена трекеру.")
+            
+        } catch {
+            print("Ошибка при назначении категории трекеру: \(error.localizedDescription)")
+        }
+    }
+
 }
 
 

@@ -12,39 +12,48 @@ protocol SwipeViewControllerDelegate: AnyObject {
 }
 
 final class SwipeViewController: UIPageViewController, UIPageViewControllerDataSource, UIPageViewControllerDelegate {
-    
+
     weak var swipeDelegate: SwipeViewControllerDelegate?
-    
+
     private lazy var pages: [BaseViewController] = {
         return [
             BaseViewController(imageName: "StartBgBlue", labelText: "Отслеживайте только то, что хотите"),
             BaseViewController(imageName: "StartBgRed", labelText: "Даже если это не литры воды и йога")
         ]
     }()
-    
+
+    // Инициализируем с TransitionStyle.scroll
+    init() {
+        super.init(transitionStyle: .scroll, navigationOrientation: .horizontal, options: nil)
+    }
+
+    required init?(coder: NSCoder) {
+        super.init(coder: coder)
+    }
+
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+
         dataSource = self
         delegate = self
-        
+
         pages.forEach { $0.delegate = self }
-        
+
         // Устанавливаем начальный контроллер
         if let firstVC = pages.first {
             setViewControllers([firstVC], direction: .forward, animated: false, completion: nil)
         }
     }
-    
+
     // MARK: - UIPageViewControllerDataSource
-    
+
     func pageViewController(_ pageViewController: UIPageViewController, viewControllerBefore viewController: UIViewController) -> UIViewController? {
         guard let currentIndex = pages.firstIndex(of: viewController as! BaseViewController), currentIndex > 0 else {
             return nil
         }
         return pages[currentIndex - 1]
     }
-    
+
     func pageViewController(_ pageViewController: UIPageViewController, viewControllerAfter viewController: UIViewController) -> UIViewController? {
         guard let currentIndex = pages.firstIndex(of: viewController as! BaseViewController), currentIndex < pages.count - 1 else {
             return nil

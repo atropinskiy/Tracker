@@ -9,9 +9,11 @@ import UIKit
 
 final class TrackersViewController: UIViewController {
     private var categories = [TrackerCategory]()
+    private var filteredCategories = [(category: TrackerCategory, trackers: [Tracker])]()
     private var currentTrackers = [Tracker]()
     let trackerStore = TrackerStore.shared
-    
+    let trackerCategoryStore = TrackerCategoryStore.shared
+    private let viewModel = CategoriesViewModel()
     private var completedTrackers: [TrackerRecord] = []
     private var completedTrackerIDs = Set<UUID>()
     private var filteredTrackers: [Tracker] = []
@@ -46,9 +48,9 @@ final class TrackersViewController: UIViewController {
         super.viewDidLoad()
         view.backgroundColor = UIColor(named: "YP-white")
         addControlView()
-        let testCat = TrackerCategory(title: "Тестовая категория", trackers: [])
-        categories.append(testCat)
         trackerStore.setupFetchedResultsController()
+        viewModel.loadCategories()
+        categories = viewModel.getCategoriesAsTrackerCategory()
         filterTrackers()
         showTrackers()
     }
@@ -179,23 +181,51 @@ final class TrackersViewController: UIViewController {
     private func filterTrackers() {
         let selectedDate = datePicker.date
         let calendar = Calendar.current
-        var weekday = calendar.component(.weekday, from: selectedDate)
+
+        // Обнуляем время в selectedDate для корректного сравнения
+        let startOfDay = calendar.startOfDay(for: selectedDate)
+        
+        // Преобразуем номер дня недели так, чтобы понедельник был 0
+        var weekday = calendar.component(.weekday, from: startOfDay)
         weekday = (weekday + 5) % 7 // Понедельник — это 0, воскресенье — 6
         guard weekday >= 0 && weekday < WeekDay.allCases.count else {
             return // Если индекс выходит за пределы, выходим из функции
         }
         let selectedWeekday = WeekDay.allCases[weekday]
+        
+        print("Фильтруем трекеры для: \(startOfDay) на \(selectedWeekday.rawValue)") // Логирование даты и выбранного дня недели
+
         filteredTrackers.removeAll()
-        let coreDataTrackers = TrackerStore.shared.fetchAllTrackers()
-        let trackers = coreDataTrackers.map { Tracker(from: $0) }
-        filteredTrackers = trackers.filter { tracker in
-            let isDateMatch = calendar.isDate(tracker.date ?? Date(), inSameDayAs: selectedDate)
-            let isWeekdayMatch = tracker.schedule?.contains(selectedWeekday) ?? false
-            return isDateMatch || isWeekdayMatch
+        filteredCategories.removeAll()  // Очищаем filteredCategories перед фильтрацией
+        
+        // Теперь для каждой категории фильтруем её трекеры
+        for category in categories {
+            print("Обрабатываем категорию: \(category.title)") // Логирование текущей категории
+            
+            if let categoryTrackers = category.trackers {
+                print("Найдено \(categoryTrackers.count) трекеров в категории: \(category.title)") // Логирование количества трекеров в категории
+                
+                let filteredCategoryTrackers = categoryTrackers.filter { tracker in
+                    // Обнуляем время у даты трекера для корректного сравнения
+                    let trackerDate = calendar.startOfDay(for: tracker.date ?? Date())
+                    
+                    let isDateMatch = calendar.isDate(trackerDate, inSameDayAs: startOfDay)
+                    let isWeekdayMatch = tracker.schedule?.contains(selectedWeekday) ?? false
+                    return isDateMatch || isWeekdayMatch
+                }
+                
+                print("После фильтрации осталось \(filteredCategoryTrackers.count) трекеров в категории: \(category.title)") // Логирование после фильтрации
+                
+                if !filteredCategoryTrackers.isEmpty {
+                    filteredCategories.append((category: category, trackers: filteredCategoryTrackers)) // Добавляем категорию с отфильтрованными трекерами
+                }
+            }
         }
         
         // Убираем дубликаты из filteredTrackers по ID
         filteredTrackers = Array(filteredTrackers.reduce(into: [UUID: Tracker]()) { $0[$1.id] = $1 }.values)
+        
+        print("Итоговое количество трекеров после фильтрации: \(filteredTrackers.count)") // Логирование итогового количества трекеров
         
         // Перезагружаем данные в collectionView
         collectionView.reloadData()
@@ -204,8 +234,12 @@ final class TrackersViewController: UIViewController {
         updateStubVisibility()
     }
 
+
+
+
+
     private func updateStubVisibility() {
-        if filteredTrackers.isEmpty {
+        if filteredCategories.allSatisfy({ $0.trackers.isEmpty }) { // Проверяем, что все категории пустые
             addStub()
             isStubVisible = true
             collectionView.isHidden = true
@@ -241,28 +275,24 @@ final class TrackersViewController: UIViewController {
 
 extension TrackersViewController: UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
     func numberOfSections(in collectionView: UICollectionView) -> Int {
-        print("Filtered trackers count: \(categories.count)")
-        return categories.count
+        print("Количество секций: \(filteredCategories.count)")
+        return filteredCategories.count
         
     }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return filteredTrackers.count
+        print("Количество трекеров в секции \(section): \(filteredCategories[section].trackers.count)")
+        return filteredCategories[section].trackers.count
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        if filteredTrackers.isEmpty {
-            print("filteredTrackers пустой") // Проверка на пустой массив
-        } else {
-            print("filteredTrackers.count: \(filteredTrackers.count)") // Проверка на количество элементов
-        }
-        
         guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "TrackerCell", for: indexPath) as? TrackerCollectionCell else {
             return UICollectionViewCell()
         }
-        let tracker = filteredTrackers[indexPath.item]
-        let isCompletedToday = TrackerRecordStore.shared.isTrackerCompletedToday(trackerId: tracker.id, currentDate: currentDate)
         
+        // Получаем трекер для текущей ячейки
+        let tracker = filteredCategories[indexPath.section].trackers[indexPath.item]
+        let isCompletedToday = TrackerRecordStore.shared.isTrackerCompletedToday(trackerId: tracker.id, currentDate: currentDate)
         
         cell.isCompleted = isCompletedToday
         cell.currentDate = currentDate
@@ -343,7 +373,8 @@ extension TrackersViewController: AddTrackerViewControllerDelegate {
     func didSelectColor(_ color: UIColor) {
     }
     
-    func didCreateTracker () {
+    func didCreateTracker (tracker: Tracker) {
+        categories = viewModel.getCategoriesAsTrackerCategory()
         filterTrackers()
         collectionView.reloadData()
     }

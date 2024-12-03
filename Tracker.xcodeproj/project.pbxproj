@@ -30,6 +30,8 @@
 		229F14312CF998C7005ACCEE /* CoreDataModel_v2.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 229F142F2CF998C7005ACCEE /* CoreDataModel_v2.xcdatamodeld */; };
 		229F14332CF9C917005ACCEE /* DataBaseManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 229F14322CF9C917005ACCEE /* DataBaseManager.swift */; };
 		229F14352CFAE31D005ACCEE /* WeekDayArrayTransformer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 229F14342CFAE31D005ACCEE /* WeekDayArrayTransformer.swift */; };
+		229F14492CFDE756005ACCEE /* CategoriesViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 229F14482CFDE756005ACCEE /* CategoriesViewModel.swift */; };
+		229F144B2CFDEC46005ACCEE /* CategoryCreationViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 229F144A2CFDEC46005ACCEE /* CategoryCreationViewController.swift */; };
 		22E5F6A92CD14EA600D979ED /* ButtonsCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22E5F6A82CD14EA600D979ED /* ButtonsCell.swift */; };
 		22E5F6AB2CD164FE00D979ED /* CollectionCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22E5F6AA2CD164FE00D979ED /* CollectionCell.swift */; };
 		22E5F6AD2CD1754D00D979ED /* Static.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22E5F6AC2CD1754D00D979ED /* Static.swift */; };
@@ -66,6 +68,8 @@
 		229F14302CF998C7005ACCEE /* CoreDataModel.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = CoreDataModel.xcdatamodel; sourceTree = "<group>"; };
 		229F14322CF9C917005ACCEE /* DataBaseManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataBaseManager.swift; sourceTree = "<group>"; };
 		229F14342CFAE31D005ACCEE /* WeekDayArrayTransformer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeekDayArrayTransformer.swift; sourceTree = "<group>"; };
+		229F14482CFDE756005ACCEE /* CategoriesViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoriesViewModel.swift; sourceTree = "<group>"; };
+		229F144A2CFDEC46005ACCEE /* CategoryCreationViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoryCreationViewController.swift; sourceTree = "<group>"; };
 		22E5F6A82CD14EA600D979ED /* ButtonsCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ButtonsCell.swift; sourceTree = "<group>"; };
 		22E5F6AA2CD164FE00D979ED /* CollectionCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CollectionCell.swift; sourceTree = "<group>"; };
 		22E5F6AC2CD1754D00D979ED /* Static.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Static.swift; sourceTree = "<group>"; };
@@ -100,9 +104,9 @@
 		2292F25B2CD0F16200BA6736 /* AddTracker */ = {
 			isa = PBXGroup;
 			children = (
+				229F14472CFDE728005ACCEE /* Categories */,
 				2292F2592CD0F0FD00BA6736 /* AddTrackerViewController.swift */,
 				22E5F6AE2CD2AFC900D979ED /* ScheduleViewController.swift */,
-				22E5F6B42CD3CB8100D979ED /* CategoriesViewController.swift */,
 				22E5F6B02CD2B98600D979ED /* ScheduleCell.swift */,
 				22E5F6AA2CD164FE00D979ED /* CollectionCell.swift */,
 				22E5F6A82CD14EA600D979ED /* ButtonsCell.swift */,
@@ -190,6 +194,16 @@
 			path = Services;
 			sourceTree = "<group>";
 		};
+		229F14472CFDE728005ACCEE /* Categories */ = {
+			isa = PBXGroup;
+			children = (
+				22E5F6B42CD3CB8100D979ED /* CategoriesViewController.swift */,
+				229F144A2CFDEC46005ACCEE /* CategoryCreationViewController.swift */,
+				229F14482CFDE756005ACCEE /* CategoriesViewModel.swift */,
+			);
+			path = Categories;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -267,6 +281,7 @@
 				2292F24F2CD023FC00BA6736 /* TrackerCollectionCell.swift in Sources */,
 				229F14352CFAE31D005ACCEE /* WeekDayArrayTransformer.swift in Sources */,
 				22E5F6AB2CD164FE00D979ED /* CollectionCell.swift in Sources */,
+				229F14492CFDE756005ACCEE /* CategoriesViewModel.swift in Sources */,
 				22E5F6BB2CD62F4D00D979ED /* FirstTimeLaunchFlags.swift in Sources */,
 				2292F2582CD02D5800BA6736 /* TrackerRecord.swift in Sources */,
 				22941DD62CCE96C800AE1C26 /* BaseViewController.swift in Sources */,
@@ -277,6 +292,7 @@
 				22E5F6B32CD39D9300D979ED /* SupplementaryView.swift in Sources */,
 				22E5F6B12CD2B98600D979ED /* ScheduleCell.swift in Sources */,
 				229F14312CF998C7005ACCEE /* CoreDataModel_v2.xcdatamodeld in Sources */,
+				229F144B2CFDEC46005ACCEE /* CategoryCreationViewController.swift in Sources */,
 				2292F25D2CD0F1A500BA6736 /* TypeSelectViewController.swift in Sources */,
 				22E5F6B52CD3CB8100D979ED /* CategoriesViewController.swift in Sources */,
 				22E5F6A92CD14EA600D979ED /* ButtonsCell.swift in Sources */,
