@@ -15,51 +15,54 @@ protocol CategoryCreationViewControllerDelegate: AnyObject {
 final class CategoryCreationViewController: UIViewController {
     
     weak var delegate: CategoryCreationViewControllerDelegate?
-    private lazy var header = UILabel()
-    private lazy var textField = UITextField()
-    private lazy var doneButton = UIButton(type: .system)
     var onCategoryCreated: ((Category) -> Void)?
 
     override func viewDidLoad() {
         super.viewDidLoad()
         setupUI()
     }
+    
+    private lazy var header: UILabel = {
+         let label = UILabel()
+         label.text = "Новая категория"
+         label.font = .systemFont(ofSize: 16, weight: .medium)
+         label.textColor = UIColor(named: "YP-black")
+         label.textAlignment = .center
+         label.translatesAutoresizingMaskIntoConstraints = false
+         return label
+     }()
+    
+    private lazy var textField: UITextField = {
+         let textField = UITextField()
+         textField.placeholder = "Название категории"
+         textField.layer.cornerRadius = 16
+         textField.backgroundColor = UIColor(named: "YP-categories")
+         textField.attributedPlaceholder = NSAttributedString(
+             string: "Введите название категории",
+             attributes: [NSAttributedString.Key.foregroundColor: UIColor(named: "YP-gray") ?? UIColor.gray]
+         )
+         textField.addTarget(self, action: #selector(textChanged), for: .editingChanged)
+         textField.safeSetPadding(left: 16, right: 16)
+         textField.translatesAutoresizingMaskIntoConstraints = false
+         return textField
+     }()
+    
+    private lazy var doneButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.setTitle("Готово", for: .normal)
+        button.setTitleColor(UIColor(named: "YP-white"), for: .normal)
+        button.titleLabel?.font = .systemFont(ofSize: 16, weight: .medium)
+        button.backgroundColor = UIColor(named: "YP-gray")
+        button.layer.cornerRadius = 16
+        button.layer.masksToBounds = true
+        button.addTarget(self, action: #selector(doneTapped), for: .touchUpInside)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        return button
+    }()
 
     private func setupUI() {
         view.backgroundColor = .white
-        
-        header.text = "Новая категория"
-        header.font = .systemFont(ofSize: 16, weight: .medium)
-        header.translatesAutoresizingMaskIntoConstraints = false
-        header.textColor = UIColor(named: "YP-black")
-        header.textAlignment = .center
-        
-        textField.placeholder = "Название категории"
-        textField.addTarget(self, action: #selector(textChanged), for: .editingChanged)
-        textField.layer.cornerRadius = 16
-        textField.backgroundColor = UIColor(named: "YP-categories")
-        textField.attributedPlaceholder = NSAttributedString(
-            string: "Введите название категории",
-            attributes: [NSAttributedString.Key.foregroundColor: UIColor(named: "YP-gray") ?? UIColor.gray]
-        )
-        textField.safeSetPadding(left: 16, right: 16)
-        textField.translatesAutoresizingMaskIntoConstraints = false
-
-
-        doneButton.setTitle("Готово", for: .normal)
-        doneButton.setTitleColor(UIColor(named: "YP-white"), for: .normal)
-        doneButton.titleLabel?.font = .systemFont(ofSize: 16, weight: .medium)
-        doneButton.backgroundColor = UIColor(named: "YP-gray")
-        doneButton.translatesAutoresizingMaskIntoConstraints = false
-        doneButton.layer.cornerRadius = 16
-        doneButton.layer.masksToBounds = true
-        doneButton.addTarget(self, action: #selector(doneTapped), for: .touchUpInside)
-        
-        view.addSubview(doneButton)
-        view.addSubview(header)
-        view.addSubview(textField)
-        view.addSubview(doneButton)
-        
+        [header, textField, doneButton].forEach{view.addSubview($0)}
 
         NSLayoutConstraint.activate([
             header.topAnchor.constraint(equalTo: view.topAnchor, constant: 24),

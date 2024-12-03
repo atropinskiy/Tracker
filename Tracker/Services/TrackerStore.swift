@@ -78,6 +78,41 @@ final class TrackerStore: NSObject, NSFetchedResultsControllerDelegate {
         }
     }
     
+    func removeTrackers(forCategory category: TrackerCategoryCoreData) {
+        let trackersToDelete = fetchTrackers(forCategory: category)
+        
+        trackersToDelete.forEach { tracker in
+            deleteTracker(tracker)
+        }
+    }
+    
+    func removeCategoryAndAssociatedTrackers(category: TrackerCategoryCoreData) {
+        // Удаляем все трекеры, относящиеся к категории
+        removeTrackers(forCategory: category)
+        
+        // Удаляем саму категорию
+        context.delete(category)
+        
+        do {
+            try context.save()
+            print("Категория \(category.title ?? "без названия") и все связанные трекеры успешно удалены.")
+        } catch {
+            print("Ошибка при удалении категории и трекеров: \(error.localizedDescription)")
+        }
+    }
+
+    
+    private func deleteTracker(_ tracker: TrackerCoreData) {
+        context.delete(tracker)
+        
+        do {
+            try context.save()
+            print("Трекер с ID \(tracker.id ?? UUID()) был удален.")
+        } catch {
+            print("Ошибка при удалении трекера: \(error.localizedDescription)")
+        }
+    }
+    
     // Функция для назначения категории трекеру
     func assignCategoryToTracker(trackerId: UUID, category: TrackerCategoryCoreData) {
         // Получаем трекер по его ID
@@ -104,6 +139,7 @@ final class TrackerStore: NSObject, NSFetchedResultsControllerDelegate {
             print("Ошибка при назначении категории трекеру: \(error.localizedDescription)")
         }
     }
+    
 
 }
 

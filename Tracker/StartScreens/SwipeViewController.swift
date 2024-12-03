@@ -11,18 +11,20 @@ protocol SwipeViewControllerDelegate: AnyObject {
     func didPressButton()
 }
 
-final class SwipeViewController: UIPageViewController, UIPageViewControllerDataSource, UIPageViewControllerDelegate {
+final class SwipeViewController: UIPageViewController, UIPageViewControllerDataSource, UIPageViewControllerDelegate, OnboardingSinglePageViewControllerDelegate {
 
     weak var swipeDelegate: SwipeViewControllerDelegate?
 
-    private lazy var pages: [BaseViewController] = {
+    private lazy var pages: [OnboardingSinglePageViewController] = {
         return [
-            BaseViewController(imageName: "StartBgBlue", labelText: "Отслеживайте только то, что хотите"),
-            BaseViewController(imageName: "StartBgRed", labelText: "Даже если это не литры воды и йога")
+            OnboardingSinglePageViewController(pageModel: .bluePage),
+            OnboardingSinglePageViewController(pageModel: .redPage)
         ]
     }()
 
-    // Инициализируем с TransitionStyle.scroll
+    private let pageControl = UIPageControl()
+
+    // Инициализация с TransitionStyle.scroll
     init() {
         super.init(transitionStyle: .scroll, navigationOrientation: .horizontal, options: nil)
     }
@@ -43,29 +45,67 @@ final class SwipeViewController: UIPageViewController, UIPageViewControllerDataS
         if let firstVC = pages.first {
             setViewControllers([firstVC], direction: .forward, animated: false, completion: nil)
         }
+
+        setupPageControl()
     }
 
     // MARK: - UIPageViewControllerDataSource
 
     func pageViewController(_ pageViewController: UIPageViewController, viewControllerBefore viewController: UIViewController) -> UIViewController? {
-        guard let currentIndex = pages.firstIndex(of: viewController as! BaseViewController), currentIndex > 0 else {
+        guard let currentIndex = pages.firstIndex(of: viewController as! OnboardingSinglePageViewController), currentIndex > 0 else {
             return nil
         }
         return pages[currentIndex - 1]
     }
 
     func pageViewController(_ pageViewController: UIPageViewController, viewControllerAfter viewController: UIViewController) -> UIViewController? {
-        guard let currentIndex = pages.firstIndex(of: viewController as! BaseViewController), currentIndex < pages.count - 1 else {
+        guard let currentIndex = pages.firstIndex(of: viewController as! OnboardingSinglePageViewController), currentIndex < pages.count - 1 else {
             return nil
         }
         return pages[currentIndex + 1]
     }
-}
 
-extension SwipeViewController: BaseViewControllerDelegate {
+    // MARK: - OnboardingSinglePageViewControllerDelegate
+
     func didPressButton() {
         let nextViewController = TabBarController()
         nextViewController.modalPresentationStyle = .fullScreen
         present(nextViewController, animated: true, completion: nil)
     }
+
+    // MARK: - PageControl Setup
+
+    private func setupPageControl() {
+        pageControl.numberOfPages = pages.count
+        pageControl.currentPage = 0
+        pageControl.translatesAutoresizingMaskIntoConstraints = false
+        pageControl.pageIndicatorTintColor = .lightGray
+        pageControl.currentPageIndicatorTintColor = .black
+        view.addSubview(pageControl)
+
+        // Размещение на экране
+        NSLayoutConstraint.activate([
+            pageControl.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -115),
+            pageControl.centerXAnchor.constraint(equalTo: view.centerXAnchor)
+        ])
+    }
+
+    // MARK: - Обновление индикатора страницы
+
+    func updatePageControl(for pageIndex: Int) {
+        pageControl.currentPage = pageIndex
+    }
+
+    // MARK: - UIPageViewControllerDelegate
+
+    // Метод будет вызываться при переходе на новую страницу
+    func pageViewController(_ pageViewController: UIPageViewController, didFinishAnimating finished: Bool, previousViewControllers: [UIViewController], transitionCompleted: Bool) {
+        guard let currentViewController = viewControllers?.first,
+              let currentIndex = pages.firstIndex(of: currentViewController as! OnboardingSinglePageViewController) else {
+            return
+        }
+        updatePageControl(for: currentIndex)
+    }
 }
+
+

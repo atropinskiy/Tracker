@@ -13,7 +13,7 @@ final class TrackersViewController: UIViewController {
     private var currentTrackers = [Tracker]()
     let trackerStore = TrackerStore.shared
     let trackerCategoryStore = TrackerCategoryStore.shared
-    private let viewModel = CategoriesViewModel()
+    private let viewModel = CategoriesViewModel.shared
     private var completedTrackers: [TrackerRecord] = []
     private var completedTrackerIDs = Set<UUID>()
     private var filteredTrackers: [Tracker] = []
@@ -367,6 +367,12 @@ extension TrackersViewController: TrackerCellDelegate {
 }
 
 extension TrackersViewController: AddTrackerViewControllerDelegate {
+    func didDeleteTracker() {
+        categories = viewModel.getCategoriesAsTrackerCategory()
+        filterTrackers()
+        collectionView.reloadData()
+    }
+    
     func didSelectEmoji(_ emoji: String) {
     }
     
@@ -382,7 +388,7 @@ extension TrackersViewController: AddTrackerViewControllerDelegate {
 
 extension TrackersViewController: TypeSelectDelegate {
     func didSelectType(_ type: String) {
-        let addTrackerVC = AddTrackerViewController()
+        let addTrackerVC = AddTrackerViewController(viewModel: viewModel)
         addTrackerVC.delegate = self
         addTrackerVC.taskType = type
         addTrackerVC.currentDate = currentDate

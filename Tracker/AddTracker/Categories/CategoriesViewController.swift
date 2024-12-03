@@ -7,15 +7,27 @@
 
 import UIKit
 
+
+
 protocol CategoriesViewControllerDelegate: AnyObject {
     func didSelectCategory(category: String)
+    func didDeleteCategory()
 }
 
 final class CategoriesViewController: UIViewController {
     
-    private lazy var tableView = UITableView()
-    private let viewModel = CategoriesViewModel() // Инициализация ViewModel
+    private let viewModel: CategoriesViewModelProtocol
     weak var delegate: CategoriesViewControllerDelegate?
+    private var isStubVisible: Bool = false
+    
+    init(viewModel: CategoriesViewModelProtocol) {
+        self.viewModel = viewModel
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    required init?(coder: NSCoder) {
+         fatalError("init(coder:) has not been implemented")
+     }
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -25,41 +37,34 @@ final class CategoriesViewController: UIViewController {
         DispatchQueue.main.async {
             self.updateAllRowSeparators(forTableView: self.tableView)
         }
+        updateStubVisibility()
     }
     
-    private func createCanvas() {
+    private lazy var header: UILabel = {
         let header = UILabel()
         header.text = "Категории"
         header.font = .systemFont(ofSize: 16, weight: .medium)
         header.translatesAutoresizingMaskIntoConstraints = false
         header.textColor = UIColor(named: "YP-black")
         header.textAlignment = .center
-        
-        view.addSubview(header)
-        NSLayoutConstraint.activate([
-            header.topAnchor.constraint(equalTo: view.topAnchor, constant: 24),
-            header.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            header.widthAnchor.constraint(equalToConstant: 150)
-        ])
-        
-        let confirmButton = UIButton(type: .custom)
-        confirmButton.setTitle("Добавить категорию", for: .normal)
-        confirmButton.setTitleColor(UIColor(named: "YP-white"), for: .normal)
-        confirmButton.titleLabel?.font = .systemFont(ofSize: 16, weight: .medium)
-        confirmButton.backgroundColor = UIColor(named: "YP-black")
-        confirmButton.translatesAutoresizingMaskIntoConstraints = false
-        confirmButton.layer.cornerRadius = 16
-        confirmButton.layer.masksToBounds = true
-        confirmButton.addTarget(self, action: #selector(confirmButtonClicked), for: .touchUpInside)
-        view.addSubview(confirmButton)
-        
-        NSLayoutConstraint.activate([
-            confirmButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -16),
-            confirmButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            confirmButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-            confirmButton.heightAnchor.constraint(equalToConstant: 60),
-        ])
-        
+        return header
+    }()
+    
+    private lazy var confirmButton: UIButton = {
+        let button = UIButton(type: .custom)
+        button.setTitle("Добавить категорию", for: .normal)
+        button.setTitleColor(UIColor(named: "YP-white"), for: .normal)
+        button.titleLabel?.font = .systemFont(ofSize: 16, weight: .medium)
+        button.backgroundColor = UIColor(named: "YP-black")
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.layer.cornerRadius = 16
+        button.layer.masksToBounds = true
+        button.addTarget(self, action: #selector(confirmButtonClicked), for: .touchUpInside)
+        return button
+    }()
+    
+    private lazy var tableView: UITableView = {
+        let tableView = UITableView()
         tableView.translatesAutoresizingMaskIntoConstraints = false
         tableView.layer.cornerRadius = 16
         tableView.layer.masksToBounds = true
@@ -68,13 +73,41 @@ final class CategoriesViewController: UIViewController {
         tableView.dataSource = self
         tableView.delegate = self
         tableView.register(UITableViewCell.self, forCellReuseIdentifier: "CategoryCell")
-        
-        view.addSubview(tableView)
-        
+        return tableView
+    }()
+    
+    
+    private lazy var stubImg: UIImageView = {
+        let imageView = UIImageView(image: UIImage(named: "StubImg"))
+        imageView.translatesAutoresizingMaskIntoConstraints = false
+        imageView.contentMode = .scaleAspectFit
+        return imageView
+    }()
+    
+    private let stubLabel: UILabel = {
+        let label = UILabel()
+        label.font = UIFont.systemFont(ofSize: 12, weight: .medium)
+        label.text = "Привчки и события можно объединять по смыслу"
+        label.textAlignment = .center
+        label.textColor = UIColor(named: "YP-black")
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
+    }()
+    
+    private func createCanvas() {
+        [header, confirmButton, tableView].forEach{view.addSubview($0)}
         NSLayoutConstraint.activate([
+            header.topAnchor.constraint(equalTo: view.topAnchor, constant: 24),
+            header.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            header.widthAnchor.constraint(equalToConstant: 150),
+            confirmButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -16),
+            confirmButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            confirmButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+            confirmButton.heightAnchor.constraint(equalToConstant: 60),
             tableView.topAnchor.constraint(equalTo: header.bottomAnchor, constant: 16),
             tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
             tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
+            tableView.heightAnchor.constraint(lessThanOrEqualTo: view.heightAnchor, multiplier: 0.75)
         ])
         updateTableHeight()
         
@@ -115,6 +148,49 @@ final class CategoriesViewController: UIViewController {
         }
     }
     
+    private func addStub() {
+        guard !isStubVisible else { return }
+        
+        stubImg.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(stubImg)
+        NSLayoutConstraint.activate([
+            stubImg.centerYAnchor.constraint(equalTo: view.centerYAnchor, constant: -50),
+            stubImg.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            stubImg.heightAnchor.constraint(equalToConstant: 80),
+            stubImg.widthAnchor.constraint(equalToConstant: 80)
+        ])
+        
+        stubLabel.text = "Привычки и события можно\nобъединить по смыслу"
+        stubLabel.font = UIFont.systemFont(ofSize: 14, weight: .medium)
+        stubLabel.textAlignment = .center
+        stubLabel.translatesAutoresizingMaskIntoConstraints = false
+        stubLabel.textColor = UIColor(named: "YP-black")
+        stubLabel.numberOfLines = 0
+        
+        view.addSubview(stubLabel)
+        NSLayoutConstraint.activate([
+            stubLabel.topAnchor.constraint(equalTo: stubImg.bottomAnchor, constant: 8),
+            stubLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            stubLabel.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.9)
+        ])
+        
+        isStubVisible = true
+    }
+    
+    private func updateStubVisibility() {
+        if viewModel.numberOfCategories == 0 { // Если список категорий пуст
+            addStub()
+            tableView.isHidden = true
+        } else {
+            stubImg.removeFromSuperview()
+            stubLabel.removeFromSuperview()
+            isStubVisible = false
+            tableView.isHidden = false
+        }
+    }
+    
+    
+    
     
     @objc private func handleLongPress(_ gesture: UILongPressGestureRecognizer) {
         if gesture.state == .began {
@@ -134,7 +210,8 @@ final class CategoriesViewController: UIViewController {
                 self.tableView.reloadData()
                 self.updateAllRowSeparators(forTableView: self.tableView)
                 self.updateTableHeight()
-                
+                delegate?.didDeleteCategory()
+                updateStubVisibility()
             }
 
             // Кнопка "Отмена"
@@ -217,6 +294,7 @@ extension CategoriesViewController: CategoryCreationViewControllerDelegate {
         updateTableHeight()
         self.updateAllRowSeparators(forTableView: self.tableView)
         tableView.reloadData()
+        updateStubVisibility()
     }
 }
 

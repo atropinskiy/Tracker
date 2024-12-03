@@ -7,7 +7,29 @@
 
 import Foundation
 
-class CategoriesViewModel {
+protocol CategoriesViewModelProtocol {
+    
+    
+    var categories: [TrackerCategoryCoreData] { get }
+    var selectedCategory: String? { get set }
+    var numberOfCategories: Int { get }
+    
+    func loadCategories()
+    func getCategoriesAsTrackerCategory() -> [TrackerCategory]
+    func category(at index: Int) -> TrackerCategoryCoreData
+    func getCategoryTitles() -> [String]
+    func removeCategory(at indexPath: IndexPath)
+    func addCategory(title: String)
+    func toggleSelection(for index: Int)
+    func isCategorySelected(at index: Int) -> Bool
+    func assignCategoryToTracker(categoryTitle: String, trackerId: UUID)
+}
+
+final class CategoriesViewModel: CategoriesViewModelProtocol {
+    static let shared = CategoriesViewModel()
+    private init() {
+        loadCategories()
+    }
     var categories: [TrackerCategoryCoreData] = []
     var selectedCategory: String?
     private var trackerCategoryStore = TrackerCategoryStore.shared
@@ -47,14 +69,6 @@ class CategoriesViewModel {
         return categories.compactMap { $0.title }
     }
 
-    func removeCategory(at indexPath: IndexPath) {
-        // Удаляем категорию из Core Data по IndexPath
-        TrackerCategoryStore.shared.deleteCategory(at: indexPath)
-        
-        // Удаляем категорию из локального списка
-        categories.remove(at: indexPath.row)
-    }
-
 
     func addCategory(title: String) {
         TrackerCategoryStore.shared.addCategory(title: title)
@@ -71,6 +85,16 @@ class CategoriesViewModel {
             // Иначе выбираем новую категорию
             selectedCategory = categoryTitle
         }
+    }
+    
+    func removeCategory(at indexPath: IndexPath) {
+        let categoryToDelete = categories[indexPath.row]
+        
+        // Удаляем категорию и связанные трекеры через TrackerStore
+        trackerStore.removeCategoryAndAssociatedTrackers(category: categoryToDelete)
+        
+        // Обновляем локальный список категорий
+        categories.remove(at: indexPath.row)
     }
     
     func isCategorySelected(at index: Int) -> Bool {
@@ -90,6 +114,8 @@ class CategoriesViewModel {
         print("Трекер с ID \(trackerId) был успешно назначен на категорию \(categoryTitle).")
         
     }
+    
+    
 }
 
 

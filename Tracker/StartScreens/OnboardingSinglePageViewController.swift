@@ -7,38 +7,38 @@
 
 import UIKit
 
-protocol BaseViewControllerDelegate: AnyObject {
+protocol OnboardingSinglePageViewControllerDelegate: AnyObject {
     func didPressButton()
 }
 
-class BaseViewController: UIViewController {
-    weak var delegate: BaseViewControllerDelegate?
+final class OnboardingSinglePageViewController: UIViewController {
+    
+    weak var delegate: OnboardingSinglePageViewControllerDelegate?
     private lazy var button = UIButton(type: .custom)
     
-    private let imageName: String
-    private let labelText: String
+    private let pageModel: OnboardingPage
     
-    init(imageName: String, labelText: String) {
-        self.imageName = imageName
-        self.labelText = labelText
+    // Инициализация с использованием модели страницы
+    init(pageModel: OnboardingPage) {
+        self.pageModel = pageModel
         super.init(nibName: nil, bundle: nil)
     }
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        setBg(imageName: imageName)
-        setLabel(text: labelText)
+        setBg(imageName: pageModel.imageName)
+        setLabel(text: pageModel.labelText)
         addButton()
     }
     
-    func setBg(imageName: String) {
+    private func setBg(imageName: String) {
         let bgImage = UIImageView(frame: UIScreen.main.bounds)
         bgImage.image = UIImage(named: imageName)
         bgImage.contentMode = .scaleAspectFill
         view.insertSubview(bgImage, at: 0)
     }
     
-    func setLabel(text: String) {
+    private func setLabel(text: String) {
         let label = UILabel()
         label.text = text
         label.textColor = UIColor(named: "YP-black")
@@ -55,7 +55,7 @@ class BaseViewController: UIViewController {
         ])
     }
     
-    func addButton() {
+    private func addButton() {
         button.setTitle("Вот это технологии!", for: .normal)
         button.titleLabel?.font = UIFont.systemFont(ofSize: 16, weight: .medium)
         button.translatesAutoresizingMaskIntoConstraints = false
@@ -81,3 +81,4 @@ class BaseViewController: UIViewController {
         fatalError("init(coder:) has not been implemented")
     }
 }
+

@@ -10,6 +10,7 @@ protocol AddTrackerViewControllerDelegate: AnyObject {
     func didCreateTracker(tracker: Tracker)
     func didSelectEmoji(_ emoji: String)
     func didSelectColor(_ color: UIColor)
+    func didDeleteTracker()
 }
 
 final class AddTrackerViewController: UIViewController {
@@ -29,7 +30,7 @@ final class AddTrackerViewController: UIViewController {
     private var selectedSchedule: String?
     private lazy var collectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
     private lazy var buttonsTable = UITableView()
-    private let viewModel = CategoriesViewModel()
+    private var viewModel = CategoriesViewModel.shared
     lazy var createButton = UIButton(type: .custom)
     
     override func viewDidLoad() {
@@ -48,6 +49,15 @@ final class AddTrackerViewController: UIViewController {
         }
         updateCollectionViewHeight()
         createCanvas()
+    }
+    
+    init(viewModel: CategoriesViewModel) {
+        self.viewModel = viewModel
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
     }
     
     func updateCollectionViewHeight() {
@@ -305,7 +315,7 @@ extension AddTrackerViewController: UITableViewDelegate, UITableViewDataSource {
             present(scheduleViewController, animated: true, completion: nil)
         }
         else {
-            let categoryViewController = CategoriesViewController()
+            let categoryViewController = CategoriesViewController(viewModel: viewModel)
             categoryViewController.delegate = self
             present(categoryViewController, animated: true, completion: nil)
         }
@@ -450,6 +460,9 @@ extension AddTrackerViewController: CategoriesViewControllerDelegate {
         updateCreateButtonState()
         buttonsTable.reloadData()
         print("Сохраненная категория: \(category)")
+    }
+    func didDeleteCategory() {
+        delegate?.didDeleteTracker()
     }
 }
 
