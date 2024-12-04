@@ -7,14 +7,16 @@
 
 import UIKit
 protocol AddTrackerViewControllerDelegate: AnyObject {
-    func didCreateTracker()
+    func didCreateTracker(tracker: Tracker)
     func didSelectEmoji(_ emoji: String)
     func didSelectColor(_ color: UIColor)
+    func didDeleteTracker()
 }
 
 final class AddTrackerViewController: UIViewController {
     var taskType: String?
     var currentDate: Date?
+    
     
     weak var delegate: AddTrackerViewControllerDelegate?
     private lazy var headerTextField = UITextField()
@@ -28,6 +30,7 @@ final class AddTrackerViewController: UIViewController {
     private var selectedSchedule: String?
     private lazy var collectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
     private lazy var buttonsTable = UITableView()
+    private var viewModel = CategoriesViewModel.shared
     lazy var createButton = UIButton(type: .custom)
     
     override func viewDidLoad() {
@@ -46,6 +49,15 @@ final class AddTrackerViewController: UIViewController {
         }
         updateCollectionViewHeight()
         createCanvas()
+    }
+    
+    init(viewModel: CategoriesViewModel) {
+        self.viewModel = viewModel
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
     }
     
     func updateCollectionViewHeight() {
@@ -217,11 +229,18 @@ final class AddTrackerViewController: UIViewController {
             return
         }
         
+        guard let categoryTitle = selectedCategory else {
+                print("Категория не выбрана.")
+                return
+            }
+        
         let id = UUID()
         let new_schedule = taskType == "Привычка" ? schedule : nil
         let date: Date? = taskType == "Привычка" ? nil : currentDate
+        let tracker = Tracker(id: id, name: trackerName, color: color, emoji: emoji, schedule: new_schedule, date: date)
         TrackerStore.shared.addTracker(id: id, name: trackerName, color: color, emoji: emoji, schedule: new_schedule, date: date)
-        delegate?.didCreateTracker()
+        viewModel.assignCategoryToTracker(categoryTitle: categoryTitle, trackerId: id)
+        delegate?.didCreateTracker(tracker: tracker)
         // Закрываем экран после добавления
         dismiss(animated: true, completion: nil)
     }
@@ -296,7 +315,7 @@ extension AddTrackerViewController: UITableViewDelegate, UITableViewDataSource {
             present(scheduleViewController, animated: true, completion: nil)
         }
         else {
-            let categoryViewController = CategoriesViewController()
+            let categoryViewController = CategoriesViewController(viewModel: viewModel)
             categoryViewController.delegate = self
             present(categoryViewController, animated: true, completion: nil)
         }
@@ -436,11 +455,14 @@ extension AddTrackerViewController: ScheduleViewControllerDelegate {
 }
 
 extension AddTrackerViewController: CategoriesViewControllerDelegate {
-    func saveCategory(category: String) {
+    func didSelectCategory(category: String) {
         selectedCategory = category
         updateCreateButtonState()
         buttonsTable.reloadData()
         print("Сохраненная категория: \(category)")
+    }
+    func didDeleteCategory() {
+        delegate?.didDeleteTracker()
     }
 }
 
