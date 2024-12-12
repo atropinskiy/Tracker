@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		221E55332D0B03860058545E /* FilterTrackersViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 221E55322D0B03860058545E /* FilterTrackersViewController.swift */; };
+		221E55372D0B33380058545E /* CategoryEditViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 221E55362D0B33380058545E /* CategoryEditViewController.swift */; };
 		2292F24B2CD00F2B00BA6736 /* StatViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2292F24A2CD00F2B00BA6736 /* StatViewController.swift */; };
 		2292F24F2CD023FC00BA6736 /* TrackerCollectionCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2292F24E2CD023FC00BA6736 /* TrackerCollectionCell.swift */; };
 		2292F2542CD02C5D00BA6736 /* Tracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2292F2532CD02C5D00BA6736 /* Tracker.swift */; };
@@ -44,6 +46,8 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		221E55322D0B03860058545E /* FilterTrackersViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FilterTrackersViewController.swift; sourceTree = "<group>"; };
+		221E55362D0B33380058545E /* CategoryEditViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoryEditViewController.swift; sourceTree = "<group>"; };
 		2292F24A2CD00F2B00BA6736 /* StatViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatViewController.swift; sourceTree = "<group>"; };
 		2292F24E2CD023FC00BA6736 /* TrackerCollectionCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrackerCollectionCell.swift; sourceTree = "<group>"; };
 		2292F2532CD02C5D00BA6736 /* Tracker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Tracker.swift; sourceTree = "<group>"; };
@@ -177,6 +181,7 @@
 			isa = PBXGroup;
 			children = (
 				22941DDA2CCE9B2B00AE1C26 /* TrackersViewController.swift */,
+				221E55322D0B03860058545E /* FilterTrackersViewController.swift */,
 				22E5F6B22CD39D9300D979ED /* SupplementaryView.swift */,
 				2292F24A2CD00F2B00BA6736 /* StatViewController.swift */,
 				22941DDC2CCEC0E300AE1C26 /* TabBarViewController.swift */,
@@ -201,6 +206,7 @@
 			isa = PBXGroup;
 			children = (
 				22E5F6B42CD3CB8100D979ED /* CategoriesViewController.swift */,
+				221E55362D0B33380058545E /* CategoryEditViewController.swift */,
 				229F144A2CFDEC46005ACCEE /* CategoryCreationViewController.swift */,
 				229F14482CFDE756005ACCEE /* CategoriesViewModel.swift */,
 			);
@@ -299,6 +305,7 @@
 				229F144B2CFDEC46005ACCEE /* CategoryCreationViewController.swift in Sources */,
 				2292F25D2CD0F1A500BA6736 /* TypeSelectViewController.swift in Sources */,
 				22E5F6B52CD3CB8100D979ED /* CategoriesViewController.swift in Sources */,
+				221E55332D0B03860058545E /* FilterTrackersViewController.swift in Sources */,
 				22E5F6A92CD14EA600D979ED /* ButtonsCell.swift in Sources */,
 				229F142C2CF995C5005ACCEE /* TrackerCategoryStore.swift in Sources */,
 				22941DDD2CCEC0E300AE1C26 /* TabBarViewController.swift in Sources */,
@@ -308,6 +315,7 @@
 				2292F2602CD1170200BA6736 /* Extensions.swift in Sources */,
 				2292F24B2CD00F2B00BA6736 /* StatViewController.swift in Sources */,
 				22941DBF2CCE7BD200AE1C26 /* SceneDelegate.swift in Sources */,
+				221E55372D0B33380058545E /* CategoryEditViewController.swift in Sources */,
 				22E5F6AD2CD1754D00D979ED /* Static.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

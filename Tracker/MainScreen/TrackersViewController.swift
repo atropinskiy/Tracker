@@ -11,22 +11,79 @@ final class TrackersViewController: UIViewController {
     private var categories = [TrackerCategory]()
     private var filteredCategories = [(category: TrackerCategory, trackers: [Tracker])]()
     private var currentTrackers = [Tracker]()
-    let trackerStore = TrackerStore.shared
-    let trackerCategoryStore = TrackerCategoryStore.shared
+    private let trackerStore = TrackerStore.shared
+    private let trackerRecordStore = TrackerRecordStore.shared
     private let viewModel = CategoriesViewModel.shared
     private var completedTrackers: [TrackerRecord] = []
     private var completedTrackerIDs = Set<UUID>()
     private var filteredTrackers: [Tracker] = []
     private var isStubVisible: Bool = false
     private var currentDate: Date = Date()
-    private lazy var controlView = UIView()
-    private lazy var datePicker = UIDatePicker()
-    private lazy var addButton = UIButton(type: .custom)
-    private lazy var searchTextField = UISearchTextField()
-    lazy var headerLabel = UILabel()
-    private lazy var contentView = UIView()
-    private lazy var stubImg = UIImageView(image: UIImage(named: "StubImg"))
-    private lazy var stubLabel = UILabel()
+    private var currentSelectedFilter: Int = 0
+    
+    private lazy var controlView: UIView = {
+        let controlView = UIView()
+        controlView.translatesAutoresizingMaskIntoConstraints = false
+        return controlView
+    }()
+    
+    
+    
+    private lazy var searchTextField: UISearchTextField = {
+        let searchTextField = UISearchTextField()
+        searchTextField.translatesAutoresizingMaskIntoConstraints = false
+        searchTextField.addTarget(self, action: #selector(searchFieldEditingDidEnd), for: .editingDidEndOnExit)
+        searchTextField.layer.cornerRadius = 10.0
+        searchTextField.backgroundColor = UIColor(named: "YP-searchfieldbg")
+        searchTextField.attributedPlaceholder = NSAttributedString(
+            string: "Поиск",
+            attributes: [NSAttributedString.Key.foregroundColor: UIColor(named: "YP-gray") ?? UIColor.gray]
+        )
+        if let leftIconView = searchTextField.leftView as? UIImageView {
+            leftIconView.tintColor = UIColor(named: "YP-gray") // Установка цвета иконки лупы
+        }
+        
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
+        searchTextField.addTarget(self, action: #selector(searchFieldTextChanged), for: .editingChanged)
+        view.addGestureRecognizer(tapGesture)
+        tapGesture.cancelsTouchesInView = false
+        
+        return searchTextField
+    }()
+    
+    private lazy var headerLabel: UILabel = {
+        let label = UILabel()
+        label.text = "Трекеры"
+        label.font = UIFont.systemFont(ofSize: 34, weight: .bold)
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
+    }()
+    
+    private lazy var addButton: UIButton = {
+        let button = UIButton(type: .custom)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.setImage(UIImage(named: "plusImg"), for: .normal)
+        button.tintColor = .black
+        button.addTarget(self, action: #selector(addButtonTapped), for: .touchUpInside)
+        return button
+    }()
+    
+    private lazy var contentView: UIView = {
+        let controlView = UIView()
+        controlView.translatesAutoresizingMaskIntoConstraints = false
+        return controlView
+    }()
+    
+    private lazy var datePicker: UIDatePicker = {
+        let datePicker = UIDatePicker()
+        datePicker.date = currentDate
+        datePicker.preferredDatePickerStyle = .compact
+        datePicker.datePickerMode = .date
+        datePicker.translatesAutoresizingMaskIntoConstraints = false
+        datePicker.locale = Locale(identifier: "ru_RU")
+        datePicker.addTarget(self, action: #selector(datePickerValueChanged(_:)), for: .valueChanged)
+        return datePicker
+    }()
     
     private lazy var collectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
@@ -41,123 +98,107 @@ final class TrackersViewController: UIViewController {
         collectionView.translatesAutoresizingMaskIntoConstraints = false
         collectionView.register(SupplementaryView.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: "header")
         collectionView.register(TrackerCollectionCell.self, forCellWithReuseIdentifier: "TrackerCell")
+        collectionView.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: 60, right: 0)
         return collectionView
+    }()
+    
+    private lazy var stubImg: UIImageView = {
+        let stubImg = UIImageView(image: UIImage(named: "StubImg"))
+        stubImg.translatesAutoresizingMaskIntoConstraints = false
+        return stubImg
+    }()
+    
+    
+    private lazy var stubLabel: UILabel = {
+        let stubLabel = UILabel()
+        stubLabel.text = "Что будем отслеживать?"
+        stubLabel.font = UIFont.systemFont(ofSize: 12, weight: .medium)
+        stubLabel.textAlignment = .center
+        stubLabel.translatesAutoresizingMaskIntoConstraints = false
+        stubLabel.textColor = UIColor(named: "YP-black")
+        return stubLabel
+    }()
+    
+    private lazy var filterButton: UIButton = {
+        let button = UIButton(type: .custom)
+        button.setTitle("Фильтры", for: .normal)
+        button.setTitleColor(UIColor(named: "YP-white"), for: .normal)
+        button.titleLabel?.font = .systemFont(ofSize: 16, weight: .medium)
+        button.backgroundColor = UIColor(named: "YP-blue")
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.layer.cornerRadius = 16
+        button.layer.masksToBounds = true
+        button.addTarget(self, action: #selector(filterButtonTapped), for: .touchUpInside)
+        return button
     }()
     
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = UIColor(named: "YP-white")
-        addControlView()
+        setupView()
         trackerStore.setupFetchedResultsController()
         viewModel.loadCategories()
         categories = viewModel.getCategoriesAsTrackerCategory()
+        searchTextField.delegate = self
         filterTrackers()
         showTrackers()
     }
     
-    private func addControlView() {
-        controlView.translatesAutoresizingMaskIntoConstraints = false
-        view.addSubview(controlView)
+    private func setupView() {
+        [controlView, contentView, filterButton].forEach{view.addSubview($0)}
+        [searchTextField, headerLabel, addButton, datePicker].forEach{controlView.addSubview($0)}
+        
         NSLayoutConstraint.activate([
             controlView.topAnchor.constraint(equalTo: view.topAnchor, constant: 0),
             controlView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             controlView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            controlView.heightAnchor.constraint(equalToConstant: 182)
-        ])
-        
-        searchTextField.translatesAutoresizingMaskIntoConstraints = false
-        searchTextField.addTarget(self, action: #selector(searchFieldEditingDidEnd), for: .editingDidEndOnExit)
-        searchTextField.layer.cornerRadius = 10.0
-        searchTextField.backgroundColor = UIColor(named: "YP-searchfieldbg")
-        searchTextField.attributedPlaceholder = NSAttributedString(
-            string: "Поиск",
-            attributes: [NSAttributedString.Key.foregroundColor: UIColor(named: "YP-gray") ?? UIColor.gray]
-        )
-        if let leftIconView = searchTextField.leftView as? UIImageView {
-            leftIconView.tintColor = UIColor(named: "YP-gray") // Установка цвета иконки лупы
-        }
-        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
-        view.addGestureRecognizer(tapGesture)
-        tapGesture.cancelsTouchesInView = false
-        controlView.addSubview(searchTextField)
-        NSLayoutConstraint.activate([
+            controlView.heightAnchor.constraint(equalToConstant: 182),
+            
             searchTextField.bottomAnchor.constraint(equalTo: controlView.bottomAnchor, constant: -10),
             searchTextField.leadingAnchor.constraint(equalTo: controlView.leadingAnchor, constant: 16),
             searchTextField.trailingAnchor.constraint(equalTo: controlView.trailingAnchor, constant: -16),
-            searchTextField.heightAnchor.constraint(equalToConstant: 36)
-        ])
-        
-        headerLabel.text = "Трекеры"
-        headerLabel.font = UIFont.systemFont(ofSize: 34, weight: .bold)
-        headerLabel.translatesAutoresizingMaskIntoConstraints = false
-        controlView.addSubview(headerLabel)
-        NSLayoutConstraint.activate([
+            searchTextField.heightAnchor.constraint(equalToConstant: 36),
+            
             headerLabel.bottomAnchor.constraint(equalTo: searchTextField.topAnchor, constant: -7),
             headerLabel.widthAnchor.constraint(greaterThanOrEqualToConstant: 254),
             headerLabel.leadingAnchor.constraint(equalTo: controlView.leadingAnchor, constant: 16),
-            headerLabel.heightAnchor.constraint(equalToConstant: 41)
-        ])
-        
-        addButton.translatesAutoresizingMaskIntoConstraints = false
-        addButton.setImage(UIImage(named: "plusImg"), for: .normal)
-        addButton.tintColor = .black
-        addButton.addTarget(self, action: #selector(addButtonTapped), for: .touchUpInside)
-        controlView.addSubview(addButton)
-        
-        // Устанавливаем размеры кнопки
-        NSLayoutConstraint.activate([
+            headerLabel.heightAnchor.constraint(equalToConstant: 41),
+            
             addButton.bottomAnchor.constraint(equalTo: headerLabel.topAnchor, constant: 1),
             addButton.leadingAnchor.constraint(equalTo: controlView.leadingAnchor, constant: 5),
             addButton.widthAnchor.constraint(greaterThanOrEqualToConstant: 42),
-            addButton.heightAnchor.constraint(equalToConstant: 42)// Положение кнопки
-        ])
-        
-        contentView.translatesAutoresizingMaskIntoConstraints = false
-        view.addSubview(contentView)
-        
-        NSLayoutConstraint.activate([
+            addButton.heightAnchor.constraint(equalToConstant: 42),
+            
             contentView.topAnchor.constraint(equalTo: controlView.bottomAnchor),
             contentView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
             contentView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
-            contentView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16)
-        ])
-        
-        datePicker.date = currentDate
-        datePicker.preferredDatePickerStyle = .compact
-        datePicker.datePickerMode = .date
-        datePicker.translatesAutoresizingMaskIntoConstraints = false
-        datePicker.locale = Locale(identifier: "ru_RU")
-        datePicker.addTarget(self, action: #selector(datePickerValueChanged(_:)), for: .valueChanged)
-        controlView.addSubview(datePicker)
-        NSLayoutConstraint.activate([
+            contentView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
+            
             datePicker.centerYAnchor.constraint(equalTo: addButton.centerYAnchor),
             datePicker.trailingAnchor.constraint(equalTo: controlView.trailingAnchor, constant: -16),
             datePicker.heightAnchor.constraint(equalToConstant: 34),
-            datePicker.widthAnchor.constraint(equalToConstant: 127)
+            datePicker.widthAnchor.constraint(equalToConstant: 127),
+            
+            filterButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -16),
+            filterButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            filterButton.widthAnchor.constraint(equalToConstant: 114),
+            filterButton.heightAnchor.constraint(equalToConstant: 50)
+            
         ])
         
     }
     
     private func addStub() {
         guard !isStubVisible else { return }
+        [stubImg, stubLabel].forEach{contentView.addSubview($0)}
         
-        stubImg.translatesAutoresizingMaskIntoConstraints = false
-        contentView.addSubview(stubImg)
+        
         NSLayoutConstraint.activate([
             stubImg.centerYAnchor.constraint(equalTo: contentView.centerYAnchor),
             stubImg.centerXAnchor.constraint(equalTo: contentView.centerXAnchor),
             stubImg.heightAnchor.constraint(equalToConstant: 80),
-            stubImg.widthAnchor.constraint(equalToConstant: 80)
-        ])
-        
-        stubLabel.text = "Что будем отслеживать?"
-        stubLabel.font = UIFont.systemFont(ofSize: 12, weight: .medium)
-        stubLabel.textAlignment = .center
-        stubLabel.translatesAutoresizingMaskIntoConstraints = false
-        stubLabel.textColor = UIColor(named: "YP-black")
-        
-        contentView.addSubview(stubLabel)
-        NSLayoutConstraint.activate([
+            stubImg.widthAnchor.constraint(equalToConstant: 80),
+            
             stubLabel.topAnchor.constraint(equalTo: stubImg.bottomAnchor),
             stubLabel.centerXAnchor.constraint(equalTo: contentView.centerXAnchor),
             stubLabel.heightAnchor.constraint(equalToConstant: 18),
@@ -178,77 +219,102 @@ final class TrackersViewController: UIViewController {
         updateStubVisibility()
     }
     
+    @objc private func searchFieldTextChanged() {
+        filterTrackers()
+    }
+
     private func filterTrackers() {
+        let searchText = searchTextField.text?.lowercased(with: Locale.current) ?? "" // получаем текст из поля поиска и приводим к нижнему регистру
         let selectedDate = datePicker.date
         let calendar = Calendar.current
-
-        // Обнуляем время в selectedDate для корректного сравнения
         let startOfDay = calendar.startOfDay(for: selectedDate)
-        
-        // Преобразуем номер дня недели так, чтобы понедельник был 0
         var weekday = calendar.component(.weekday, from: startOfDay)
         weekday = (weekday + 5) % 7 // Понедельник — это 0, воскресенье — 6
         guard weekday >= 0 && weekday < WeekDay.allCases.count else {
             return // Если индекс выходит за пределы, выходим из функции
         }
         let selectedWeekday = WeekDay.allCases[weekday]
-        
-        print("Фильтруем трекеры для: \(startOfDay) на \(selectedWeekday.rawValue)") // Логирование даты и выбранного дня недели
-
         filteredTrackers.removeAll()
-        filteredCategories.removeAll()  // Очищаем filteredCategories перед фильтрацией
+        filteredCategories.removeAll()
         
-        // Теперь для каждой категории фильтруем её трекеры
+
         for category in categories {
-            print("Обрабатываем категорию: \(category.title)") // Логирование текущей категории
-            
             if let categoryTrackers = category.trackers {
-                print("Найдено \(categoryTrackers.count) трекеров в категории: \(category.title)") // Логирование количества трекеров в категории
-                
                 let filteredCategoryTrackers = categoryTrackers.filter { tracker in
                     // Обнуляем время у даты трекера для корректного сравнения
                     let trackerDate = calendar.startOfDay(for: tracker.date ?? Date())
-                    
+                    let isCompletedToday = TrackerRecordStore.shared.isTrackerCompletedToday(trackerId: tracker.id, currentDate: startOfDay)
                     let isDateMatch = calendar.isDate(trackerDate, inSameDayAs: startOfDay)
                     let isWeekdayMatch = tracker.schedule?.contains(selectedWeekday) ?? false
-                    return isDateMatch || isWeekdayMatch
+                    let isNameMatch = !searchText.isEmpty ? tracker.name.lowercased().contains(searchText) : true
+
+                    switch currentSelectedFilter {
+                    case 1:
+                        return isDateMatch && isNameMatch
+                    case 2:
+                        return (isDateMatch || isWeekdayMatch) && isCompletedToday && isNameMatch
+                    case 3:
+                        return (isDateMatch || isWeekdayMatch) && !isCompletedToday && isNameMatch
+                    default:
+                        return (isDateMatch || isWeekdayMatch) && isNameMatch
+                    }
                 }
-                
-                print("После фильтрации осталось \(filteredCategoryTrackers.count) трекеров в категории: \(category.title)") // Логирование после фильтрации
                 
                 if !filteredCategoryTrackers.isEmpty {
                     filteredCategories.append((category: category, trackers: filteredCategoryTrackers)) // Добавляем категорию с отфильтрованными трекерами
                 }
             }
         }
-        
+
         // Убираем дубликаты из filteredTrackers по ID
         filteredTrackers = Array(filteredTrackers.reduce(into: [UUID: Tracker]()) { $0[$1.id] = $1 }.values)
-        
-        print("Итоговое количество трекеров после фильтрации: \(filteredTrackers.count)") // Логирование итогового количества трекеров
-        
+
         // Перезагружаем данные в collectionView
         collectionView.reloadData()
-        
+
         // Обновляем видимость заглушки
         updateStubVisibility()
     }
 
-
-
-
-
+    
     private func updateStubVisibility() {
         if filteredCategories.allSatisfy({ $0.trackers.isEmpty }) { // Проверяем, что все категории пустые
             addStub()
             isStubVisible = true
             collectionView.isHidden = true
+            filterButton.isHidden = true
         } else {
             stubImg.removeFromSuperview()
             stubLabel.removeFromSuperview()
             isStubVisible = false
             collectionView.isHidden = false
+            filterButton.isHidden = false
         }
+    }
+    
+    func showDeleteConfirmationAlert(for tracker: Tracker) {
+        print("Вызов функции удаления")
+        let alertController = UIAlertController(
+            title: nil,
+            message: "Вы уверены, что хотите удалить этот трекер?",
+            preferredStyle: .actionSheet
+        )
+        
+        let deleteAction = UIAlertAction(title: "Удалить", style: .destructive) { _ in
+            self.trackerStore.deleteTrackerWithTrackerObj(tracker)
+            self.viewModel.loadCategories()
+            self.categories = self.viewModel.getCategoriesAsTrackerCategory()
+            self.filterTrackers()
+            self.collectionView.reloadData()
+        }
+        
+        let cancelAction = UIAlertAction(title: "Отмена", style: .cancel, handler: nil)
+        
+        alertController.addAction(deleteAction)
+        alertController.addAction(cancelAction)
+        
+        // Показываем алерт
+        self.present(alertController, animated: true, completion: nil)
     }
     
     @objc private func datePickerValueChanged(_ sender: UIDatePicker) {
@@ -260,7 +326,13 @@ final class TrackersViewController: UIViewController {
         let typeSelectVC = TypeSelectViewController()
         typeSelectVC.delegate = self
         present(typeSelectVC, animated: true, completion: nil)
-        
+    }
+    
+    @objc private func filterButtonTapped() {
+        let filterVC = FilterTrackersViewController()
+        filterVC.selectedFilter = currentSelectedFilter
+        filterVC.delegate = self
+        present(filterVC, animated: true, completion: nil)
     }
     
     @objc private func dismissKeyboard() {
@@ -275,13 +347,11 @@ final class TrackersViewController: UIViewController {
 
 extension TrackersViewController: UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
     func numberOfSections(in collectionView: UICollectionView) -> Int {
-        print("Количество секций: \(filteredCategories.count)")
         return filteredCategories.count
         
     }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        print("Количество трекеров в секции \(section): \(filteredCategories[section].trackers.count)")
         return filteredCategories[section].trackers.count
     }
     
@@ -340,6 +410,31 @@ extension TrackersViewController: UICollectionViewDataSource, UICollectionViewDe
     func completedCount(for trackerID: UUID) -> Int {
         return completedTrackers.filter { $0.id == trackerID }.count
     }
+    
+    func collectionView(_ collectionView: UICollectionView, contextMenuConfigurationForItemsAt indexPaths: [IndexPath], point: CGPoint) -> UIContextMenuConfiguration? {   // 1
+        guard indexPaths.count > 0 else {
+            return nil
+        }
+        
+        
+        let indexPath = indexPaths[0]
+        let tracker = filteredCategories[indexPath.section].trackers[indexPath.item]
+        
+        return UIContextMenuConfiguration(actionProvider: { actions in
+            return UIMenu(children: [
+                UIAction(title: "Закрепить") { [weak self] _ in
+                    
+                },
+                UIAction(title: "Редактировать") { [weak self] _ in
+                    
+                },
+                UIAction(title: "Удалить", attributes: .destructive) { _ in
+                    self.showDeleteConfirmationAlert(for: tracker)
+                }
+            ])
+        })
+    }
+    
 }
 
 extension TrackersViewController: TrackerCellDelegate {
@@ -373,13 +468,13 @@ extension TrackersViewController: AddTrackerViewControllerDelegate {
         collectionView.reloadData()
     }
     
-    func didSelectEmoji(_ emoji: String) {
-    }
-    
-    func didSelectColor(_ color: UIColor) {
-    }
-    
     func didCreateTracker (tracker: Tracker) {
+        categories = viewModel.getCategoriesAsTrackerCategory()
+        filterTrackers()
+        collectionView.reloadData()
+    }
+    
+    func didEditedCategory() {
         categories = viewModel.getCategoriesAsTrackerCategory()
         filterTrackers()
         collectionView.reloadData()
@@ -397,4 +492,31 @@ extension TrackersViewController: TypeSelectDelegate {
     }
 }
 
+extension TrackersViewController: FilterTrackersViewControllerDelegate {
+    func didFilteredTrackers(selectedFilter: Int) {
+        let filter = selectedFilter
+        let calendar = Calendar.current
+        let startOfTheDay = calendar.startOfDay(for: Date())
+        
+        if filter == 1 {
+            datePicker.date = startOfTheDay
+            currentSelectedFilter = 0
+        }
+        else {
+            currentSelectedFilter = selectedFilter
+        }
+        
+        filterTrackers()
+        showTrackers()
+        collectionView.reloadData()
+        
+    }
+}
 
+extension TrackersViewController: UITextFieldDelegate {
+    func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
+        filterTrackers()
+        print(123)
+        return true
+    }
+}

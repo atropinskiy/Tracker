@@ -8,9 +8,8 @@
 import UIKit
 protocol AddTrackerViewControllerDelegate: AnyObject {
     func didCreateTracker(tracker: Tracker)
-    func didSelectEmoji(_ emoji: String)
-    func didSelectColor(_ color: UIColor)
     func didDeleteTracker()
+    func didEditedCategory()
 }
 
 final class AddTrackerViewController: UIViewController {
@@ -463,6 +462,10 @@ extension AddTrackerViewController: CategoriesViewControllerDelegate {
     }
     func didDeleteCategory() {
         delegate?.didDeleteTracker()
+    }
+    
+    func didEditedCategory() {
+        delegate?.didEditedCategory()
     }
 }
 

@@ -86,23 +86,7 @@ final class TrackerStore: NSObject, NSFetchedResultsControllerDelegate {
         }
     }
     
-    func removeCategoryAndAssociatedTrackers(category: TrackerCategoryCoreData) {
-        // Удаляем все трекеры, относящиеся к категории
-        removeTrackers(forCategory: category)
-        
-        // Удаляем саму категорию
-        context.delete(category)
-        
-        do {
-            try context.save()
-            print("Категория \(category.title ?? "без названия") и все связанные трекеры успешно удалены.")
-        } catch {
-            print("Ошибка при удалении категории и трекеров: \(error.localizedDescription)")
-        }
-    }
-
-    
-    private func deleteTracker(_ tracker: TrackerCoreData) {
+    func deleteTracker(_ tracker: TrackerCoreData) {
         context.delete(tracker)
         
         do {
@@ -110,6 +94,36 @@ final class TrackerStore: NSObject, NSFetchedResultsControllerDelegate {
             print("Трекер с ID \(tracker.id ?? UUID()) был удален.")
         } catch {
             print("Ошибка при удалении трекера: \(error.localizedDescription)")
+        }
+    }
+    
+    func deleteTrackerWithTrackerObj(_ tracker: Tracker) {
+        // Удаление трекера из Core Data
+        if let trackerCoreData = fetchTrackerCoreData(by: tracker) {
+            context.delete(trackerCoreData)
+            
+            // Сохраняем изменения в контексте
+            do {
+                try context.save()
+                print("Трекер успешно удалён")
+            } catch {
+                print("Ошибка при удалении трекера: \(error.localizedDescription)")
+            }
+        }
+    }
+    
+    func fetchTrackerCoreData(by tracker: Tracker) -> TrackerCoreData? {
+        let fetchRequest: NSFetchRequest<TrackerCoreData> = TrackerCoreData.fetchRequest()
+        
+        // Настроим запрос на поиск трекера по уникальному идентификатору
+        fetchRequest.predicate = NSPredicate(format: "id == %@", tracker.id.uuidString)
+        
+        do {
+            let results = try context.fetch(fetchRequest)
+            return results.first // Возвращаем первый найденный результат (если он есть)
+        } catch {
+            print("Ошибка при поиске трекера: \(error.localizedDescription)")
+            return nil
         }
     }
     

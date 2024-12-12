@@ -71,8 +71,39 @@ final class CategoriesViewModel: CategoriesViewModelProtocol {
 
 
     func addCategory(title: String) {
-        TrackerCategoryStore.shared.addCategory(title: title)
-        loadCategories() // После добавления перезагружаем список категорий
+        // Проверка, существует ли категория с таким названием
+        if let _ = trackerCategoryStore.fetchCategoryByTitle(title) {
+            print("Категория с таким названием уже существует.")
+            // Можно отобразить alert о том, что категория уже существует
+            return
+        }
+        
+        // Добавляем категорию через TrackerCategoryStore
+        trackerCategoryStore.addCategory(title: title)
+        loadCategories() // Перезагружаем список категорий
+    }
+    
+    func editCategory(title: String, newTitle: String) {
+        // Проверяем, существует ли категория с новым названием
+        if let _ = trackerCategoryStore.fetchCategoryByTitle(newTitle) {
+            print("Категория с таким новым названием уже существует.")
+            return
+        }
+        
+        // Находим категорию по старому названию
+        if let categoryToEdit = trackerCategoryStore.fetchCategoryByTitle(title) {
+            // Изменяем её название
+            categoryToEdit.title = newTitle
+            do {
+                try trackerCategoryStore.context.save() // Сохраняем изменения
+                loadCategories() // Перезагружаем список категорий
+                print("Категория успешно обновлена.")
+            } catch {
+                print("Ошибка при сохранении изменений: \(error.localizedDescription)")
+            }
+        } else {
+            print("Категория с названием \(title) не найдена.")
+        }
     }
     
     func toggleSelection(for index: Int) {
@@ -89,11 +120,6 @@ final class CategoriesViewModel: CategoriesViewModelProtocol {
     
     func removeCategory(at indexPath: IndexPath) {
         let categoryToDelete = categories[indexPath.row]
-        
-        // Удаляем категорию и связанные трекеры через TrackerStore
-        trackerStore.removeCategoryAndAssociatedTrackers(category: categoryToDelete)
-        
-        // Обновляем локальный список категорий
         categories.remove(at: indexPath.row)
     }
     

@@ -13,7 +13,7 @@ final class TrackerCategoryStore: NSObject, NSFetchedResultsControllerDelegate {
     static let shared = TrackerCategoryStore()
     private override init() {}
     
-    private var context: NSManagedObjectContext {
+    var context: NSManagedObjectContext {
         return DatabaseManager.shared.context
     }
     

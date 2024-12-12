@@ -12,6 +12,7 @@ import UIKit
 protocol CategoriesViewControllerDelegate: AnyObject {
     func didSelectCategory(category: String)
     func didDeleteCategory()
+    func didEditedCategory()
 }
 
 final class CategoriesViewController: UIViewController {
@@ -188,48 +189,6 @@ final class CategoriesViewController: UIViewController {
             tableView.isHidden = false
         }
     }
-    
-    
-    
-    
-    @objc private func handleLongPress(_ gesture: UILongPressGestureRecognizer) {
-        if gesture.state == .began {
-            guard let cell = gesture.view as? UITableViewCell,
-                  let indexPath = tableView.indexPath(for: cell) else {
-                return
-            }
-
-            let alertController = UIAlertController(title: "Выберите действие", message: nil, preferredStyle: .actionSheet)
-
-            let deleteAction = UIAlertAction(title: "Удалить категорию", style: .destructive) { [weak self] _ in
-                guard let self = self else { return }
-                self.viewModel.removeCategory(at: indexPath)
-                self.tableView.beginUpdates()
-                self.tableView.deleteRows(at: [indexPath], with: .none)
-                self.tableView.endUpdates()
-                self.tableView.reloadData()
-                self.updateAllRowSeparators(forTableView: self.tableView)
-                self.updateTableHeight()
-                delegate?.didDeleteCategory()
-                updateStubVisibility()
-            }
-
-            // Кнопка "Отмена"
-            let cancelAction = UIAlertAction(title: "Отмена", style: .cancel, handler: nil)
-
-            // Добавляем действия в контроллер
-            alertController.addAction(deleteAction)
-            alertController.addAction(cancelAction)
-
-            // Показываем action sheet
-            if let popoverController = alertController.popoverPresentationController {
-                popoverController.sourceView = gesture.view
-                popoverController.sourceRect = gesture.view?.bounds ?? CGRect.zero
-            }
-            
-            present(alertController, animated: true, completion: nil)
-        }
-    }
 
 }
 
@@ -246,8 +205,8 @@ extension CategoriesViewController: UITableViewDataSource, UITableViewDelegate {
         cell.backgroundColor = UIColor(named: "YP-bg")
         cell.selectionStyle = .none
         cell.accessoryType = viewModel.isCategorySelected(at: indexPath.row) ? .checkmark : .none
-        let longPressRecognizer = UILongPressGestureRecognizer(target: self, action: #selector(handleLongPress(_:)))
-        cell.addGestureRecognizer(longPressRecognizer)
+//        let longPressRecognizer = UILongPressGestureRecognizer(target: self, action: #selector(handleLongPress(_:)))
+//        cell.addGestureRecognizer(longPressRecognizer)
         return cell
     }
     
@@ -269,6 +228,34 @@ extension CategoriesViewController: UITableViewDataSource, UITableViewDelegate {
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
             self.dismiss(animated: true, completion: nil)
         }
+    }
+    
+    func tableView(_ tableView: UITableView, contextMenuConfigurationForRowAt indexPath: IndexPath, point: CGPoint) -> UIContextMenuConfiguration? {
+        // Получаем объект трекера на основе indexPath
+        
+        return UIContextMenuConfiguration(actionProvider: { actions in
+            
+            return UIMenu(children: [
+                UIAction(title: "Редактировать") { _ in
+                    let category = self.viewModel.category(at: indexPath.row) // Получаем категорию
+                    let editCategoryVC = CategoryEditViewController()
+                    editCategoryVC.delegate = self
+                    editCategoryVC.currentName = category.title // передаем название категории
+                    self.present(editCategoryVC, animated: true, completion: nil)
+                },
+                UIAction(title: "Удалить", attributes: .destructive) { _ in
+                    self.viewModel.removeCategory(at: indexPath)
+                    self.tableView.beginUpdates()
+                    self.tableView.deleteRows(at: [indexPath], with: .none)
+                    self.tableView.endUpdates()
+                    self.tableView.reloadData()
+                    self.updateAllRowSeparators(forTableView: tableView)
+                    self.updateTableHeight()
+                    self.delegate?.didDeleteCategory()
+                    self.updateStubVisibility()
+                }
+            ])
+        })
     }
 }
 
@@ -297,5 +284,14 @@ extension CategoriesViewController: CategoryCreationViewControllerDelegate {
         updateStubVisibility()
     }
 }
+
+extension CategoriesViewController: CategoryEditViewControllerDelegate {
+    func didEditedCategory(newCategoryName: String) {
+        viewModel.loadCategories()
+        tableView.reloadData()
+        delegate?.didEditedCategory()
+    }
+}
+
 
 
