@@ -35,14 +35,16 @@ class Tracker {
     var emoji: String
     var schedule: [WeekDay]?
     var date: Date?
+    var pinned: Bool = false
 
-    init(id: UUID, name: String, color: UIColor, emoji: String, schedule: [WeekDay]?, date: Date?) {
+    init(id: UUID, name: String, color: UIColor, emoji: String, schedule: [WeekDay]?, date: Date?, pinned: Bool) {
         self.id = id
         self.name = name
         self.color = color
         self.emoji = emoji
         self.schedule = schedule
         self.date = date
+        self.pinned = pinned
     }
 
     convenience init(from coreDataTracker: TrackerCoreData) {
@@ -58,7 +60,8 @@ class Tracker {
             color: color,
             emoji: coreDataTracker.emoji ?? "",
             schedule: schedule,
-            date: coreDataTracker.date
+            date: coreDataTracker.date,
+            pinned: coreDataTracker.pinned
         )
     }
 

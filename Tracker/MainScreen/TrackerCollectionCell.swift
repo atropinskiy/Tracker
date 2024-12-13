@@ -20,11 +20,12 @@ final class TrackerCollectionCell: UICollectionViewCell {
     private lazy var counterLabel = UILabel()
     private lazy var trackerView = UIView()
     private lazy var button = UIButton()
+    private lazy var pinImg = UIImageView()
     lazy var isCompleted: Bool = false
     private var trackerId: UUID?
     private var indexPath: IndexPath?
     var currentDate: Date
-    
+    var trackerPinned: Bool?
     
     override init(frame: CGRect) {
         self.currentDate = Date()
@@ -35,6 +36,8 @@ final class TrackerCollectionCell: UICollectionViewCell {
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
+    
+    
 
     private func setupViews() {
         trackerView.translatesAutoresizingMaskIntoConstraints = false
@@ -61,6 +64,20 @@ final class TrackerCollectionCell: UICollectionViewCell {
             emojiBackgroundView.leadingAnchor.constraint(equalTo: trackerView.leadingAnchor, constant: 12),
             emojiBackgroundView.heightAnchor.constraint(equalToConstant: 24),
             emojiBackgroundView.widthAnchor.constraint(equalToConstant: 24) // Ширина и высота равны для круга
+        ])
+        
+        
+        pinImg.image = UIImage(named: "pinImg")
+        pinImg.tintColor = .white
+        pinImg.translatesAutoresizingMaskIntoConstraints = false
+        trackerView.addSubview(pinImg)
+        
+        NSLayoutConstraint.activate([
+            pinImg.topAnchor.constraint(equalTo: trackerView.topAnchor, constant: 18),
+            pinImg.trailingAnchor.constraint(equalTo: trackerView.trailingAnchor, constant: -12),
+            pinImg.heightAnchor.constraint(equalToConstant: 12),
+            pinImg.widthAnchor.constraint(equalToConstant: 8)
+        
         ])
         
         emojiLabel.translatesAutoresizingMaskIntoConstraints = false
@@ -138,7 +155,7 @@ final class TrackerCollectionCell: UICollectionViewCell {
         counterLabel.text = daysText(for: completedCount)
     }
 
-    func configure(with tracker: Tracker, isCompletedToday: Bool) {
+    func configure(with tracker: Tracker, isCompletedToday: Bool, isPinned: Bool) {
         print(tracker)
         emojiLabel.text = tracker.emoji
         nameLabel.text = tracker.name
@@ -151,7 +168,14 @@ final class TrackerCollectionCell: UICollectionViewCell {
         let buttonImage = isCompleted ? UIImage(named: "Done-button") : UIImage(systemName: "plus")
         button.setImage(buttonImage, for: .normal)
         button.alpha = isCompleted ? 0.3 : 1.0
-
+        trackerPinned = isPinned
+        
+        if isPinned == false{
+            pinImg.isHidden = true
+        } else {
+            pinImg.isHidden = false
+        }
+        
         // Используем переданную дату для подсчета количества выполненных трекеров
         let completedCount = TrackerRecordStore.shared.countCompletedTrackers(for: tracker.id)
         counterLabel.text = daysText(for: completedCount)

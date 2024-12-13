@@ -247,16 +247,17 @@ final class TrackersViewController: UIViewController {
                     let isDateMatch = calendar.isDate(trackerDate, inSameDayAs: startOfDay)
                     let isWeekdayMatch = tracker.schedule?.contains(selectedWeekday) ?? false
                     let isNameMatch = !searchText.isEmpty ? tracker.name.lowercased().contains(searchText) : true
+                    let isTrackerPinned = tracker.pinned
 
                     switch currentSelectedFilter {
                     case 1:
-                        return isDateMatch && isNameMatch
+                        return isDateMatch && isNameMatch || isTrackerPinned
                     case 2:
-                        return (isDateMatch || isWeekdayMatch) && isCompletedToday && isNameMatch
+                        return (isDateMatch || isWeekdayMatch || isTrackerPinned) && isCompletedToday && isNameMatch
                     case 3:
-                        return (isDateMatch || isWeekdayMatch) && !isCompletedToday && isNameMatch
+                        return (isDateMatch || isWeekdayMatch || isTrackerPinned) && !isCompletedToday && isNameMatch
                     default:
-                        return (isDateMatch || isWeekdayMatch) && isNameMatch
+                        return (isDateMatch || isWeekdayMatch || isTrackerPinned) && isNameMatch
                     }
                 }
                 
@@ -366,7 +367,7 @@ extension TrackersViewController: UICollectionViewDataSource, UICollectionViewDe
         
         cell.isCompleted = isCompletedToday
         cell.currentDate = currentDate
-        cell.configure(with: tracker, isCompletedToday: isCompletedToday)
+        cell.configure(with: tracker, isCompletedToday: isCompletedToday, isPinned: tracker.pinned)
         cell.delegate = self
         return cell
     }
@@ -421,10 +422,21 @@ extension TrackersViewController: UICollectionViewDataSource, UICollectionViewDe
         let tracker = filteredCategories[indexPath.section].trackers[indexPath.item]
         
         return UIContextMenuConfiguration(actionProvider: { actions in
+            let pinActionTitle = tracker.pinned ? "Открепить" : "Закрепить"
+            let pinAction = UIAction(title: pinActionTitle) { _ in
+                if tracker.pinned {
+                    self.trackerStore.unpinTracker(tracker: tracker)
+                } else {
+                    self.trackerStore.pinTracker(tracker: tracker)
+                }
+                self.viewModel.loadCategories()
+                self.categories = self.viewModel.getCategoriesAsTrackerCategory()
+                self.filterTrackers()
+                self.collectionView.reloadData()
+            }
+
             return UIMenu(children: [
-                UIAction(title: "Закрепить") { [weak self] _ in
-                    
-                },
+                pinAction,
                 UIAction(title: "Редактировать") { _ in
                     let editTrackerVC = TrackerEditViewController(viewModel: self.viewModel, editedTracker: tracker)
                     let category = self.filteredCategories[indexPath.section].category

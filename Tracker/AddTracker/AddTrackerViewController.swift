@@ -236,7 +236,7 @@ final class AddTrackerViewController: UIViewController {
         let id = UUID()
         let new_schedule = taskType == "Привычка" ? schedule : nil
         let date: Date? = taskType == "Привычка" ? nil : currentDate
-        let tracker = Tracker(id: id, name: trackerName, color: color, emoji: emoji, schedule: new_schedule, date: date)
+        let tracker = Tracker(id: id, name: trackerName, color: color, emoji: emoji, schedule: new_schedule, date: date, pinned: false)
         TrackerStore.shared.addTracker(id: id, name: trackerName, color: color, emoji: emoji, schedule: new_schedule, date: date)
         viewModel.assignCategoryToTracker(categoryTitle: categoryTitle, trackerId: id)
         delegate?.didCreateTracker(tracker: tracker)

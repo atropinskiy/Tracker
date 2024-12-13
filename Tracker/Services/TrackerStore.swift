@@ -157,6 +157,45 @@ final class TrackerStore: NSObject, NSFetchedResultsControllerDelegate {
             print("Ошибка при редактировании трекера: \(error.localizedDescription)")
         }
     }
+    
+    func pinTracker(tracker: Tracker) {
+        let fetchRequest: NSFetchRequest<TrackerCoreData> = TrackerCoreData.fetchRequest()
+        fetchRequest.predicate = NSPredicate(format: "id == %@", tracker.id.uuidString)
+        
+        do {
+            let trackers = try context.fetch(fetchRequest)
+            guard let trackerCoreData = trackers.first else {
+                print("Трекер с ID \(tracker.id) не найден.")
+                return
+            }
+            trackerCoreData.pinned = true
+            try context.save()
+            print("Трекер с ID \(tracker.id) был закреплен.")
+            print(tracker.pinned)
+            
+        } catch {
+            print("Ошибка при закреплении трекера: \(error.localizedDescription)")
+        }
+    }
+    
+    func unpinTracker(tracker: Tracker) {
+        let fetchRequest: NSFetchRequest<TrackerCoreData> = TrackerCoreData.fetchRequest()
+        fetchRequest.predicate = NSPredicate(format: "id == %@", tracker.id.uuidString)
+        
+        do {
+            let trackers = try context.fetch(fetchRequest)
+            guard let trackerCoreData = trackers.first else {
+                print("Трекер с ID \(tracker.id) не найден.")
+                return
+            }
+            trackerCoreData.pinned = false
+            try context.save()
+            print("Трекер с ID \(tracker.id) был откреплен.")
+            
+        } catch {
+            print("Ошибка при закреплении трекера: \(error.localizedDescription)")
+        }
+    }
 
     
     // Функция для назначения категории трекеру
