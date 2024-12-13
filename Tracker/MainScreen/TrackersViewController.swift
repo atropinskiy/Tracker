@@ -35,10 +35,9 @@ final class TrackersViewController: UIViewController {
         searchTextField.translatesAutoresizingMaskIntoConstraints = false
         searchTextField.addTarget(self, action: #selector(searchFieldEditingDidEnd), for: .editingDidEndOnExit)
         searchTextField.layer.cornerRadius = 10.0
-        searchTextField.backgroundColor = UIColor(named: "YP-searchfieldbg")
         searchTextField.attributedPlaceholder = NSAttributedString(
             string: "Поиск",
-            attributes: [NSAttributedString.Key.foregroundColor: UIColor(named: "YP-gray") ?? UIColor.gray]
+            attributes: [NSAttributedString.Key.foregroundColor: UIColor.label]
         )
         if let leftIconView = searchTextField.leftView as? UIImageView {
             leftIconView.tintColor = UIColor(named: "YP-gray") // Установка цвета иконки лупы
@@ -63,8 +62,8 @@ final class TrackersViewController: UIViewController {
     private lazy var addButton: UIButton = {
         let button = UIButton(type: .custom)
         button.translatesAutoresizingMaskIntoConstraints = false
-        button.setImage(UIImage(named: "plusImg"), for: .normal)
-        button.tintColor = .black
+        button.setImage(UIImage(named: "plusImg")?.withRenderingMode(.alwaysTemplate), for: .normal)
+        button.tintColor = UIColor.label
         button.addTarget(self, action: #selector(addButtonTapped), for: .touchUpInside)
         return button
     }()
@@ -96,6 +95,7 @@ final class TrackersViewController: UIViewController {
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
         collectionView.delegate = self
         collectionView.dataSource = self
+        collectionView.backgroundColor = .clear
         collectionView.translatesAutoresizingMaskIntoConstraints = false
         collectionView.register(SupplementaryView.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: "header")
         collectionView.register(TrackerCollectionCell.self, forCellWithReuseIdentifier: "TrackerCell")
@@ -131,16 +131,16 @@ final class TrackersViewController: UIViewController {
         let stubLabel = UILabel()
         stubLabel.text = "Что будем отслеживать?"
         stubLabel.font = UIFont.systemFont(ofSize: 12, weight: .medium)
+        stubLabel.textColor = UIColor.label
         stubLabel.textAlignment = .center
         stubLabel.translatesAutoresizingMaskIntoConstraints = false
-        stubLabel.textColor = UIColor(named: "YP-black")
         return stubLabel
     }()
     
     private lazy var filterButton: UIButton = {
         let button = UIButton(type: .custom)
         button.setTitle("Фильтры", for: .normal)
-        button.setTitleColor(UIColor(named: "YP-white"), for: .normal)
+        button.setTitleColor(.white, for: .normal)
         button.titleLabel?.font = .systemFont(ofSize: 16, weight: .medium)
         button.backgroundColor = UIColor(named: "YP-blue")
         button.translatesAutoresizingMaskIntoConstraints = false

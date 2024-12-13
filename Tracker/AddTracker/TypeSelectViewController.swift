@@ -39,6 +39,7 @@ final class TypeSelectViewController: UIViewController {
         unregularButton.setTitle("Нерегулярное событие", for: .normal)
         unregularButton.layer.cornerRadius = 18
         unregularButton.titleLabel?.font = UIFont.systemFont(ofSize: 16, weight: .medium)
+        unregularButton.setTitleColor(UIColor(named: "YP-white"), for: .normal)
         unregularButton.backgroundColor = UIColor(named: "YP-black")
         unregularButton.translatesAutoresizingMaskIntoConstraints = false
         unregularButton.addTarget(self, action: #selector(buttonTapped(_:)), for: .touchUpInside)
@@ -56,6 +57,7 @@ final class TypeSelectViewController: UIViewController {
         habbitButton.setTitle("Привычка", for: .normal)
         habbitButton.layer.cornerRadius = 18
         habbitButton.titleLabel?.font = UIFont.systemFont(ofSize: 16, weight: .medium)
+        habbitButton.setTitleColor(UIColor(named: "YP-white"), for: .normal)
         habbitButton.backgroundColor = UIColor(named: "YP-black")
         habbitButton.translatesAutoresizingMaskIntoConstraints = false
         habbitButton.addTarget(self, action: #selector(buttonTapped(_:)), for: .touchUpInside)

@@ -54,7 +54,7 @@ final class TrackerCollectionCell: UICollectionViewCell {
         
         let emojiBackgroundView = UIView()
         emojiBackgroundView.translatesAutoresizingMaskIntoConstraints = false
-        emojiBackgroundView.backgroundColor = UIColor(named: "YP-bg") //
+        emojiBackgroundView.backgroundColor = UIColor(named: "YP-iconsBg") //
         emojiBackgroundView.layer.cornerRadius = 12
         emojiBackgroundView.clipsToBounds = true
         trackerView.addSubview(emojiBackgroundView)
@@ -91,7 +91,7 @@ final class TrackerCollectionCell: UICollectionViewCell {
         
         nameLabel.translatesAutoresizingMaskIntoConstraints = false
         nameLabel.font = UIFont.systemFont(ofSize: 12)
-        nameLabel.textColor = UIColor(named: "YP-white")
+        nameLabel.textColor = UIColor.label
         nameLabel.numberOfLines = 0
         trackerView.addSubview(nameLabel)
         NSLayoutConstraint.activate([
@@ -103,7 +103,7 @@ final class TrackerCollectionCell: UICollectionViewCell {
         counterLabel.translatesAutoresizingMaskIntoConstraints = false
         counterLabel.text = "1 день"
         counterLabel.font = .systemFont(ofSize: 12, weight: .medium)
-        counterLabel.textColor = UIColor(named: "YP-black")
+        counterLabel.textColor = UIColor.label
         contentView.addSubview(counterLabel)
         NSLayoutConstraint.activate([
             counterLabel.leadingAnchor.constraint(equalTo: trackerView.leadingAnchor, constant: 12),
@@ -115,7 +115,14 @@ final class TrackerCollectionCell: UICollectionViewCell {
         button.layer.cornerRadius = 17
         button.layer.masksToBounds = true
         button.setImage(UIImage(systemName: "plus"), for: .normal)
-        button.tintColor = UIColor.white
+        let buttonDisabledColor = UIColor { (traits: UITraitCollection) -> UIColor in
+            if traits.userInterfaceStyle == .light {
+                return UIColor.white                                    // светлый режим
+            } else {
+                return UIColor.black  // тёмный режим
+            }
+        }
+        button.tintColor = buttonDisabledColor
         button.addTarget(self, action: #selector(buttonTapped), for: .touchUpInside)
         contentView.addSubview(button)
         NSLayoutConstraint.activate([

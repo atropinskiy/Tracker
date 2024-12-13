@@ -74,6 +74,7 @@ final class CategoriesViewController: UIViewController {
         tableView.dataSource = self
         tableView.delegate = self
         tableView.register(UITableViewCell.self, forCellReuseIdentifier: "CategoryCell")
+        tableView.separatorColor = UIColor(named: "YP-gray")
         return tableView
     }()
     

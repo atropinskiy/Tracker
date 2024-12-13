@@ -42,6 +42,7 @@ final class FilterTrackersViewController: UIViewController {
         tableView.dataSource = self
         tableView.delegate = self
         tableView.register(UITableViewCell.self, forCellReuseIdentifier: "CategoryCell")
+        tableView.separatorColor = UIColor(named: "YP-gray")
         return tableView
     }()
     
@@ -68,9 +69,9 @@ extension FilterTrackersViewController: UITableViewDataSource, UITableViewDelega
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "CategoryCell", for: indexPath)
         cell.textLabel?.text = filters[indexPath.row]
-        cell.textLabel?.textColor = .black
+        cell.textLabel?.textColor = UIColor.label
         cell.selectionStyle = .none
-        cell.backgroundColor = UIColor(named: "YP-categories")
+        cell.backgroundColor = UIColor(named: "YP-bg")
         cell.separatorInset = UIEdgeInsets(top: 0, left: 16, bottom: 0, right: 16)
         cell.accessoryType = (selectedFilter == indexPath.row) ? .checkmark : .none
         return cell

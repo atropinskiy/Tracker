@@ -19,6 +19,7 @@ final class CategoryCreationViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        
         setupUI()
     }
     
@@ -36,7 +37,7 @@ final class CategoryCreationViewController: UIViewController {
          let textField = UITextField()
          textField.placeholder = "Название категории"
          textField.layer.cornerRadius = 16
-         textField.backgroundColor = UIColor(named: "YP-categories")
+         textField.backgroundColor = UIColor(named: "YP-bg")
          textField.attributedPlaceholder = NSAttributedString(
              string: "Введите название категории",
              attributes: [NSAttributedString.Key.foregroundColor: UIColor(named: "YP-gray") ?? UIColor.gray]
@@ -61,7 +62,7 @@ final class CategoryCreationViewController: UIViewController {
     }()
 
     private func setupUI() {
-        view.backgroundColor = .white
+        view.backgroundColor = UIColor(named: "YP-white")
         [header, textField, doneButton].forEach{view.addSubview($0)}
 
         NSLayoutConstraint.activate([

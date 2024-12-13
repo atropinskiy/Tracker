@@ -34,7 +34,7 @@ final class AddTrackerViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .white
+        view.backgroundColor = UIColor(named: "YP-white")
         
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
         tapGesture.cancelsTouchesInView = false // Не отменяем касания для других элементов
@@ -109,7 +109,7 @@ final class AddTrackerViewController: UIViewController {
         
         headerTextField.layer.cornerRadius = 16
         headerTextField.font = UIFont.systemFont(ofSize: 17)
-        headerTextField.backgroundColor = UIColor(named: "YP-categories")
+        headerTextField.backgroundColor = UIColor(named: "YP-bg")
         headerTextField.attributedPlaceholder = NSAttributedString(
             string: "Введите название трекера",
             attributes: [NSAttributedString.Key.foregroundColor: UIColor(named: "YP-gray") ?? UIColor.gray]
@@ -128,7 +128,7 @@ final class AddTrackerViewController: UIViewController {
         buttonsTable.layer.cornerRadius = 16
         buttonsTable.layer.masksToBounds = true
         buttonsTable.register(ButtonsCell.self, forCellReuseIdentifier: "ButtonsCell")
-        buttonsTable.backgroundColor = UIColor(named: "YP-categories")
+        buttonsTable.backgroundColor = UIColor(named: "YP-bg")
         buttonsTable.delegate = self
         buttonsTable.dataSource = self
         contentView.addSubview(buttonsTable)
@@ -203,7 +203,6 @@ final class AddTrackerViewController: UIViewController {
     private func updateCreateButtonState() {
         let isAllFieldsFilled = !headerTextField.text!.isEmpty &&
         selectedCategory != "" &&
-        selectedSchedule != "" &&
         (taskType == "Привычка" ? !schedule.isEmpty : currentDate != nil) &&
         selectedEmoji != "" &&
         selectedColor != nil
@@ -480,5 +479,13 @@ extension AddTrackerViewController: UITextFieldDelegate {
             print(textField)
         }
         updateCreateButtonState()
+    }
+    
+    func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
+       
+        // Вызываем функцию при каждом изменении текста
+        updateCreateButtonState()
+        
+        return true
     }
 }

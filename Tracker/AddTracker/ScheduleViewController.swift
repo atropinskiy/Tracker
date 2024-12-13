@@ -41,9 +41,10 @@ final class ScheduleViewController: UIViewController {
         tableView.layer.masksToBounds = true
         tableView.register(ScheduleCell.self, forCellReuseIdentifier: "ScheduleCell")
         tableView.tableFooterView = UIView()
-        tableView.backgroundColor = UIColor(named: "YP-categories")
+        tableView.backgroundColor = UIColor(named: "YP-bg")
         tableView.delegate = self
         tableView.dataSource = self
+        tableView.separatorColor = UIColor(named: "YP-gray")
         tableView.allowsSelection = false
         
         view.addSubview(tableView)
@@ -106,18 +107,11 @@ extension ScheduleViewController: UITableViewDelegate, UITableViewDataSource {
         cell.textLabel?.text = weekDay.rawValue
         cell.textLabel?.textColor = UIColor(named: "YP-black")
         cell.backgroundColor = UIColor(named: "YP-bg")
-        
         cell.daySwitch.isOn = selectedDays.contains(weekDay)
         cell.daySwitch.tag = indexPath.row
         cell.daySwitch.addTarget(self, action: #selector(daySwitchToggled(_:)), for: .valueChanged)
-        
-        
-        if indexPath.row == WeekDay.allCases.count - 1 {
-            cell.separatorInset = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: .greatestFiniteMagnitude)
-        } else {
-            cell.separatorInset = .zero
-        }
-        
+        cell.separatorInset = UIEdgeInsets(top: 0, left: 16, bottom: 0, right: 16)
+
         return cell
     }
     
