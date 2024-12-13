@@ -119,7 +119,6 @@ final class CategoriesViewModel: CategoriesViewModelProtocol {
     }
     
     func removeCategory(at indexPath: IndexPath) {
-        let categoryToDelete = categories[indexPath.row]
         categories.remove(at: indexPath.row)
     }
     

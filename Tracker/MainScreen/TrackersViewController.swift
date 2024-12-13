@@ -20,6 +20,7 @@ final class TrackersViewController: UIViewController {
     private var isStubVisible: Bool = false
     private var currentDate: Date = Date()
     private var currentSelectedFilter: Int = 0
+    private var filtersApplyed: Bool = false
     
     private lazy var controlView: UIView = {
         let controlView = UIView()
@@ -103,10 +104,27 @@ final class TrackersViewController: UIViewController {
     }()
     
     private lazy var stubImg: UIImageView = {
-        let stubImg = UIImageView(image: UIImage(named: "StubImg"))
-        stubImg.translatesAutoresizingMaskIntoConstraints = false
-        return stubImg
+        var img: UIImage?
+        if filtersApplyed {
+            img = UIImage(named: "emptyFilters")
+        } else {
+            img = UIImage(named: "StubImg")
+        }
+
+        let imgView = UIImageView(image: img)
+        imgView.translatesAutoresizingMaskIntoConstraints = false
+        return imgView
     }()
+    
+    func updateStub() {
+        if filtersApplyed {
+            stubImg.image = UIImage(named: "emptyFilters")
+            stubLabel.text = "Ничего не найдено"
+        } else {
+            stubImg.image = UIImage(named: "StubImg")
+            stubLabel.text = "Что будем отслеживать?"
+        }
+    }
     
     
     private lazy var stubLabel: UILabel = {
@@ -206,6 +224,8 @@ final class TrackersViewController: UIViewController {
         ])
     }
     
+    
+    
     private func showTrackers() {
         contentView.addSubview(collectionView)
         
@@ -279,19 +299,32 @@ final class TrackersViewController: UIViewController {
 
     
     private func updateStubVisibility() {
-        if filteredCategories.allSatisfy({ $0.trackers.isEmpty }) { // Проверяем, что все категории пустые
-            addStub()
+        updateStub() // Обновляем изображение
+        if filteredCategories.allSatisfy({ $0.trackers.isEmpty }) { // Все категории пусты
+            addStub() // Добавление "заглушки"
             isStubVisible = true
-            collectionView.isHidden = true
-            filterButton.isHidden = true
+            collectionView.isHidden = true // Скрыть коллекцию
+            if filtersApplyed {
+                filterButton.backgroundColor = .red // Красный при активных фильтрах
+            } else {
+                filterButton.isHidden = true // Скрыть кнопку, если фильтры не применены
+            }
         } else {
+            // Убираем заглушку, если категории не пусты
             stubImg.removeFromSuperview()
             stubLabel.removeFromSuperview()
             isStubVisible = false
-            collectionView.isHidden = false
-            filterButton.isHidden = false
+            collectionView.isHidden = false // Показать коллекцию
+            if filtersApplyed {
+                filterButton.isHidden = false
+                filterButton.backgroundColor = UIColor(named: "YP-red") // Красный при активных фильтрах
+            } else {
+                filterButton.backgroundColor = UIColor(named: "YP-blue") // Синий, если фильтры не активированы
+                filterButton.isHidden = false // Показать кнопку
+            }
         }
     }
+
     
     func showDeleteConfirmationAlert(for tracker: Tracker) {
         print("Вызов функции удаления")
@@ -534,11 +567,22 @@ extension TrackersViewController: FilterTrackersViewControllerDelegate {
         if filter == 1 {
             datePicker.date = startOfTheDay
             currentSelectedFilter = 0
+            categories = viewModel.getCategoriesAsTrackerCategory()
+            filtersApplyed = false
+            
+            
+        } else if filter == 0 {
+            print("Возвращаем и снимаем фильтры")
+            categories = viewModel.getCategoriesAsTrackerCategory()
+            currentSelectedFilter = 0
+            filtersApplyed = false
         }
         else {
             currentSelectedFilter = selectedFilter
+            filtersApplyed = true
         }
         
+        updateStubVisibility()
         filterTrackers()
         showTrackers()
         collectionView.reloadData()

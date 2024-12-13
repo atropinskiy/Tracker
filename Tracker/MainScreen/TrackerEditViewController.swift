@@ -274,14 +274,13 @@ final class TrackerEditViewController: UIViewController {
     }
     
     private func updateCreateButtonState() {
-        print(headerTextField.text, selectedCategory, selectedSchedule, selectedColor, selectedEmoji, selectedColor, currentDate)
         let isAllFieldsFilled = !headerTextField.text!.isEmpty &&
         selectedCategory != "" &&
         selectedSchedule != "" &&
         (taskType == "Привычка" ? !schedule.isEmpty : currentDate != nil) &&
         selectedEmoji != "" &&
         selectedColor != nil
-        print(isAllFieldsFilled)
+
         
         createButton.isEnabled = isAllFieldsFilled
         if isAllFieldsFilled {
