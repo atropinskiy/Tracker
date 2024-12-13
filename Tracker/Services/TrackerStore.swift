@@ -127,6 +127,38 @@ final class TrackerStore: NSObject, NSFetchedResultsControllerDelegate {
         }
     }
     
+    func editTracker(id: UUID, name: String, color: UIColor, emoji: String, schedule: [WeekDay]?, date: Date?) {
+        let fetchRequest: NSFetchRequest<TrackerCoreData> = TrackerCoreData.fetchRequest()
+        fetchRequest.predicate = NSPredicate(format: "id == %@", id as CVarArg)
+        
+        do {
+            let trackers = try context.fetch(fetchRequest)
+            
+            // Проверяем, что трекер найден
+            guard let tracker = trackers.first else {
+                print("Трекер с ID \(id) не найден.")
+                return
+            }
+            tracker.name = name
+            tracker.color = color.toHex()
+            tracker.emoji = emoji
+            
+            if let schedule = schedule {
+                tracker.schedule = WeekDayArrayTransformer.scheduleToString(from: schedule)
+            }
+            
+            if let date = date {
+                tracker.date = date
+            }
+            try context.save()
+            print("Трекер с ID \(id) успешно отредактирован.")
+            
+        } catch {
+            print("Ошибка при редактировании трекера: \(error.localizedDescription)")
+        }
+    }
+
+    
     // Функция для назначения категории трекеру
     func assignCategoryToTracker(trackerId: UUID, category: TrackerCategoryCoreData) {
         // Получаем трекер по его ID

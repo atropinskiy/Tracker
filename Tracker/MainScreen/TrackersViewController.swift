@@ -425,8 +425,29 @@ extension TrackersViewController: UICollectionViewDataSource, UICollectionViewDe
                 UIAction(title: "Закрепить") { [weak self] _ in
                     
                 },
-                UIAction(title: "Редактировать") { [weak self] _ in
+                UIAction(title: "Редактировать") { _ in
+                    let editTrackerVC = TrackerEditViewController(viewModel: self.viewModel, editedTracker: tracker)
+                    let category = self.filteredCategories[indexPath.section].category
                     
+                    editTrackerVC.selectedCategory = category.title
+                    editTrackerVC.delegate = self
+                    if let schedule = tracker.schedule, !schedule.isEmpty {
+                        // Если schedule не nil и не пустой
+                        editTrackerVC.taskType = "Привычка"
+                        editTrackerVC.selectedSchedule = daysToString(days: schedule)
+                        editTrackerVC.schedule = schedule
+                    } else {
+                        // Если schedule nil или пустой
+                        editTrackerVC.taskType = "Регулярное событие"
+                        editTrackerVC.currentDate = self.currentDate
+                    }
+                    
+                    self.present(editTrackerVC, animated: true, completion: nil)
+                    
+                    func daysToString(days: [WeekDay]) -> String {
+                        let dayStrings = days.map { $0.shortDescription }
+                        return dayStrings.joined(separator: ", ")
+                    }
                 },
                 UIAction(title: "Удалить", attributes: .destructive) { _ in
                     self.showDeleteConfirmationAlert(for: tracker)
@@ -519,4 +540,15 @@ extension TrackersViewController: UITextFieldDelegate {
         print(123)
         return true
     }
+}
+
+extension TrackersViewController: TrackerEditViewControllerDelegate {
+    func didEditTracker(tracker: Tracker) {
+        categories = viewModel.getCategoriesAsTrackerCategory()
+        filterTrackers()
+        showTrackers()
+        collectionView.reloadData()
+    }
+
+    
 }
