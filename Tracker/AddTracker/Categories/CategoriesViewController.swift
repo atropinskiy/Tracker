@@ -43,7 +43,7 @@ final class CategoriesViewController: UIViewController {
     
     private lazy var header: UILabel = {
         let header = UILabel()
-        header.text = "Категории"
+        header.text = "Категории".localized()
         header.font = .systemFont(ofSize: 16, weight: .medium)
         header.translatesAutoresizingMaskIntoConstraints = false
         header.textColor = UIColor(named: "YP-black")
@@ -53,7 +53,7 @@ final class CategoriesViewController: UIViewController {
     
     private lazy var confirmButton: UIButton = {
         let button = UIButton(type: .custom)
-        button.setTitle("Добавить категорию", for: .normal)
+        button.setTitle("Добавить категорию".localized(), for: .normal)
         button.setTitleColor(UIColor(named: "YP-white"), for: .normal)
         button.titleLabel?.font = .systemFont(ofSize: 16, weight: .medium)
         button.backgroundColor = UIColor(named: "YP-black")
@@ -223,7 +223,7 @@ extension CategoriesViewController: UITableViewDataSource, UITableViewDelegate {
             delegate?.didSelectCategory(category: categoryTitle) // Передаем развернутое значение
         }
         
-        viewModel.toggleSelection(for: indexPath.row)
+        viewModel.selectCategory(at: indexPath.row)
         tableView.reloadData()
         
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
@@ -237,14 +237,14 @@ extension CategoriesViewController: UITableViewDataSource, UITableViewDelegate {
         return UIContextMenuConfiguration(actionProvider: { actions in
             
             return UIMenu(children: [
-                UIAction(title: "Редактировать") { _ in
+                UIAction(title: "Редактировать".localized()) { _ in
                     let category = self.viewModel.category(at: indexPath.row) // Получаем категорию
                     let editCategoryVC = CategoryEditViewController()
                     editCategoryVC.delegate = self
                     editCategoryVC.currentName = category.title // передаем название категории
                     self.present(editCategoryVC, animated: true, completion: nil)
                 },
-                UIAction(title: "Удалить", attributes: .destructive) { _ in
+                UIAction(title: "Удалить".localized(), attributes: .destructive) { _ in
                     self.viewModel.removeCategory(at: indexPath)
                     self.tableView.beginUpdates()
                     self.tableView.deleteRows(at: [indexPath], with: .none)
@@ -266,7 +266,7 @@ extension CategoriesViewController: CategoryCreationViewControllerDelegate {
             // Показываем алерт
             DispatchQueue.main.async {
                 let alert = UIAlertController(title: "Ошибка",
-                                              message: "Категория с таким названием уже существует.",
+                                              message: "Категория с таким названием уже существует.".localized(),
                                               preferredStyle: .alert)
                 alert.addAction(UIAlertAction(title: "ОК", style: .default))
                 self.present(alert, animated: true)

@@ -25,7 +25,7 @@ final class CategoryCreationViewController: UIViewController {
     
     private lazy var header: UILabel = {
          let label = UILabel()
-         label.text = "Новая категория"
+        label.text = "Новая категория".localized()
          label.font = .systemFont(ofSize: 16, weight: .medium)
          label.textColor = UIColor(named: "YP-black")
          label.textAlignment = .center
@@ -35,11 +35,10 @@ final class CategoryCreationViewController: UIViewController {
     
     private lazy var textField: UITextField = {
          let textField = UITextField()
-         textField.placeholder = "Название категории"
          textField.layer.cornerRadius = 16
          textField.backgroundColor = UIColor(named: "YP-bg")
          textField.attributedPlaceholder = NSAttributedString(
-             string: "Введите название категории",
+            string: "Введите название категории".localized(),
              attributes: [NSAttributedString.Key.foregroundColor: UIColor(named: "YP-gray") ?? UIColor.gray]
          )
          textField.addTarget(self, action: #selector(textChanged), for: .editingChanged)
@@ -50,7 +49,7 @@ final class CategoryCreationViewController: UIViewController {
     
     private lazy var doneButton: UIButton = {
         let button = UIButton(type: .system)
-        button.setTitle("Готово", for: .normal)
+        button.setTitle("Готово".localized(), for: .normal)
         button.setTitleColor(UIColor(named: "YP-white"), for: .normal)
         button.titleLabel?.font = .systemFont(ofSize: 16, weight: .medium)
         button.backgroundColor = UIColor(named: "YP-gray")

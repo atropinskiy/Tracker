@@ -69,4 +69,14 @@ extension UIColor {
     }
 }
 
+extension Array {
+    subscript(safe index: Int) -> Element? {
+        return index >= 0 && index < count ? self[index] : nil
+    }
+}
 
+extension String {
+    func localized() -> String {
+        NSLocalizedString(self, tableName: "Localizable", bundle: .main, value: self, comment: self)
+    }
+}

@@ -28,8 +28,8 @@ final class TrackerEditViewController: UIViewController {
     private var selectedColor: UIColor?
     var selectedCategory: String?
     var selectedSchedule: String?
-    private let trackerRecordStore = TrackerRecordStore.shared
-    private let trackerStore = TrackerStore.shared
+    private let trackerRecordStore = TrackerRecordStore()
+    private let trackerStore = TrackerStore()
     
     
     

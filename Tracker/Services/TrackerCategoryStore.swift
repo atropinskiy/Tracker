@@ -6,12 +6,16 @@
 //
 
 import CoreData
-import UIKit
+import Combine
 
-final class TrackerCategoryStore: NSObject, NSFetchedResultsControllerDelegate {
+final class TrackerCategoryStore: NSObject {
     
-    static let shared = TrackerCategoryStore()
-    private override init() {}
+    var categoriesUpdated = PassthroughSubject<[TrackerCategoryCoreData], Never>()
+    
+    override init() {
+        super.init()
+        setupFetchedResultsController()
+    }
     
     var context: NSManagedObjectContext {
         return DatabaseManager.shared.context
@@ -79,10 +83,18 @@ final class TrackerCategoryStore: NSObject, NSFetchedResultsControllerDelegate {
         // Получаем все категории через fetchedResultsController
         return fetchedResultsController?.fetchedObjects?.first { $0.title == title }
     }
+    
+    private func notifyCategoryUpdate() {
+         // Уведомляем подписчиков о обновлении категорий
+        categoriesUpdated.send(fetchAllCategories())
+        print("Отправляем сообщения слушателям")
+     }
 
-    // MARK: - NSFetchedResultsControllerDelegate (опционально)
+}
+
+extension TrackerCategoryStore: NSFetchedResultsControllerDelegate{
     func controllerDidChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
-        print("Данные в NSFetchedResultsController изменились")
-        // Здесь можно обновить UI, если требуется
+        
+        notifyCategoryUpdate()
     }
 }

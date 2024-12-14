@@ -12,10 +12,10 @@ final class TabBarController: UITabBarController {
         super.viewDidLoad()
         
         let mainVC = TrackersViewController()
-        mainVC.tabBarItem = UITabBarItem(title: "Трекеры", image: UIImage(named: "TB_main"), tag: 0)
+        mainVC.tabBarItem = UITabBarItem(title: "Трекеры".localized(), image: UIImage(named: "TB_main"), tag: 0)
         
         let statVC = StatViewController()
-        statVC.tabBarItem = UITabBarItem(title: "Статистика", image: UIImage(named: "TB_stat"), tag: 1)
+        statVC.tabBarItem = UITabBarItem(title: "Статистика".localized(), image: UIImage(named: "TB_stat"), tag: 1)
 
         self.viewControllers = [mainVC, statVC]
     }

@@ -1,0 +1,59 @@
+/* 
+  Localizable.strings
+  Tracker
+
+  Created by alex_tr on 14.12.2024.
+  
+*/
+
+// TrackersViewController
+"Трекеры" = "Trackers";
+"Поиск" = "Search";
+"Что будем отслеживать?" = "What will we track?";
+"Фильтры" = "Filters";
+"Создание трекера" = "Tracker creation";
+"Статистика" = "Statistics";
+"Закрепить" = "Pin";
+"Открепить" = "Unpin";
+"Редактировать" = "Edit";
+"Удалить" = "Delete";
+
+// SelectTrackerType
+"Категория" = "Category";
+"Категории" = "Categories";
+"Расписание" = "Schedule";
+"Новая привычка" = "New habbit";
+"Новая категория" = "New category";
+"Введите название трекера" = "Enter tracker name";
+"Введите название категории" = "Enter category title";
+"Добавить категорию" = "Add category";
+"Отменить" = "Cancel";
+"Создать" = "Create";
+"Ошибка" = "Error";
+"Цвет" = "Color";
+"Нерегулярное событие" = "Unregular event";
+"Привычка" = "Habbit";
+"Привычки и события можно\nобъединить по смыслу" = "Habits and events can\nbe grouped by meaning.";
+"Категория с таким названием уже существует." = "Category is already exists";
+"Готово" = "Done";
+"день" = "day";
+"дней" = "days";
+"дня" = "days";
+
+//Stat
+"Неизвестный" = "Unknown";
+"Лучший период" = "Best period";
+"Идеальные дни" = "Ideal days";
+"Трекеров завершено" = "Trackers completed";
+"Среднее значение" = "Average mean";
+
+//Schedule
+"Понедельник" = "Monday";
+"Вторник" = "Tuesday";
+"Среда" = "Wednesday";
+"Четверг" = "Thursday";
+"Пятница" = "Friday";
+"Суббота" = "Saturday";
+"Воскресенье" = "Sunday";
+
+

@@ -23,7 +23,7 @@ final class TypeSelectViewController: UIViewController {
     
     private func createCanvas() {
         let headLabel = UILabel()
-        headLabel.text = "Создание трекера"
+        headLabel.text = "Создание трекера".localized()
         headLabel.font = UIFont.systemFont(ofSize: 18, weight: .medium)
         headLabel.textAlignment = .center
         headLabel.translatesAutoresizingMaskIntoConstraints = false
@@ -36,7 +36,7 @@ final class TypeSelectViewController: UIViewController {
         ])
         
         let unregularButton = UIButton(type: .custom)
-        unregularButton.setTitle("Нерегулярное событие", for: .normal)
+        unregularButton.setTitle("Нерегулярное событие".localized(), for: .normal)
         unregularButton.layer.cornerRadius = 18
         unregularButton.titleLabel?.font = UIFont.systemFont(ofSize: 16, weight: .medium)
         unregularButton.setTitleColor(UIColor(named: "YP-white"), for: .normal)
@@ -54,7 +54,7 @@ final class TypeSelectViewController: UIViewController {
         ])
         
         let habbitButton = UIButton(type: .custom)
-        habbitButton.setTitle("Привычка", for: .normal)
+        habbitButton.setTitle("Привычка".localized(), for: .normal)
         habbitButton.layer.cornerRadius = 18
         habbitButton.titleLabel?.font = UIFont.systemFont(ofSize: 16, weight: .medium)
         habbitButton.setTitleColor(UIColor(named: "YP-white"), for: .normal)

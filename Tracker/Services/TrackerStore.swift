@@ -8,15 +8,17 @@
 import CoreData
 import UIKit
 
-final class TrackerStore: NSObject, NSFetchedResultsControllerDelegate {
+final class TrackerStore: NSObject {
     
-    static let shared = TrackerStore()
-    private override init() {}
+    override init() {
+        super.init()
+        setupFetchedResultsController()
+    }
     private var context: NSManagedObjectContext {
         return DatabaseManager.shared.context
     }
     
-    private var fetchedResultsController: NSFetchedResultsController<TrackerCoreData>?
+    var fetchedResultsController: NSFetchedResultsController<TrackerCoreData>?
 
     // Настройка NSFetchedResultsController
     func setupFetchedResultsController() {
@@ -228,5 +230,10 @@ final class TrackerStore: NSObject, NSFetchedResultsControllerDelegate {
 
 }
 
+extension TrackerStore: NSFetchedResultsControllerDelegate {
+    func controllerDidChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
+        print("Данные в Tracker Core Data изменены. Обновление статистики.")
 
+    }
+}
 

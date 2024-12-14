@@ -21,6 +21,8 @@ final class TrackerCollectionCell: UICollectionViewCell {
     private lazy var trackerView = UIView()
     private lazy var button = UIButton()
     private lazy var pinImg = UIImageView()
+    private let trackerStore = TrackerStore()
+    private let trackerRecordStore = TrackerRecordStore()
     lazy var isCompleted: Bool = false
     private var trackerId: UUID?
     private var indexPath: IndexPath?
@@ -152,13 +154,13 @@ final class TrackerCollectionCell: UICollectionViewCell {
 
         // Добавление или удаление записи
         if isCompleted {
-            TrackerRecordStore.shared.addRecord(id: id, date: currentDate)
+            trackerRecordStore.addRecord(id: id, date: currentDate)
         } else {
-            TrackerRecordStore.shared.deleteRecord(by: id, on: currentDate)
+            trackerRecordStore.deleteRecord(by: id, on: currentDate)
         }
 
         // Подсчитываем количество выполненных трекеров для данного id
-        let completedCount = TrackerRecordStore.shared.countCompletedTrackers(for: id)
+        let completedCount = trackerRecordStore.countCompletedTrackers(for: id)
         counterLabel.text = daysText(for: completedCount)
     }
 
@@ -184,7 +186,7 @@ final class TrackerCollectionCell: UICollectionViewCell {
         }
         
         // Используем переданную дату для подсчета количества выполненных трекеров
-        let completedCount = TrackerRecordStore.shared.countCompletedTrackers(for: tracker.id)
+        let completedCount = trackerRecordStore.countCompletedTrackers(for: tracker.id)
         counterLabel.text = daysText(for: completedCount)
     }
        
@@ -193,13 +195,13 @@ final class TrackerCollectionCell: UICollectionViewCell {
         let lastTwoDigits = count % 100
         
         if lastTwoDigits >= 11 && lastTwoDigits <= 19 {
-            return "\(count) дней"
+            return "\(count) "+"дней".localized()
         } else if lastDigit == 1 {
-            return "\(count) день"
+            return "\(count) " + "день".localized()
         } else if lastDigit >= 2 && lastDigit <= 4 {
-            return "\(count) дня"
+            return "\(count) " + "дня".localized()
         } else {
-            return "\(count) дней"
+            return "\(count) " + "дней".localized()
         }
     }
 }

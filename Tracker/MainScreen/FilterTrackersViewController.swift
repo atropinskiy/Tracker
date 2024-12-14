@@ -78,11 +78,8 @@ extension FilterTrackersViewController: UITableViewDataSource, UITableViewDelega
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        if selectedFilter == indexPath.row {
-            selectedFilter = nil
-        } else {
-            selectedFilter = indexPath.row
-        }
+        selectedFilter = indexPath.row
+        
         tableView.reloadData()
         
         if let selectedFilter = selectedFilter {

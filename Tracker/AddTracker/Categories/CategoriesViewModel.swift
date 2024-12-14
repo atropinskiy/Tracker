@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import Combine
 
 protocol CategoriesViewModelProtocol {
     
@@ -13,7 +14,6 @@ protocol CategoriesViewModelProtocol {
     var categories: [TrackerCategoryCoreData] { get }
     var selectedCategory: String? { get set }
     var numberOfCategories: Int { get }
-    
     func loadCategories()
     func getCategoriesAsTrackerCategory() -> [TrackerCategory]
     func category(at index: Int) -> TrackerCategoryCoreData
@@ -23,17 +23,26 @@ protocol CategoriesViewModelProtocol {
     func toggleSelection(for index: Int)
     func isCategorySelected(at index: Int) -> Bool
     func assignCategoryToTracker(categoryTitle: String, trackerId: UUID)
+    func selectCategory(at index: Int)
 }
 
 final class CategoriesViewModel: CategoriesViewModelProtocol {
+
+    func category(at index: Int) -> TrackerCategoryCoreData {
+        return categories[index]
+    }
+    
     static let shared = CategoriesViewModel()
     private init() {
         loadCategories()
+        subscribeToCategoryUpdates()
     }
+    
     var categories: [TrackerCategoryCoreData] = []
     var selectedCategory: String?
-    private var trackerCategoryStore = TrackerCategoryStore.shared
-    private var trackerStore = TrackerStore.shared 
+    private var trackerCategoryStore = TrackerCategoryStore()
+    private var trackerStore = TrackerStore()
+    private var cancellables = Set<AnyCancellable>()
 
     var numberOfCategories: Int {
         return categories.count
@@ -41,7 +50,7 @@ final class CategoriesViewModel: CategoriesViewModelProtocol {
 
     // Загрузка категорий через синглтон TrackerCategoryStore
     func loadCategories() {
-        categories = TrackerCategoryStore.shared.fetchAllCategories()
+        categories = trackerCategoryStore.fetchAllCategories()
 
     }
     
@@ -61,14 +70,11 @@ final class CategoriesViewModel: CategoriesViewModelProtocol {
     }
 
     
-    func category(at index: Int) -> TrackerCategoryCoreData {
-            return categories[index]
-        }
-    
     func getCategoryTitles() -> [String] {
         return categories.compactMap { $0.title }
     }
-
+    
+    
 
     func addCategory(title: String) {
         // Проверка, существует ли категория с таким названием
@@ -117,9 +123,13 @@ final class CategoriesViewModel: CategoriesViewModelProtocol {
             selectedCategory = categoryTitle
         }
     }
+
+    func selectCategory(at index: Int) {
+        selectedCategory = categories[index].title
+    }
     
     func removeCategory(at indexPath: IndexPath) {
-        categories.remove(at: indexPath.row)
+        trackerCategoryStore.deleteCategory(at: indexPath)
     }
     
     func isCategorySelected(at index: Int) -> Bool {
@@ -129,7 +139,7 @@ final class CategoriesViewModel: CategoriesViewModelProtocol {
     
     func assignCategoryToTracker(categoryTitle: String, trackerId: UUID) {
         // Находим категорию по названию
-        guard let selectedCategory = TrackerCategoryStore.shared.fetchCategoryByTitle(categoryTitle) else {
+        guard let selectedCategory = trackerCategoryStore.fetchCategoryByTitle(categoryTitle) else {
             print("Категория с названием \(categoryTitle) не найдена.")
             return
         }
@@ -138,6 +148,15 @@ final class CategoriesViewModel: CategoriesViewModelProtocol {
         trackerStore.assignCategoryToTracker(trackerId: trackerId, category: selectedCategory)
         print("Трекер с ID \(trackerId) был успешно назначен на категорию \(categoryTitle).")
         
+    }
+    
+    private func subscribeToCategoryUpdates() {
+        trackerCategoryStore.categoriesUpdated
+            .sink { [weak self] updatedCategories in
+                self?.categories = updatedCategories
+                print("Категории обновлены в ViewModel")
+            }
+            .store(in: &cancellables)
     }
     
     

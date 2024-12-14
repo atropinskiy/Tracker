@@ -22,7 +22,7 @@ final class ScheduleViewController: UIViewController {
     
     private func createCanvas() {
         let header = UILabel()
-        header.text = "Расписание"
+        header.text = "Расписание".localized()
         header.font = .systemFont(ofSize: 16, weight: .medium)
         header.translatesAutoresizingMaskIntoConstraints = false
         header.textColor = UIColor(named: "YP-black")
@@ -57,7 +57,7 @@ final class ScheduleViewController: UIViewController {
         ])
         
         let confirmButton = UIButton(type: .custom)
-        confirmButton.setTitle("Готово", for: .normal)
+        confirmButton.setTitle("Готово".localized(), for: .normal)
         confirmButton.setTitleColor(UIColor(named: "YP-white"), for: .normal)
         confirmButton.titleLabel?.font = .systemFont(ofSize: 16, weight: .medium)
         confirmButton.backgroundColor = UIColor(named: "YP-black")
@@ -104,7 +104,7 @@ extension ScheduleViewController: UITableViewDelegate, UITableViewDataSource {
             return UITableViewCell()
         }
         let weekDay = WeekDay.allCases[indexPath.row]
-        cell.textLabel?.text = weekDay.rawValue
+        cell.textLabel?.text = weekDay.rawValue.localized()
         cell.textLabel?.textColor = UIColor(named: "YP-black")
         cell.backgroundColor = UIColor(named: "YP-bg")
         cell.daySwitch.isOn = selectedDays.contains(weekDay)
