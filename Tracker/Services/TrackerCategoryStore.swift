@@ -23,7 +23,6 @@ final class TrackerCategoryStore: NSObject {
     
     private var fetchedResultsController: NSFetchedResultsController<TrackerCategoryCoreData>?
 
-    // MARK: - Настройка NSFetchedResultsController
     func setupFetchedResultsController() {
         let fetchRequest: NSFetchRequest<TrackerCategoryCoreData> = TrackerCategoryCoreData.fetchRequest()
         fetchRequest.sortDescriptors = [NSSortDescriptor(key: "title", ascending: true)] // Сортировка по названию категории
@@ -44,7 +43,6 @@ final class TrackerCategoryStore: NSObject {
         }
     }
 
-    // MARK: - Добавление категории
     func addCategory(title: String) {
         let category = TrackerCategoryCoreData(context: context)
         category.title = title
@@ -57,7 +55,6 @@ final class TrackerCategoryStore: NSObject {
         }
     }
 
-    // MARK: - Удаление категории
     func deleteCategory(at indexPath: IndexPath) {
         guard let category = fetchedResultsController?.object(at: indexPath) else {
             print("Категория не найдена для удаления")
@@ -73,22 +70,41 @@ final class TrackerCategoryStore: NSObject {
         }
     }
 
-    // MARK: - Получение всех категорий через NSFetchedResultsController
     func fetchAllCategories() -> [TrackerCategoryCoreData] {
         setupFetchedResultsController()
         return fetchedResultsController?.fetchedObjects ?? []
     }
     
     func fetchCategoryByTitle(_ title: String) -> TrackerCategoryCoreData? {
-        // Получаем все категории через fetchedResultsController
         return fetchedResultsController?.fetchedObjects?.first { $0.title == title }
     }
     
     private func notifyCategoryUpdate() {
-         // Уведомляем подписчиков о обновлении категорий
         categoriesUpdated.send(fetchAllCategories())
         print("Отправляем сообщения слушателям")
-     }
+    }
+    
+    func fetchCategoryTitleByTrackerId(_ trackerId: UUID) -> String? {
+        // Запросим все трекеры с данным id
+        let fetchRequest: NSFetchRequest<TrackerCoreData> = TrackerCoreData.fetchRequest()
+        fetchRequest.predicate = NSPredicate(format: "id == %@", trackerId as CVarArg) // Используем UUID напрямую
+
+        do {
+            let trackers = try context.fetch(fetchRequest)
+            guard let tracker = trackers.first else { return nil } // Если трекер не найден
+
+            // Получаем категорию, с которой связан этот трекер
+            if let category = tracker.category {
+                return category.title // Возвращаем название категории
+            }
+        } catch {
+            print("Ошибка при получении категории по id трекера: \(error.localizedDescription)")
+        }
+
+        return nil
+    }
+
+
 
 }
 

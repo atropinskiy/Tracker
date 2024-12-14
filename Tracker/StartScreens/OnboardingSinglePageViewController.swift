@@ -18,7 +18,6 @@ final class OnboardingSinglePageViewController: UIViewController {
     
     private let pageModel: OnboardingPage
     
-    // Инициализация с использованием модели страницы
     init(pageModel: OnboardingPage) {
         self.pageModel = pageModel
         super.init(nibName: nil, bundle: nil)

@@ -68,7 +68,6 @@ final class TrackerCollectionCell: UICollectionViewCell {
             emojiBackgroundView.widthAnchor.constraint(equalToConstant: 24) // Ширина и высота равны для круга
         ])
         
-        
         pinImg.image = UIImage(named: "pinImg")
         pinImg.tintColor = .white
         pinImg.translatesAutoresizingMaskIntoConstraints = false
@@ -79,7 +78,6 @@ final class TrackerCollectionCell: UICollectionViewCell {
             pinImg.trailingAnchor.constraint(equalTo: trackerView.trailingAnchor, constant: -12),
             pinImg.heightAnchor.constraint(equalToConstant: 12),
             pinImg.widthAnchor.constraint(equalToConstant: 8)
-        
         ])
         
         emojiLabel.translatesAutoresizingMaskIntoConstraints = false
@@ -144,24 +142,21 @@ final class TrackerCollectionCell: UICollectionViewCell {
             print("Кнопка недоступна для дат в будущем.")
             return
         }
-        // Переключаем состояние
         isCompleted.toggle()
 
-        // Обновляем внешний вид кнопки
         button.alpha = isCompleted ? 0.3 : 1.0
         let buttonImage = isCompleted ? UIImage(named: "Done-button") : UIImage(systemName: "plus")
         button.setImage(buttonImage, for: .normal)
 
-        // Добавление или удаление записи
         if isCompleted {
             trackerRecordStore.addRecord(id: id, date: currentDate)
         } else {
             trackerRecordStore.deleteRecord(by: id, on: currentDate)
         }
 
-        // Подсчитываем количество выполненных трекеров для данного id
         let completedCount = trackerRecordStore.countCompletedTrackers(for: id)
         counterLabel.text = daysText(for: completedCount)
+        delegate?.completeTracker(self, id: id, isOn: isCompleted)
     }
 
     func configure(with tracker: Tracker, isCompletedToday: Bool, isPinned: Bool) {
@@ -171,8 +166,6 @@ final class TrackerCollectionCell: UICollectionViewCell {
         trackerView.backgroundColor = tracker.color
         button.backgroundColor = tracker.color
         trackerId = tracker.id
-
-        // Устанавливаем начальное состояние кнопки
         isCompleted = isCompletedToday
         let buttonImage = isCompleted ? UIImage(named: "Done-button") : UIImage(systemName: "plus")
         button.setImage(buttonImage, for: .normal)
@@ -185,7 +178,6 @@ final class TrackerCollectionCell: UICollectionViewCell {
             pinImg.isHidden = false
         }
         
-        // Используем переданную дату для подсчета количества выполненных трекеров
         let completedCount = trackerRecordStore.countCompletedTrackers(for: tracker.id)
         counterLabel.text = daysText(for: completedCount)
     }

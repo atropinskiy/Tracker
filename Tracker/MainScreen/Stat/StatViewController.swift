@@ -3,6 +3,8 @@ import Combine
 
 final class StatViewController: UIViewController {
     private var cancellables = Set<AnyCancellable>()
+    private var stubImg: UIImageView!
+    private var stubLabel: UILabel!
     private let statService = StatService()
     private let titleValues = ["Лучший период".localized(), "Идеальные дни".localized(), "Трекеров завершено".localized(), "Среднее значение".localized()]
     private var statValues: [Int] = [] // Инициализация с пустым массивом
@@ -36,15 +38,28 @@ final class StatViewController: UIViewController {
             }
             .store(in: &cancellables)
     }
+    
     private func updateUI(with values: [Int]) {
         print("Обновленные значения статистики: \(values)")
-        // Обновите ваш интерфейс с новыми данными
+        
+        if values.allSatisfy({ $0 == 0 }) {
+            addStub()
+        } else {
+            stubImg?.isHidden = true
+            stubLabel?.isHidden = true
+            collectionView.isHidden = false
+            
+            // Обновляем интерфейс с новыми данными
+            collectionView.reloadData()
+            createCanvas()
+        }
     }
     
     private func showEmptyStat() {
-        print("Нет данных для статистики")
-        // Покажите заглушку или пустой экран
+        print("Статистика пуста.")
+        addStub()
     }
+
     
     private func createCanvas() {
         header.text = "Статистика".localized()
@@ -65,37 +80,44 @@ final class StatViewController: UIViewController {
             collectionView.heightAnchor.constraint(equalToConstant: 4*90+3*12)
         ])
     }
-//    
-//    private func addStub() {
-//        lazy var stubImg = UIImageView()
-//        lazy var stubLabel = UILabel()
-//        
-//        stubImg.image = UIImage(named: "Stat-Stub")
-//        view.addSubview(stubImg)
-//        stubImg.translatesAutoresizingMaskIntoConstraints = false
-//        NSLayoutConstraint.activate([
-//            stubImg.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-//            stubImg.centerYAnchor.constraint(equalTo: view.centerYAnchor)
-//        ])
-//        
-//        stubLabel.text = "Анализировать пока нечего"
-//        stubLabel.font = UIFont.systemFont(ofSize: 12, weight: .medium)
-//        stubLabel.textColor = UIColor(named: "YP-black")
-//        stubLabel.translatesAutoresizingMaskIntoConstraints = false
-//        stubLabel.textAlignment = .center
-//        view.addSubview(stubLabel)
-//        NSLayoutConstraint.activate([
-//            stubLabel.topAnchor.constraint(equalTo: stubImg.bottomAnchor, constant: 0),
-//            stubLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-//            stubLabel.widthAnchor.constraint(equalToConstant: 343)
-//        ])
-//    }
+    
+    private func addStub() {
+        if stubImg == nil {
+            stubImg = UIImageView()
+            stubLabel = UILabel()
+            
+            stubImg.image = UIImage(named: "Stat-Stub")
+            view.addSubview(stubImg)
+            stubImg.translatesAutoresizingMaskIntoConstraints = false
+            NSLayoutConstraint.activate([
+                stubImg.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+                stubImg.centerYAnchor.constraint(equalTo: view.centerYAnchor)
+            ])
+            
+            stubLabel.text = "Анализировать пока нечего"
+            stubLabel.font = UIFont.systemFont(ofSize: 12, weight: .medium)
+            stubLabel.textColor = UIColor(named: "YP-black")
+            stubLabel.translatesAutoresizingMaskIntoConstraints = false
+            stubLabel.textAlignment = .center
+            view.addSubview(stubLabel)
+            NSLayoutConstraint.activate([
+                stubLabel.topAnchor.constraint(equalTo: stubImg.bottomAnchor, constant: 0),
+                stubLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+                stubLabel.widthAnchor.constraint(equalToConstant: 343)
+            ])
+        }
+        
+        stubImg.isHidden = false
+        stubLabel.isHidden = false
+        collectionView.isHidden = true
+    }
+
 }
 
 extension StatViewController: UICollectionViewDelegateFlowLayout, UICollectionViewDataSource {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         print("StatViewController: Number of items in section: \(statValues.count)")
-        return statValues.count // Отображаем количество элементов, которое есть в statValues
+        return statValues.count
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
@@ -103,17 +125,13 @@ extension StatViewController: UICollectionViewDelegateFlowLayout, UICollectionVi
             return UICollectionViewCell()
         }
         
-        // Если данных нет, возвращаем пустую ячейку
         guard !statValues.isEmpty else {
             return cell
         }
         
-        // Безопасное индексирование
-        let value = statValues[indexPath.item] // Используем безопасное индексирование
+        let value = statValues[indexPath.item]
         cell.counterText = value
         cell.titleLabelText = titleValues[safe: indexPath.item] ?? "Неизвестный".localized()
-
-        // Настроим содержимое ячеек, если нужно
         return cell
     }
     

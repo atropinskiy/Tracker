@@ -20,7 +20,6 @@ final class TrackerStore: NSObject {
     
     var fetchedResultsController: NSFetchedResultsController<TrackerCoreData>?
 
-    // Настройка NSFetchedResultsController
     func setupFetchedResultsController() {
         let fetchRequest: NSFetchRequest<TrackerCoreData> = TrackerCoreData.fetchRequest()
         fetchRequest.sortDescriptors = [NSSortDescriptor(key: "name", ascending: true)] // Добавьте сортировку
@@ -41,7 +40,6 @@ final class TrackerStore: NSObject {
         }
     }
 
-    // Добавление трекера в Core Data
     func addTracker(id: UUID, name: String, color: UIColor, emoji: String, schedule: [WeekDay]? = nil, date: Date? = nil) {
         let trackerEntity = TrackerCoreData(context: context)
         trackerEntity.id = id
@@ -59,7 +57,6 @@ final class TrackerStore: NSObject {
         }
     }
 
-    // Получение всех трекеров через NSFetchedResultsController
     func fetchAllTrackers() -> [TrackerCoreData] {
         setupFetchedResultsController()
         return fetchedResultsController?.fetchedObjects ?? []
@@ -68,7 +65,6 @@ final class TrackerStore: NSObject {
     func fetchTrackers(forCategory category: TrackerCategoryCoreData) -> [TrackerCoreData] {
         let fetchRequest: NSFetchRequest<TrackerCoreData> = TrackerCoreData.fetchRequest()
 
-        // Фильтрация по связанной категории
         fetchRequest.predicate = NSPredicate(format: "category == %@", category)
 
         do {
@@ -100,48 +96,15 @@ final class TrackerStore: NSObject {
     }
     
     func deleteTrackerWithTrackerObj(_ tracker: Tracker) {
-        // Удаление трекера из Core Data
         if let trackerCoreData = fetchTrackerCoreData(by: tracker) {
             context.delete(trackerCoreData)
             
-            // Сохраняем изменения в контексте
             do {
                 try context.save()
                 print("Трекер успешно удалён")
             } catch {
                 print("Ошибка при удалении трекера: \(error.localizedDescription)")
             }
-        }
-    }
-    
-    func fetchTrackerById(_ id: UUID) -> TrackerCoreData? {
-        let fetchRequest: NSFetchRequest<TrackerCoreData> = TrackerCoreData.fetchRequest()
-        fetchRequest.predicate = NSPredicate(format: "id == %@", id as CVarArg)
-
-        do {
-            let trackers = try context.fetch(fetchRequest)
-            return trackers.first // Возвращаем первый найденный трекер, если он есть
-        } catch {
-            print("Ошибка при поиске трекера с ID \(id): \(error.localizedDescription)")
-            return nil
-        }
-    }
-    
-    func fetchPinnedTrackers() -> [Tracker] {
-        let fetchRequest: NSFetchRequest<TrackerCoreData> = TrackerCoreData.fetchRequest()
-
-        // Фильтрация по pinned
-        fetchRequest.predicate = NSPredicate(format: "pinned == %@", NSNumber(value: true))
-
-        do {
-            // Получаем все трекеры, которые закреплены
-            let coreDataTrackers = try context.fetch(fetchRequest)
-            
-            // Преобразуем каждый TrackerCoreData в объект Tracker
-            return coreDataTrackers.map { Tracker(from: $0) }
-        } catch {
-            print("Ошибка при загрузке закрепленных трекеров: \(error.localizedDescription)")
-            return []
         }
     }
     
@@ -250,8 +213,6 @@ final class TrackerStore: NSObject {
         }
     }
 
-    
-    // Функция для назначения категории трекеру
     func assignCategoryToTracker(trackerId: UUID, category: TrackerCategoryCoreData) {
         // Получаем трекер по его ID
         let fetchRequest: NSFetchRequest<TrackerCoreData> = TrackerCoreData.fetchRequest()

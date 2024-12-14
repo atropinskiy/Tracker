@@ -72,9 +72,6 @@ final class ScheduleViewController: UIViewController {
             confirmButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
             confirmButton.heightAnchor.constraint(equalToConstant: 60),
         ])
-        
-        
-        
     }
     
     @objc private func daySwitchToggled(_ sender: UISwitch) {
@@ -90,7 +87,6 @@ final class ScheduleViewController: UIViewController {
         delegate?.saveSchedule(schedule: selectedDays)
         dismiss(animated: true)
     }
-    
 }
 
 extension ScheduleViewController: UITableViewDelegate, UITableViewDataSource {

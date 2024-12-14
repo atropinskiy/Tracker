@@ -83,7 +83,6 @@ final class CategoryCreationViewController: UIViewController {
         let text = textField.text ?? ""
         doneButton.isEnabled = !text.isEmpty
         
-        // Меняем цвет кнопки при введении 3 или более символов
         if text.count >= 1 {
             doneButton.backgroundColor = UIColor(named: "YP-black")
         } else {
@@ -92,9 +91,20 @@ final class CategoryCreationViewController: UIViewController {
     }
 
     @objc private func doneTapped() {
-        guard let title = textField.text, !title.isEmpty else { return }
+        guard let title = textField.text, !title.isEmpty else {
+            return
+        }
+        
+        if title == "Закрепленные" || title == "Pinned" {
+            // Выводим предупреждение, если это название
+            let alert = UIAlertController(title: "Ошибка", message: "Категория с названием 'Закрепленные' не может быть создана.", preferredStyle: .alert)
+            alert.addAction(UIAlertAction(title: "ОК", style: .default))
+            present(alert, animated: true, completion: nil)
+            return
+        }
+        
         delegate?.didCreateCategory(title)
-        // Возвращаемся на предыдущий экран
+        
         dismiss(animated: true, completion: nil)
     }
 }

@@ -5,7 +5,7 @@
 //  Created by alex_tr on 03.12.2024.
 //
 
-import UIKit
+import Foundation
 
 enum OnboardingPage {
     case bluePage

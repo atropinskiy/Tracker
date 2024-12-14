@@ -13,7 +13,6 @@ final class TrackerRecordStore: NSObject {
         setUpFetchedResultsController()
     }
     
-    // Контекст для работы с Core Data
     private var context: NSManagedObjectContext {
         return DatabaseManager.shared.context
     }
@@ -47,10 +46,6 @@ final class TrackerRecordStore: NSObject {
         }
     }
     
-    
-
-    
-    // Обновление статистики
     private func updateStatValues() {
         let completedTrackers = countAllCompletedTrackers()
         statValues = [0, 0, completedTrackers, 0]
@@ -62,22 +57,18 @@ final class TrackerRecordStore: NSObject {
         recordEntity.id = id
         recordEntity.date = date
         
-        // Создаем запрос для поиска трекера по id
         let fetchRequest: NSFetchRequest<TrackerCoreData> = TrackerCoreData.fetchRequest()
-        fetchRequest.predicate = NSPredicate(format: "id == %@", id as CVarArg) // Используем тот же id для поиска трекера
+        fetchRequest.predicate = NSPredicate(format: "id == %@", id as CVarArg)
         
         do {
-            // Выполняем запрос и получаем трекер с соответствующим id
             let results = try context.fetch(fetchRequest)
             
             if let trackerCoreData = results.first {
-                // Привязываем найденный объект TrackerCoreData к новому записю
                 recordEntity.tracker = trackerCoreData
             } else {
                 print("Трекер с id \(id) не найден.")
             }
             
-            // Сохраняем запись
             try context.save()
             updateStatValues()
             print("Запись успешно добавлена в Core Data")
@@ -86,15 +77,12 @@ final class TrackerRecordStore: NSObject {
         }
     }
 
-
-    // MARK: - Удаление записи по ID
     func deleteRecord(by id: UUID, on date: Date) {
         let fetchRequest: NSFetchRequest<TrackerRecordCoreData> = TrackerRecordCoreData.fetchRequest()
         let calendar = Calendar.current
         let startOfDay = calendar.startOfDay(for: date)
         let endOfDay = calendar.date(byAdding: .day, value: 1, to: startOfDay) ?? startOfDay
         
-        // Устанавливаем предикат для удаления записи с конкретным ID и датой
         fetchRequest.predicate = NSPredicate(format: "id == %@ AND date >= %@ AND date < %@",
                                              id as CVarArg,
                                              startOfDay as NSDate,
@@ -116,7 +104,6 @@ final class TrackerRecordStore: NSObject {
         }
     }
     
-    // Метод подсчета завершенных трекеров для конкретного трекера
     func countCompletedTrackers(for trackerId: UUID) -> Int {
         let fetchRequest: NSFetchRequest<TrackerRecordCoreData> = TrackerRecordCoreData.fetchRequest()
         fetchRequest.predicate = NSPredicate(format: "id == %@", trackerId as CVarArg)
@@ -130,25 +117,18 @@ final class TrackerRecordStore: NSObject {
         }
     }
     
-    // Метод проверки завершения трекера на текущий день
     func isTrackerCompletedToday(trackerId: UUID, currentDate: Date) -> Bool {
         let fetchRequest: NSFetchRequest<TrackerRecordCoreData> = TrackerRecordCoreData.fetchRequest()
-        
-        // Получаем текущую дату с обнулённым временем для сравнения только даты
         let calendar = Calendar.current
         let startOfDay = calendar.startOfDay(for: currentDate)
         let endOfDay = calendar.date(byAdding: .day, value: 1, to: startOfDay)!
-        
-        // Настроим фильтр запроса: ищем запись с trackerId и датой выполнения на текущий день
         fetchRequest.predicate = NSPredicate(format: "id == %@ AND date >= %@ AND date < %@",
                                              trackerId as CVarArg,
                                              startOfDay as CVarArg,
                                              endOfDay as CVarArg)
         
         do {
-            // Выполняем запрос
             let results = try context.fetch(fetchRequest)
-            // Если результаты не пусты, значит, трекер был завершён на текущую дату
             return !results.isEmpty
         } catch {
             print("Ошибка при запросе в Core Data: \(error)")
@@ -156,7 +136,6 @@ final class TrackerRecordStore: NSObject {
         }
     }
     
-    // Подсчёт всех завершённых трекеров
     func countAllCompletedTrackers() -> Int {
         let fetchRequest: NSFetchRequest<TrackerRecordCoreData> = TrackerRecordCoreData.fetchRequest()
         

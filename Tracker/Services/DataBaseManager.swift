@@ -14,7 +14,6 @@ final class DatabaseManager {
     
     private init() {}
     
-    // Контейнер для работы с Core Data
     private lazy var persistentContainer: NSPersistentContainer = {
         let container = NSPersistentContainer(name: "CoreDataModel_v2")
         let description = container.persistentStoreDescriptions.first
@@ -29,13 +28,9 @@ final class DatabaseManager {
         return container
     }()
     
-    // Контекст для работы с Core Data
     var context: NSManagedObjectContext {
         return persistentContainer.viewContext
     }
-    
-
-
 }
 
 

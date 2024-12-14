@@ -31,5 +31,4 @@ struct AnalyticsService {
         // Для тестирования выводим в консоль
         print("Event: \(event), Screen: \(screen), Item: \(item ?? "None")")
     }
-    
 }

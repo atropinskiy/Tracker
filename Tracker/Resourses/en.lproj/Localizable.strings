@@ -17,6 +17,7 @@
 "Открепить" = "Unpin";
 "Редактировать" = "Edit";
 "Удалить" = "Delete";
+"Закрепленные" = "Pinned";
 
 // SelectTrackerType
 "Категория" = "Category";

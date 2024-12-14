@@ -12,7 +12,6 @@ protocol TrackerEditViewControllerDelegate: AnyObject {
     func didEditedCategory()
 }
 
-
 final class TrackerEditViewController: UIViewController {
     var taskType: String?
     var currentDate: Date?
@@ -30,11 +29,7 @@ final class TrackerEditViewController: UIViewController {
     var selectedSchedule: String?
     private let trackerRecordStore = TrackerRecordStore()
     private let trackerStore = TrackerStore()
-    
-    
-    
     private var viewModel = CategoriesViewModel.shared
-    
     
     init(viewModel: CategoriesViewModel, editedTracker: Tracker) {
         self.viewModel = viewModel
@@ -51,7 +46,7 @@ final class TrackerEditViewController: UIViewController {
         view.backgroundColor = UIColor(named: "YP-white")
         
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
-        tapGesture.cancelsTouchesInView = false // Не отменяем касания для других элементов
+        tapGesture.cancelsTouchesInView = false
         view.addGestureRecognizer(tapGesture)
         headerTextField.delegate = self
         
@@ -68,7 +63,6 @@ final class TrackerEditViewController: UIViewController {
             selectedEmoji = collectionEmojies[emojiIndex]
         }
         
-        // Установка начального выбранного цвета
         if let colorIndex = collectionColors.firstIndex(of: editedTracker.color) {
             selectedColorIndex = IndexPath(item: colorIndex, section: 1)
             collectionView.selectItem(at: selectedColorIndex, animated: false, scrollPosition: [])
@@ -200,11 +194,10 @@ final class TrackerEditViewController: UIViewController {
     func updateCollectionViewHeight() {
         let totalItems = collectionEmojies.count + collectionColors.count
         let numberOfRows = ceil(Double(totalItems) / Double(6))
-        let collectionHeight = CGFloat(numberOfRows) * 52 + CGFloat(4) * 24 + CGFloat(2) * 18 // Высота коллекции с учетом отступов
+        let collectionHeight = CGFloat(numberOfRows) * 52 + CGFloat(4) * 24 + CGFloat(2) * 18
         
-        // Обновите высоту коллекции
         collectionView.heightAnchor.constraint(equalToConstant: collectionHeight).isActive = true
-        collectionView.layoutIfNeeded() // Перерисовать коллекцию
+        collectionView.layoutIfNeeded()
     }
     
     private func createCanvas() {
@@ -399,14 +392,12 @@ extension TrackerEditViewController: UITableViewDelegate, UITableViewDataSource 
             present(categoryViewController, animated: true, completion: nil)
         }
     }
-    
-    
 }
 
 extension TrackerEditViewController: UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
     
     func numberOfSections(in collectionView: UICollectionView) -> Int {
-        return 2 // Одна для эмодзи и одна для цветов
+        return 2
     }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
@@ -416,7 +407,6 @@ extension TrackerEditViewController: UICollectionViewDataSource, UICollectionVie
             return collectionColors.count
         }
     }
-    
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "CollectionCell", for: indexPath) as? CollectionCell else {
@@ -456,23 +446,23 @@ extension TrackerEditViewController: UICollectionViewDataSource, UICollectionVie
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        return CGSize(width: 52, height: 52) // Размер ячейки
+        return CGSize(width: 52, height: 52)
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumLineSpacingForSectionAt section: Int) -> CGFloat {
-        return 0 // Вертикальный отступ между строками
+        return 0
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumInteritemSpacingForSectionAt section: Int) -> CGFloat {
-        return 5 // Горизонтальный отступ между элементами в строке
+        return 5
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, insetForSectionAt section: Int) -> UIEdgeInsets {
-        return UIEdgeInsets(top: 24, left: 18, bottom: 24, right: 19) // Задайте нужные отступы
+        return UIEdgeInsets(top: 24, left: 18, bottom: 24, right: 19)
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize {
-        return CGSize(width: collectionView.frame.width, height: 18) // Высота заголовка
+        return CGSize(width: collectionView.frame.width, height: 18)
     }
     
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
@@ -516,7 +506,6 @@ extension TrackerEditViewController: UICollectionViewDataSource, UICollectionVie
             
         }
     }
-
 }
 
 extension TrackerEditViewController: ScheduleViewControllerDelegate {

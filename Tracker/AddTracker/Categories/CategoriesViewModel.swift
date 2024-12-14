@@ -49,7 +49,6 @@ final class CategoriesViewModel: CategoriesViewModelProtocol {
         return categories.count
     }
 
-    // Загрузка категорий через синглтон TrackerCategoryStore
     func loadCategories() {
         categories = trackerCategoryStore.fetchAllCategories()
 
@@ -58,21 +57,13 @@ final class CategoriesViewModel: CategoriesViewModelProtocol {
     func getCategoriesAsTrackerCategory() -> [TrackerCategory] {
     
         return categories.map { categoryCoreData in
-            // Получаем все трекеры для данной категории
             let trackersCoreData = trackerStore.fetchTrackers(forCategory: categoryCoreData)
-
-            // Преобразуем TrackerCoreData в Tracker с использованием convenience инициализатора
             let trackers = trackersCoreData.map { coreDataTracker in
                 return Tracker(from: coreDataTracker)
             }
-            
-            // Создаем новый объект TrackerCategory с использованием title и списка trackers
             return TrackerCategory(title: categoryCoreData.title ?? "", trackers: trackers)
         }
     }
-    
-    
-
     
     func getCategoryTitles() -> [String] {
         return categories.compactMap { $0.title }
@@ -80,41 +71,29 @@ final class CategoriesViewModel: CategoriesViewModelProtocol {
     
     func getPinnedTrackers() -> [Tracker] {
         return categories.flatMap { category in
-            // Получаем массив TrackerCoreData для категории
             let trackersCoreData = trackerStore.fetchTrackers(forCategory: category)
-            
-            // Фильтруем только закрепленные трекеры и преобразуем их в Tracker
             return trackersCoreData
-                .filter { $0.pinned } // Берем только закрепленные
-                .map { Tracker(from: $0) } // Преобразуем в Tracker
+                .filter { $0.pinned }
+                .map { Tracker(from: $0) }
         }
     }
     
-    
-
     func addCategory(title: String) {
-        // Проверка, существует ли категория с таким названием
         if let _ = trackerCategoryStore.fetchCategoryByTitle(title) {
             print("Категория с таким названием уже существует.")
-            // Можно отобразить alert о том, что категория уже существует
             return
         }
-        
-        // Добавляем категорию через TrackerCategoryStore
         trackerCategoryStore.addCategory(title: title)
-        loadCategories() // Перезагружаем список категорий
+        loadCategories()
     }
     
     func editCategory(title: String, newTitle: String) {
-        // Проверяем, существует ли категория с новым названием
         if let _ = trackerCategoryStore.fetchCategoryByTitle(newTitle) {
             print("Категория с таким новым названием уже существует.")
             return
         }
         
-        // Находим категорию по старому названию
         if let categoryToEdit = trackerCategoryStore.fetchCategoryByTitle(title) {
-            // Изменяем её название
             categoryToEdit.title = newTitle
             do {
                 try trackerCategoryStore.context.save() // Сохраняем изменения
@@ -130,17 +109,13 @@ final class CategoriesViewModel: CategoriesViewModelProtocol {
     
     func toggleSelection(for index: Int) {
         let categoryTitle = categories[index].title ?? ""
-        
-        // Если выбранная категория уже выбрана, сбрасываем выбор
         if selectedCategory == categoryTitle {
             selectedCategory = nil
         } else {
-            // Иначе выбираем новую категорию
             selectedCategory = categoryTitle
         }
     }
     
-
     func selectCategory(at index: Int) {
         selectedCategory = categories[index].title
     }
@@ -151,17 +126,15 @@ final class CategoriesViewModel: CategoriesViewModelProtocol {
     
     func isCategorySelected(at index: Int) -> Bool {
         let category = categories[index]
-        return category.title == selectedCategory // Сравниваем название категории с выбранной категорией
+        return category.title == selectedCategory
     }
     
     func assignCategoryToTracker(categoryTitle: String, trackerId: UUID) {
-        // Находим категорию по названию
         guard let selectedCategory = trackerCategoryStore.fetchCategoryByTitle(categoryTitle) else {
             print("Категория с названием \(categoryTitle) не найдена.")
             return
         }
-        
-        // Назначаем найденную категорию трекеру через TrackerStore
+
         trackerStore.assignCategoryToTracker(trackerId: trackerId, category: selectedCategory)
         print("Трекер с ID \(trackerId) был успешно назначен на категорию \(categoryTitle).")
         
@@ -175,9 +148,6 @@ final class CategoriesViewModel: CategoriesViewModelProtocol {
             }
             .store(in: &cancellables)
     }
-    
-
-    
 }
 
 

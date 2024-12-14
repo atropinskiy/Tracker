@@ -485,8 +485,6 @@ extension AddTrackerViewController: UITextFieldDelegate {
     }
     
     func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
-       
-        // Вызываем функцию при каждом изменении текста
         updateCreateButtonState()
         
         return true

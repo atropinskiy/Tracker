@@ -24,7 +24,6 @@ final class SwipeViewController: UIPageViewController, UIPageViewControllerDataS
 
     private let pageControl = UIPageControl()
 
-    // Инициализация с TransitionStyle.scroll
     init() {
         super.init(transitionStyle: .scroll, navigationOrientation: .horizontal, options: nil)
     }
@@ -65,8 +64,6 @@ final class SwipeViewController: UIPageViewController, UIPageViewControllerDataS
         return pages[currentIndex + 1]
     }
 
-    // MARK: - OnboardingSinglePageViewControllerDelegate
-
     func didPressButton() {
         let nextViewController = TabBarController()
         nextViewController.modalPresentationStyle = .fullScreen
@@ -83,22 +80,16 @@ final class SwipeViewController: UIPageViewController, UIPageViewControllerDataS
         pageControl.currentPageIndicatorTintColor = .black
         view.addSubview(pageControl)
 
-        // Размещение на экране
         NSLayoutConstraint.activate([
             pageControl.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -115),
             pageControl.centerXAnchor.constraint(equalTo: view.centerXAnchor)
         ])
     }
 
-    // MARK: - Обновление индикатора страницы
-
     func updatePageControl(for pageIndex: Int) {
         pageControl.currentPage = pageIndex
     }
 
-    // MARK: - UIPageViewControllerDelegate
-
-    // Метод будет вызываться при переходе на новую страницу
     func pageViewController(_ pageViewController: UIPageViewController, didFinishAnimating finished: Bool, previousViewControllers: [UIViewController], transitionCompleted: Bool) {
         guard let currentViewController = viewControllers?.first,
               let currentIndex = pages.firstIndex(of: currentViewController as! OnboardingSinglePageViewController) else {

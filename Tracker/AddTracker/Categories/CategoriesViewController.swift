@@ -7,8 +7,6 @@
 
 import UIKit
 
-
-
 protocol CategoriesViewControllerDelegate: AnyObject {
     func didSelectCategory(category: String)
     func didDeleteCategory()
