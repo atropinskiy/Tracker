@@ -18,7 +18,6 @@ final class OnboardingSinglePageViewController: UIViewController {
     
     private let pageModel: OnboardingPage
     
-    // Инициализация с использованием модели страницы
     init(pageModel: OnboardingPage) {
         self.pageModel = pageModel
         super.init(nibName: nil, bundle: nil)
@@ -41,7 +40,7 @@ final class OnboardingSinglePageViewController: UIViewController {
     private func setLabel(text: String) {
         let label = UILabel()
         label.text = text
-        label.textColor = UIColor(named: "YP-black")
+        label.textColor = .black
         label.textAlignment = .center
         label.font = UIFont.systemFont(ofSize: 32, weight: .bold)
         label.numberOfLines = 0
@@ -59,8 +58,8 @@ final class OnboardingSinglePageViewController: UIViewController {
         button.setTitle("Вот это технологии!", for: .normal)
         button.titleLabel?.font = UIFont.systemFont(ofSize: 16, weight: .medium)
         button.translatesAutoresizingMaskIntoConstraints = false
-        button.backgroundColor = UIColor(named: "YP-black")
-        button.setTitleColor(UIColor(named: "YP-white"), for: .normal)
+        button.backgroundColor = .black
+        button.setTitleColor(.white, for: .normal)
         button.layer.cornerRadius = 16
         view.addSubview(button)
         

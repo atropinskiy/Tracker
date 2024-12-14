@@ -12,7 +12,7 @@ protocol ScheduleViewControllerDelegate: AnyObject {
 
 final class ScheduleViewController: UIViewController {
     weak var delegate: ScheduleViewControllerDelegate?
-    private var selectedDays: [WeekDay] = []
+    var selectedDays: [WeekDay] = []
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -22,7 +22,7 @@ final class ScheduleViewController: UIViewController {
     
     private func createCanvas() {
         let header = UILabel()
-        header.text = "Расписание"
+        header.text = "Расписание".localized()
         header.font = .systemFont(ofSize: 16, weight: .medium)
         header.translatesAutoresizingMaskIntoConstraints = false
         header.textColor = UIColor(named: "YP-black")
@@ -41,9 +41,10 @@ final class ScheduleViewController: UIViewController {
         tableView.layer.masksToBounds = true
         tableView.register(ScheduleCell.self, forCellReuseIdentifier: "ScheduleCell")
         tableView.tableFooterView = UIView()
-        tableView.backgroundColor = UIColor(named: "YP-categories")
+        tableView.backgroundColor = UIColor(named: "YP-bg")
         tableView.delegate = self
         tableView.dataSource = self
+        tableView.separatorColor = UIColor(named: "YP-gray")
         tableView.allowsSelection = false
         
         view.addSubview(tableView)
@@ -56,7 +57,7 @@ final class ScheduleViewController: UIViewController {
         ])
         
         let confirmButton = UIButton(type: .custom)
-        confirmButton.setTitle("Готово", for: .normal)
+        confirmButton.setTitle("Готово".localized(), for: .normal)
         confirmButton.setTitleColor(UIColor(named: "YP-white"), for: .normal)
         confirmButton.titleLabel?.font = .systemFont(ofSize: 16, weight: .medium)
         confirmButton.backgroundColor = UIColor(named: "YP-black")
@@ -71,9 +72,6 @@ final class ScheduleViewController: UIViewController {
             confirmButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
             confirmButton.heightAnchor.constraint(equalToConstant: 60),
         ])
-        
-        
-        
     }
     
     @objc private func daySwitchToggled(_ sender: UISwitch) {
@@ -89,7 +87,6 @@ final class ScheduleViewController: UIViewController {
         delegate?.saveSchedule(schedule: selectedDays)
         dismiss(animated: true)
     }
-    
 }
 
 extension ScheduleViewController: UITableViewDelegate, UITableViewDataSource {
@@ -103,21 +100,14 @@ extension ScheduleViewController: UITableViewDelegate, UITableViewDataSource {
             return UITableViewCell()
         }
         let weekDay = WeekDay.allCases[indexPath.row]
-        cell.textLabel?.text = weekDay.rawValue
+        cell.textLabel?.text = weekDay.rawValue.localized()
         cell.textLabel?.textColor = UIColor(named: "YP-black")
         cell.backgroundColor = UIColor(named: "YP-bg")
-        
         cell.daySwitch.isOn = selectedDays.contains(weekDay)
         cell.daySwitch.tag = indexPath.row
         cell.daySwitch.addTarget(self, action: #selector(daySwitchToggled(_:)), for: .valueChanged)
-        
-        
-        if indexPath.row == WeekDay.allCases.count - 1 {
-            cell.separatorInset = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: .greatestFiniteMagnitude)
-        } else {
-            cell.separatorInset = .zero
-        }
-        
+        cell.separatorInset = UIEdgeInsets(top: 0, left: 16, bottom: 0, right: 16)
+
         return cell
     }
     

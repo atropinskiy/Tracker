@@ -8,9 +8,8 @@
 import UIKit
 protocol AddTrackerViewControllerDelegate: AnyObject {
     func didCreateTracker(tracker: Tracker)
-    func didSelectEmoji(_ emoji: String)
-    func didSelectColor(_ color: UIColor)
     func didDeleteTracker()
+    func didEditedCategory()
 }
 
 final class AddTrackerViewController: UIViewController {
@@ -32,10 +31,11 @@ final class AddTrackerViewController: UIViewController {
     private lazy var buttonsTable = UITableView()
     private var viewModel = CategoriesViewModel.shared
     lazy var createButton = UIButton(type: .custom)
+    private let trackerStore = TrackerStore()
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .white
+        view.backgroundColor = UIColor(named: "YP-white")
         
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
         tapGesture.cancelsTouchesInView = false // Не отменяем касания для других элементов
@@ -43,9 +43,9 @@ final class AddTrackerViewController: UIViewController {
         headerTextField.delegate = self
         
         if taskType == "Привычка" {
-            buttonTitles = ["Категория", "Расписание"]
+            buttonTitles = ["Категория".localized(), "Расписание".localized()]
         } else {
-            buttonTitles = ["Категория"]
+            buttonTitles = ["Категория".localized()]
         }
         updateCollectionViewHeight()
         createCanvas()
@@ -72,7 +72,7 @@ final class AddTrackerViewController: UIViewController {
     
     private func createCanvas() {
         let headLabel = UILabel()
-        headLabel.text = "Новая привычка"
+        headLabel.text = "Новая привычка".localized()
         headLabel.font = UIFont.systemFont(ofSize: 15, weight: .medium)
         headLabel.textAlignment = .center
         headLabel.translatesAutoresizingMaskIntoConstraints = false
@@ -110,9 +110,9 @@ final class AddTrackerViewController: UIViewController {
         
         headerTextField.layer.cornerRadius = 16
         headerTextField.font = UIFont.systemFont(ofSize: 17)
-        headerTextField.backgroundColor = UIColor(named: "YP-categories")
+        headerTextField.backgroundColor = UIColor(named: "YP-bg")
         headerTextField.attributedPlaceholder = NSAttributedString(
-            string: "Введите название трекера",
+            string: "Введите название трекера".localized(),
             attributes: [NSAttributedString.Key.foregroundColor: UIColor(named: "YP-gray") ?? UIColor.gray]
         )
         headerTextField.safeSetPadding(left: 16, right: 16)
@@ -129,9 +129,10 @@ final class AddTrackerViewController: UIViewController {
         buttonsTable.layer.cornerRadius = 16
         buttonsTable.layer.masksToBounds = true
         buttonsTable.register(ButtonsCell.self, forCellReuseIdentifier: "ButtonsCell")
-        buttonsTable.backgroundColor = UIColor(named: "YP-categories")
+        buttonsTable.backgroundColor = UIColor(named: "YP-bg")
         buttonsTable.delegate = self
         buttonsTable.dataSource = self
+        buttonsTable.separatorColor = UIColor(named: "YP-gray")
         contentView.addSubview(buttonsTable)
         NSLayoutConstraint.activate([
             buttonsTable.topAnchor.constraint(equalTo: headerTextField.bottomAnchor, constant: 24),
@@ -155,7 +156,7 @@ final class AddTrackerViewController: UIViewController {
         ])
         
         let cancelButton = UIButton(type: .custom)
-        cancelButton.setTitle("Отменить", for: .normal)
+        cancelButton.setTitle("Отменить".localized(), for: .normal)
         cancelButton.layer.cornerRadius = 18
         cancelButton.layer.masksToBounds = true
         cancelButton.layer.borderWidth = 1
@@ -166,7 +167,7 @@ final class AddTrackerViewController: UIViewController {
         cancelButton.titleLabel?.font = UIFont.systemFont(ofSize: 16, weight: .medium)
         cancelButton.addTarget(self, action: #selector(cancelButtonClicked), for: .touchUpInside)
         
-        createButton.setTitle("Создать", for: .normal)
+        createButton.setTitle("Создать".localized(), for: .normal)
         createButton.layer.borderWidth = 1
         createButton.layer.cornerRadius = 18
         createButton.layer.masksToBounds = true
@@ -184,6 +185,7 @@ final class AddTrackerViewController: UIViewController {
         buttonStackView.spacing = 8
         buttonStackView.translatesAutoresizingMaskIntoConstraints = false
         
+        
         contentView.addSubview(buttonStackView)
         
         NSLayoutConstraint.activate([
@@ -196,7 +198,7 @@ final class AddTrackerViewController: UIViewController {
     }
     
     private func showAlert(with message: String) {
-        let alert = UIAlertController(title: "Ошибка", message: message, preferredStyle: .alert)
+        let alert = UIAlertController(title: "Ошибка".localized(), message: message, preferredStyle: .alert)
         alert.addAction(UIAlertAction(title: "OK", style: .default))
         present(alert, animated: true)
     }
@@ -204,7 +206,6 @@ final class AddTrackerViewController: UIViewController {
     private func updateCreateButtonState() {
         let isAllFieldsFilled = !headerTextField.text!.isEmpty &&
         selectedCategory != "" &&
-        selectedSchedule != "" &&
         (taskType == "Привычка" ? !schedule.isEmpty : currentDate != nil) &&
         selectedEmoji != "" &&
         selectedColor != nil
@@ -237,8 +238,8 @@ final class AddTrackerViewController: UIViewController {
         let id = UUID()
         let new_schedule = taskType == "Привычка" ? schedule : nil
         let date: Date? = taskType == "Привычка" ? nil : currentDate
-        let tracker = Tracker(id: id, name: trackerName, color: color, emoji: emoji, schedule: new_schedule, date: date)
-        TrackerStore.shared.addTracker(id: id, name: trackerName, color: color, emoji: emoji, schedule: new_schedule, date: date)
+        let tracker = Tracker(id: id, name: trackerName, color: color, emoji: emoji, schedule: new_schedule, date: date, pinned: false)
+        trackerStore.addTracker(id: id, name: trackerName, color: color, emoji: emoji, schedule: new_schedule, date: date)
         viewModel.assignCategoryToTracker(categoryTitle: categoryTitle, trackerId: id)
         delegate?.didCreateTracker(tracker: tracker)
         // Закрываем экран после добавления
@@ -277,17 +278,17 @@ extension AddTrackerViewController: UITableViewDelegate, UITableViewDataSource {
             // Если в таблице только одна ячейка, убираем разделитель
             cell.separatorInset = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: .greatestFiniteMagnitude)
             let categoryText = selectedCategory ?? ""
-            cell.set(mainText: "Категория", additionalText: categoryText)
+            cell.set(mainText: "Категория".localized(), additionalText: categoryText)
             cell.layoutMargins = .zero
         } else {
             // Здесь ваш текущий код для настройки ячеек
             if indexPath.row == 0 {
                 cell.separatorInset = UIEdgeInsets(top: 0, left: 16, bottom: 0, right: 16)
                 let categoryText = selectedCategory ?? ""
-                cell.set(mainText: "Категория", additionalText: categoryText)
+                cell.set(mainText: "Категория".localized(), additionalText: categoryText)
             } else if indexPath.row == 1 {
                 let scheduleText = selectedSchedule ?? ""
-                cell.set(mainText: "Расписание", additionalText: scheduleText)
+                cell.set(mainText: "Расписание".localized(), additionalText: scheduleText)
                 
                 if indexPath.row == rowCount - 1 {
                     cell.separatorInset = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: .greatestFiniteMagnitude)
@@ -407,7 +408,7 @@ extension AddTrackerViewController: UICollectionViewDataSource, UICollectionView
             label.font = UIFont.systemFont(ofSize: 19, weight: .bold)
             label.textColor = UIColor(named: "YP-black")
             
-            label.text = indexPath.section == 0 ? "Emojii" : "Цвет"
+            label.text = indexPath.section == 0 ? "Emojii" : "Цвет".localized()
             
             header.addSubview(label)
             
@@ -464,6 +465,10 @@ extension AddTrackerViewController: CategoriesViewControllerDelegate {
     func didDeleteCategory() {
         delegate?.didDeleteTracker()
     }
+    
+    func didEditedCategory() {
+        delegate?.didEditedCategory()
+    }
 }
 
 extension AddTrackerViewController: UITextFieldDelegate {
@@ -477,5 +482,11 @@ extension AddTrackerViewController: UITextFieldDelegate {
             print(textField)
         }
         updateCreateButtonState()
+    }
+    
+    func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
+        updateCreateButtonState()
+        
+        return true
     }
 }

@@ -6,20 +6,23 @@
 //
 
 import CoreData
-import UIKit
+import Combine
 
-final class TrackerCategoryStore: NSObject, NSFetchedResultsControllerDelegate {
+final class TrackerCategoryStore: NSObject {
     
-    static let shared = TrackerCategoryStore()
-    private override init() {}
+    var categoriesUpdated = PassthroughSubject<[TrackerCategoryCoreData], Never>()
     
-    private var context: NSManagedObjectContext {
+    override init() {
+        super.init()
+        setupFetchedResultsController()
+    }
+    
+    var context: NSManagedObjectContext {
         return DatabaseManager.shared.context
     }
     
     private var fetchedResultsController: NSFetchedResultsController<TrackerCategoryCoreData>?
 
-    // MARK: - Настройка NSFetchedResultsController
     func setupFetchedResultsController() {
         let fetchRequest: NSFetchRequest<TrackerCategoryCoreData> = TrackerCategoryCoreData.fetchRequest()
         fetchRequest.sortDescriptors = [NSSortDescriptor(key: "title", ascending: true)] // Сортировка по названию категории
@@ -40,7 +43,6 @@ final class TrackerCategoryStore: NSObject, NSFetchedResultsControllerDelegate {
         }
     }
 
-    // MARK: - Добавление категории
     func addCategory(title: String) {
         let category = TrackerCategoryCoreData(context: context)
         category.title = title
@@ -53,7 +55,6 @@ final class TrackerCategoryStore: NSObject, NSFetchedResultsControllerDelegate {
         }
     }
 
-    // MARK: - Удаление категории
     func deleteCategory(at indexPath: IndexPath) {
         guard let category = fetchedResultsController?.object(at: indexPath) else {
             print("Категория не найдена для удаления")
@@ -69,20 +70,47 @@ final class TrackerCategoryStore: NSObject, NSFetchedResultsControllerDelegate {
         }
     }
 
-    // MARK: - Получение всех категорий через NSFetchedResultsController
     func fetchAllCategories() -> [TrackerCategoryCoreData] {
         setupFetchedResultsController()
         return fetchedResultsController?.fetchedObjects ?? []
     }
     
     func fetchCategoryByTitle(_ title: String) -> TrackerCategoryCoreData? {
-        // Получаем все категории через fetchedResultsController
         return fetchedResultsController?.fetchedObjects?.first { $0.title == title }
     }
+    
+    private func notifyCategoryUpdate() {
+        categoriesUpdated.send(fetchAllCategories())
+        print("Отправляем сообщения слушателям")
+    }
+    
+    func fetchCategoryTitleByTrackerId(_ trackerId: UUID) -> String? {
+        // Запросим все трекеры с данным id
+        let fetchRequest: NSFetchRequest<TrackerCoreData> = TrackerCoreData.fetchRequest()
+        fetchRequest.predicate = NSPredicate(format: "id == %@", trackerId as CVarArg) // Используем UUID напрямую
 
-    // MARK: - NSFetchedResultsControllerDelegate (опционально)
+        do {
+            let trackers = try context.fetch(fetchRequest)
+            guard let tracker = trackers.first else { return nil } // Если трекер не найден
+
+            // Получаем категорию, с которой связан этот трекер
+            if let category = tracker.category {
+                return category.title // Возвращаем название категории
+            }
+        } catch {
+            print("Ошибка при получении категории по id трекера: \(error.localizedDescription)")
+        }
+
+        return nil
+    }
+
+
+
+}
+
+extension TrackerCategoryStore: NSFetchedResultsControllerDelegate{
     func controllerDidChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
-        print("Данные в NSFetchedResultsController изменились")
-        // Здесь можно обновить UI, если требуется
+        
+        notifyCategoryUpdate()
     }
 }

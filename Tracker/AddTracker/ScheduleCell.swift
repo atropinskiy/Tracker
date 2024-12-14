@@ -16,6 +16,7 @@ final class ScheduleCell: UITableViewCell {
     let daySwitch: UISwitch = {
         let daySwitch = UISwitch()
         daySwitch.translatesAutoresizingMaskIntoConstraints = false
+        daySwitch.tintColor = UIColor(named: "YP-lightgray")
         daySwitch.onTintColor = UIColor(named: "YP-blue")
         return daySwitch
     }()

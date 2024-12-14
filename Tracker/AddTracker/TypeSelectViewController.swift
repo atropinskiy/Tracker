@@ -23,7 +23,7 @@ final class TypeSelectViewController: UIViewController {
     
     private func createCanvas() {
         let headLabel = UILabel()
-        headLabel.text = "Создание трекера"
+        headLabel.text = "Создание трекера".localized()
         headLabel.font = UIFont.systemFont(ofSize: 18, weight: .medium)
         headLabel.textAlignment = .center
         headLabel.translatesAutoresizingMaskIntoConstraints = false
@@ -36,9 +36,10 @@ final class TypeSelectViewController: UIViewController {
         ])
         
         let unregularButton = UIButton(type: .custom)
-        unregularButton.setTitle("Нерегулярное событие", for: .normal)
+        unregularButton.setTitle("Нерегулярное событие".localized(), for: .normal)
         unregularButton.layer.cornerRadius = 18
         unregularButton.titleLabel?.font = UIFont.systemFont(ofSize: 16, weight: .medium)
+        unregularButton.setTitleColor(UIColor(named: "YP-white"), for: .normal)
         unregularButton.backgroundColor = UIColor(named: "YP-black")
         unregularButton.translatesAutoresizingMaskIntoConstraints = false
         unregularButton.addTarget(self, action: #selector(buttonTapped(_:)), for: .touchUpInside)
@@ -53,9 +54,10 @@ final class TypeSelectViewController: UIViewController {
         ])
         
         let habbitButton = UIButton(type: .custom)
-        habbitButton.setTitle("Привычка", for: .normal)
+        habbitButton.setTitle("Привычка".localized(), for: .normal)
         habbitButton.layer.cornerRadius = 18
         habbitButton.titleLabel?.font = UIFont.systemFont(ofSize: 16, weight: .medium)
+        habbitButton.setTitleColor(UIColor(named: "YP-white"), for: .normal)
         habbitButton.backgroundColor = UIColor(named: "YP-black")
         habbitButton.translatesAutoresizingMaskIntoConstraints = false
         habbitButton.addTarget(self, action: #selector(buttonTapped(_:)), for: .touchUpInside)
@@ -75,9 +77,8 @@ final class TypeSelectViewController: UIViewController {
     @objc private func buttonTapped(_ sender: UIButton) {
         let type = sender.tag == 1 ? "Нерегулярное событие" : "Привычка"
         delegate?.didSelectType(type)
-        // Закрываем TypeSelectViewController и открываем AddTrackerViewController в блоке completion
         dismiss(animated: false) { [weak self] in
-            self?.delegate?.didSelectType(type) // Вызываем делегат в завершении
+            self?.delegate?.didSelectType(type)
         }
     }
 }
