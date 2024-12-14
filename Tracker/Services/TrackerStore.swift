@@ -114,6 +114,37 @@ final class TrackerStore: NSObject {
         }
     }
     
+    func fetchTrackerById(_ id: UUID) -> TrackerCoreData? {
+        let fetchRequest: NSFetchRequest<TrackerCoreData> = TrackerCoreData.fetchRequest()
+        fetchRequest.predicate = NSPredicate(format: "id == %@", id as CVarArg)
+
+        do {
+            let trackers = try context.fetch(fetchRequest)
+            return trackers.first // Возвращаем первый найденный трекер, если он есть
+        } catch {
+            print("Ошибка при поиске трекера с ID \(id): \(error.localizedDescription)")
+            return nil
+        }
+    }
+    
+    func fetchPinnedTrackers() -> [Tracker] {
+        let fetchRequest: NSFetchRequest<TrackerCoreData> = TrackerCoreData.fetchRequest()
+
+        // Фильтрация по pinned
+        fetchRequest.predicate = NSPredicate(format: "pinned == %@", NSNumber(value: true))
+
+        do {
+            // Получаем все трекеры, которые закреплены
+            let coreDataTrackers = try context.fetch(fetchRequest)
+            
+            // Преобразуем каждый TrackerCoreData в объект Tracker
+            return coreDataTrackers.map { Tracker(from: $0) }
+        } catch {
+            print("Ошибка при загрузке закрепленных трекеров: \(error.localizedDescription)")
+            return []
+        }
+    }
+    
     func fetchTrackerCoreData(by tracker: Tracker) -> TrackerCoreData? {
         let fetchRequest: NSFetchRequest<TrackerCoreData> = TrackerCoreData.fetchRequest()
         
@@ -160,42 +191,62 @@ final class TrackerStore: NSObject {
         }
     }
     
-    func pinTracker(tracker: Tracker) {
+    func pinTracker(withId id: UUID) {
         let fetchRequest: NSFetchRequest<TrackerCoreData> = TrackerCoreData.fetchRequest()
-        fetchRequest.predicate = NSPredicate(format: "id == %@", tracker.id.uuidString)
+        fetchRequest.predicate = NSPredicate(format: "id == %@", id as CVarArg)
         
         do {
             let trackers = try context.fetch(fetchRequest)
-            guard let trackerCoreData = trackers.first else {
-                print("Трекер с ID \(tracker.id) не найден.")
+            guard let tracker = trackers.first else {
+                print("Трекер с ID \(id) не найден.")
                 return
             }
-            trackerCoreData.pinned = true
-            try context.save()
-            print("Трекер с ID \(tracker.id) был закреплен.")
-            print(tracker.pinned)
             
+            tracker.pinned = true
+            try context.save()
+            print("Трекер успешно закреплён.")
         } catch {
             print("Ошибка при закреплении трекера: \(error.localizedDescription)")
         }
     }
     
-    func unpinTracker(tracker: Tracker) {
+    func unpinTracker(withId id: UUID) {
+        let fetchRequest: NSFetchRequest<TrackerCoreData> = TrackerCoreData.fetchRequest()
+        fetchRequest.predicate = NSPredicate(format: "id == %@", id as CVarArg)
+        
+        do {
+            let trackers = try context.fetch(fetchRequest)
+            guard let tracker = trackers.first else {
+                print("Трекер с ID \(id) не найден.")
+                return
+            }
+            
+            tracker.pinned = false
+            try context.save()
+            print("Трекер успешно откреплён.")
+        } catch {
+            print("Ошибка при откреплении трекера: \(error.localizedDescription)")
+        }
+    }
+    
+    func fetchCategoryForTracker(tracker: Tracker) -> TrackerCategoryCoreData? {
         let fetchRequest: NSFetchRequest<TrackerCoreData> = TrackerCoreData.fetchRequest()
         fetchRequest.predicate = NSPredicate(format: "id == %@", tracker.id.uuidString)
         
         do {
             let trackers = try context.fetch(fetchRequest)
+            
+            // Проверяем, что трекер найден
             guard let trackerCoreData = trackers.first else {
                 print("Трекер с ID \(tracker.id) не найден.")
-                return
+                return nil
             }
-            trackerCoreData.pinned = false
-            try context.save()
-            print("Трекер с ID \(tracker.id) был откреплен.")
             
+            // Возвращаем категорию, связанную с трекером
+            return trackerCoreData.category
         } catch {
-            print("Ошибка при закреплении трекера: \(error.localizedDescription)")
+            print("Ошибка при поиске категории для трекера: \(error.localizedDescription)")
+            return nil
         }
     }
 

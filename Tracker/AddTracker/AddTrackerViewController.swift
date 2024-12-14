@@ -132,6 +132,7 @@ final class AddTrackerViewController: UIViewController {
         buttonsTable.backgroundColor = UIColor(named: "YP-bg")
         buttonsTable.delegate = self
         buttonsTable.dataSource = self
+        buttonsTable.separatorColor = UIColor(named: "YP-gray")
         contentView.addSubview(buttonsTable)
         NSLayoutConstraint.activate([
             buttonsTable.topAnchor.constraint(equalTo: headerTextField.bottomAnchor, constant: 24),
@@ -183,6 +184,7 @@ final class AddTrackerViewController: UIViewController {
         buttonStackView.distribution = .fillEqually
         buttonStackView.spacing = 8
         buttonStackView.translatesAutoresizingMaskIntoConstraints = false
+        
         
         contentView.addSubview(buttonStackView)
         

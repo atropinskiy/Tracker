@@ -14,6 +14,7 @@ final class StatViewController: UIViewController {
         collectionView.register(StatCell.self, forCellWithReuseIdentifier: "StatCell")
         collectionView.delegate = self
         collectionView.dataSource = self
+        collectionView.backgroundColor = .clear
         return collectionView
     }()
     

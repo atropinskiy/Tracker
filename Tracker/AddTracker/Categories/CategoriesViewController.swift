@@ -16,8 +16,8 @@ protocol CategoriesViewControllerDelegate: AnyObject {
 }
 
 final class CategoriesViewController: UIViewController {
-    
     private let viewModel: CategoriesViewModelProtocol
+    var selectedCategory: String?
     weak var delegate: CategoriesViewControllerDelegate?
     private var isStubVisible: Bool = false
     
@@ -27,8 +27,8 @@ final class CategoriesViewController: UIViewController {
     }
     
     required init?(coder: NSCoder) {
-         fatalError("init(coder:) has not been implemented")
-     }
+        fatalError("init(coder:) has not been implemented")
+    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -190,7 +190,7 @@ final class CategoriesViewController: UIViewController {
             tableView.isHidden = false
         }
     }
-
+    
 }
 
 extension CategoriesViewController: UITableViewDataSource, UITableViewDelegate {
@@ -206,8 +206,11 @@ extension CategoriesViewController: UITableViewDataSource, UITableViewDelegate {
         cell.backgroundColor = UIColor(named: "YP-bg")
         cell.selectionStyle = .none
         cell.accessoryType = viewModel.isCategorySelected(at: indexPath.row) ? .checkmark : .none
-//        let longPressRecognizer = UILongPressGestureRecognizer(target: self, action: #selector(handleLongPress(_:)))
-//        cell.addGestureRecognizer(longPressRecognizer)
+        if category.title == selectedCategory {
+            cell.accessoryType = .checkmark // Выставляем галочку, если категория выбрана
+        } else {
+            cell.accessoryType = .none
+        }
         return cell
     }
     
@@ -217,19 +220,25 @@ extension CategoriesViewController: UITableViewDataSource, UITableViewDelegate {
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let category = viewModel.category(at: indexPath.row) // Получаем категорию из ViewModel
-        
+        self.selectedCategory = category.title
         // Проверяем, что title не nil, прежде чем передавать его делегату
         if let categoryTitle = category.title {
             delegate?.didSelectCategory(category: categoryTitle) // Передаем развернутое значение
         }
         
+        // Отметим категорию как выбранную
         viewModel.selectCategory(at: indexPath.row)
-        tableView.reloadData()
         
+        // Обновляем таблицу, чтобы отобразить изменения в состоянии выбора
+        tableView.reloadData()
+        self.updateAllRowSeparators(forTableView: tableView)
+        
+        // Закрываем экран с задержкой
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
             self.dismiss(animated: true, completion: nil)
         }
     }
+    
     
     func tableView(_ tableView: UITableView, contextMenuConfigurationForRowAt indexPath: IndexPath, point: CGPoint) -> UIContextMenuConfiguration? {
         // Получаем объект трекера на основе indexPath

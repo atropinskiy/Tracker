@@ -48,7 +48,7 @@ final class TrackerEditViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .white
+        view.backgroundColor = UIColor(named: "YP-white")
         
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
         tapGesture.cancelsTouchesInView = false // Не отменяем касания для других элементов
@@ -121,7 +121,7 @@ final class TrackerEditViewController: UIViewController {
         let textField = UITextField()
         textField.layer.cornerRadius = 16
         textField.font = UIFont.systemFont(ofSize: 17)
-        textField.backgroundColor = UIColor(named: "YP-categories")
+        textField.backgroundColor = UIColor(named: "YP-bg")
         textField.text = editedTracker.name
         textField.attributedPlaceholder = NSAttributedString(
             string: "Введите название трекера",
@@ -138,9 +138,10 @@ final class TrackerEditViewController: UIViewController {
         table.layer.cornerRadius = 16
         table.layer.masksToBounds = true
         table.register(ButtonsCell.self, forCellReuseIdentifier: "ButtonsCell")
-        table.backgroundColor = UIColor(named: "YP-categories")
+        table.backgroundColor = UIColor(named: "YP-bg")
         table.delegate = self
         table.dataSource = self
+        table.separatorColor = UIColor(named: "YP-gray")
         return table
     }()
     
@@ -384,11 +385,16 @@ extension TrackerEditViewController: UITableViewDelegate, UITableViewDataSource 
         
         if indexPath.row == 1 {
             let scheduleViewController = ScheduleViewController()
-            scheduleViewController.delegate = self
+            if let days = editedTracker.schedule {
+                scheduleViewController.selectedDays = days
+                scheduleViewController.delegate = self
+            }
+            
             present(scheduleViewController, animated: true, completion: nil)
         }
         else {
             let categoryViewController = CategoriesViewController(viewModel: viewModel)
+            categoryViewController.selectedCategory = selectedCategory
             categoryViewController.delegate = self
             present(categoryViewController, animated: true, completion: nil)
         }

@@ -31,6 +31,7 @@ final class CategoriesViewModel: CategoriesViewModelProtocol {
     func category(at index: Int) -> TrackerCategoryCoreData {
         return categories[index]
     }
+    var pinnedTrackers: [Tracker] = []
     
     static let shared = CategoriesViewModel()
     private init() {
@@ -55,6 +56,7 @@ final class CategoriesViewModel: CategoriesViewModelProtocol {
     }
     
     func getCategoriesAsTrackerCategory() -> [TrackerCategory] {
+    
         return categories.map { categoryCoreData in
             // Получаем все трекеры для данной категории
             let trackersCoreData = trackerStore.fetchTrackers(forCategory: categoryCoreData)
@@ -68,10 +70,24 @@ final class CategoriesViewModel: CategoriesViewModelProtocol {
             return TrackerCategory(title: categoryCoreData.title ?? "", trackers: trackers)
         }
     }
+    
+    
 
     
     func getCategoryTitles() -> [String] {
         return categories.compactMap { $0.title }
+    }
+    
+    func getPinnedTrackers() -> [Tracker] {
+        return categories.flatMap { category in
+            // Получаем массив TrackerCoreData для категории
+            let trackersCoreData = trackerStore.fetchTrackers(forCategory: category)
+            
+            // Фильтруем только закрепленные трекеры и преобразуем их в Tracker
+            return trackersCoreData
+                .filter { $0.pinned } // Берем только закрепленные
+                .map { Tracker(from: $0) } // Преобразуем в Tracker
+        }
     }
     
     
@@ -123,6 +139,7 @@ final class CategoriesViewModel: CategoriesViewModelProtocol {
             selectedCategory = categoryTitle
         }
     }
+    
 
     func selectCategory(at index: Int) {
         selectedCategory = categories[index].title
@@ -159,6 +176,7 @@ final class CategoriesViewModel: CategoriesViewModelProtocol {
             .store(in: &cancellables)
     }
     
+
     
 }
 

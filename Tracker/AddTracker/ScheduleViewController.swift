@@ -12,7 +12,7 @@ protocol ScheduleViewControllerDelegate: AnyObject {
 
 final class ScheduleViewController: UIViewController {
     weak var delegate: ScheduleViewControllerDelegate?
-    private var selectedDays: [WeekDay] = []
+    var selectedDays: [WeekDay] = []
     
     override func viewDidLoad() {
         super.viewDidLoad()

@@ -9,6 +9,7 @@ import UIKit
 import YandexMobileMetrica
 
 final class TrackersViewController: UIViewController {
+    private var pinnedTrackers: [Tracker] = []
     private var categories = [TrackerCategory]()
     private var filteredCategories = [(category: TrackerCategory, trackers: [Tracker])]()
     private var currentTrackers = [Tracker]()
@@ -246,7 +247,7 @@ final class TrackersViewController: UIViewController {
     }
 
     private func filterTrackers() {
-        let searchText = searchTextField.text?.lowercased(with: Locale.current) ?? "" // получаем текст из поля поиска и приводим к нижнему регистру
+        let searchText = searchTextField.text?.lowercased(with: Locale.current) ?? "" // Получаем текст из поля поиска и приводим к нижнему регистру
         let selectedDate = datePicker.date
         let calendar = Calendar.current
         let startOfDay = calendar.startOfDay(for: selectedDate)
@@ -256,12 +257,18 @@ final class TrackersViewController: UIViewController {
             return // Если индекс выходит за пределы, выходим из функции
         }
         let selectedWeekday = WeekDay.allCases[weekday]
+
+        // Очистка предыдущих данных
         filteredTrackers.removeAll()
         filteredCategories.removeAll()
-        
 
+        // Массив для закрепленных трекеров
+        var pinnedTrackers = [Tracker]()
+
+        // Проходим по всем категориям
         for category in categories {
             if let categoryTrackers = category.trackers {
+                // Фильтрация трекеров категории
                 let filteredCategoryTrackers = categoryTrackers.filter { tracker in
                     // Обнуляем время у даты трекера для корректного сравнения
                     let trackerDate = calendar.startOfDay(for: tracker.date ?? Date())
@@ -271,33 +278,44 @@ final class TrackersViewController: UIViewController {
                     let isNameMatch = !searchText.isEmpty ? tracker.name.lowercased().contains(searchText) : true
                     let isTrackerPinned = tracker.pinned
 
+                    // Применяем фильтры
                     switch currentSelectedFilter {
                     case 1:
-                        return isDateMatch && isNameMatch || isTrackerPinned
+                        return isDateMatch && isNameMatch && !isTrackerPinned
                     case 2:
-                        return (isDateMatch || isWeekdayMatch || isTrackerPinned) && isCompletedToday && isNameMatch
+                        return (isDateMatch || isWeekdayMatch) && isCompletedToday && isNameMatch && !isTrackerPinned
                     case 3:
-                        return (isDateMatch || isWeekdayMatch || isTrackerPinned) && !isCompletedToday && isNameMatch
+                        return (isDateMatch || isWeekdayMatch) && !isCompletedToday && isNameMatch && !isTrackerPinned
                     default:
-                        return (isDateMatch || isWeekdayMatch || isTrackerPinned) && isNameMatch
+                        return (isDateMatch || isWeekdayMatch) && isNameMatch && !isTrackerPinned
                     }
                 }
-                
+
+                // Добавляем отфильтрованные трекеры категории в filteredCategories
                 if !filteredCategoryTrackers.isEmpty {
-                    filteredCategories.append((category: category, trackers: filteredCategoryTrackers)) // Добавляем категорию с отфильтрованными трекерами
+                    filteredCategories.append((category: category, trackers: filteredCategoryTrackers))
                 }
+
+                // Добавляем закрепленные трекеры
+                let pinnedCategoryTrackers = categoryTrackers.filter { $0.pinned }
+                pinnedTrackers.append(contentsOf: pinnedCategoryTrackers)
             }
         }
 
-        // Убираем дубликаты из filteredTrackers по ID
-        filteredTrackers = Array(filteredTrackers.reduce(into: [UUID: Tracker]()) { $0[$1.id] = $1 }.values)
-
+        // Если есть закрепленные трекеры, добавляем категорию "Закрепленные"
+        if !pinnedTrackers.isEmpty {
+            let pinnedCategory = TrackerCategory(title: "Закрепленные", trackers: pinnedTrackers) // Создаем категорию для закрепленных трекеров
+            filteredCategories.insert((category: pinnedCategory, trackers: pinnedTrackers), at: 0) // Вставляем в начало списка
+        }
+        
         // Перезагружаем данные в collectionView
         collectionView.reloadData()
 
-        // Обновляем видимость заглушки
+        // Обновляем видимость заглушки (если есть)
         updateStubVisibility()
     }
+
+
 
     
     private func updateStubVisibility() {
@@ -422,7 +440,15 @@ extension TrackersViewController: UICollectionViewDataSource, UICollectionViewDe
             fatalError("Unable to dequeue header")
         }
         
-        headerView.titleLabel.text = categories[indexPath.section].title
+        // Если это секция закрепленных трекеров, устанавливаем заголовок "Закрепленные"
+        if indexPath.section == 0 && pinnedTrackers.count > 0 {
+            headerView.titleLabel.text = "Закрепленные"
+        } else {
+            // Иначе название категории
+            let category = filteredCategories[indexPath.section].category
+            headerView.titleLabel.text = category.title
+        }
+        
         return headerView
     }
     
@@ -470,9 +496,9 @@ extension TrackersViewController: UICollectionViewDataSource, UICollectionViewDe
             let pinActionTitle = tracker.pinned ? "Открепить".localized() : "Закрепить".localized()
             let pinAction = UIAction(title: pinActionTitle) { _ in
                 if tracker.pinned {
-                    self.trackerStore.unpinTracker(tracker: tracker)
+                    self.trackerStore.unpinTracker(withId: tracker.id)
                 } else {
-                    self.trackerStore.pinTracker(tracker: tracker)
+                    self.trackerStore.pinTracker(withId: tracker.id)
                 }
                 self.viewModel.loadCategories()
                 self.categories = self.viewModel.getCategoriesAsTrackerCategory()
